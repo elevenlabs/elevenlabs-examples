@@ -1,8 +1,14 @@
-const EventEmitter = require('events');
-const uuid = require('uuid');
+import EventEmitter from 'events';
+import { v4 as uuid } from 'uuid';
+import { WebSocket } from 'ws';
 
-class StreamService extends EventEmitter {
-  constructor(websocket) {
+export class Stream extends EventEmitter {
+  ws: WebSocket;
+  expectedAudioIndex: number;
+  audioBuffer: any;
+  streamSid: string;
+
+  constructor(websocket: WebSocket) {
     super();
     this.ws = websocket;
     this.expectedAudioIndex = 0;
@@ -10,19 +16,24 @@ class StreamService extends EventEmitter {
     this.streamSid = '';
   }
 
-  setStreamSid (streamSid) {
+  setStreamSid(streamSid: string) {
     this.streamSid = streamSid;
   }
 
-  buffer (index, audio) {
+  buffer(index: number, audio: string) {
     // Escape hatch for intro message, which doesn't have an index
-    if(index === null) {
+    if (index === null) {
       this.sendAudio(audio);
-    } else if(index === this.expectedAudioIndex) {
+    } else if (index === this.expectedAudioIndex) {
       this.sendAudio(audio);
       this.expectedAudioIndex++;
 
-      while(Object.prototype.hasOwnProperty.call(this.audioBuffer, this.expectedAudioIndex)) {
+      while (
+        Object.prototype.hasOwnProperty.call(
+          this.audioBuffer,
+          this.expectedAudioIndex,
+        )
+      ) {
         const bufferedAudio = this.audioBuffer[this.expectedAudioIndex];
         this.sendAudio(bufferedAudio);
         this.expectedAudioIndex++;
@@ -32,7 +43,7 @@ class StreamService extends EventEmitter {
     }
   }
 
-  sendAudio (audio) {
+  sendAudio(audio: string) {
     this.ws.send(
       JSON.stringify({
         streamSid: this.streamSid,
@@ -40,21 +51,21 @@ class StreamService extends EventEmitter {
         media: {
           payload: audio,
         },
-      })
+      }),
     );
+
     // When the media completes you will receive a `mark` message with the label
-    const markLabel = uuid.v4();
+    const markLabel = uuid();
+
     this.ws.send(
       JSON.stringify({
         streamSid: this.streamSid,
         event: 'mark',
         mark: {
-          name: markLabel
-        }
-      })
+          name: markLabel,
+        },
+      }),
     );
     this.emit('audiosent', markLabel);
   }
 }
-
-module.exports = {StreamService};
