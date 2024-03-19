@@ -3,7 +3,8 @@ import WebSocket from 'ws';
 export const websocket = (text: string, onMessage: (audio: Buffer) => void) => {
   const voiceId = 'Rn9Yq7uum9irZ6RwppDN';
   const model = 'eleven_multilingual_v1';
-  const wsUrl = `wss://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream-input?model_id=${model}&output_format=pcm_44100`;
+  const outputFormat = 'pcm_44100';
+  const wsUrl = `wss://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream-input?model_id=${model}&output_format=${outputFormat}`;
   const socket = new WebSocket(wsUrl);
 
   socket.onopen = (event) => {

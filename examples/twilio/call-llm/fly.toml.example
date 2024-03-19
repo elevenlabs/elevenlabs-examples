@@ -1,0 +1,27 @@
+# fly.toml app configuration file generated for cweems-genai-phone-call on 2024-03-01T14:37:33-08:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = ''
+
+# Recommend IAD for proximity to Twilio's Media Stream Servers.
+primary_region = 'iad'
+
+[build]
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+
+  # Recommend keeping a machine running to reduce spin-up time
+  # note this will increase hosting costs.
+  min_machines_running = 1
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
