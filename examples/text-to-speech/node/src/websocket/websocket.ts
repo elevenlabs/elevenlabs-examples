@@ -6,7 +6,7 @@ let audioChunks: Buffer[] = [];
 export const websocket = () => {
   const voiceId = 'Rn9Yq7uum9irZ6RwppDN';
   const model = 'eleven_monolingual_v1';
-  const wsUrl = `wss://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream-input?model_id=${model}`;
+  const wsUrl = `wss://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream-input?model_id=${model}&output_format=pcm_44100`;
   const socket = new WebSocket(wsUrl);
 
   // 2. Initialize the connection by sending the BOS message
