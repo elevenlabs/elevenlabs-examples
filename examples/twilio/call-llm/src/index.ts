@@ -7,35 +7,34 @@ import { Llm } from '~/llm';
 import { Stream } from '~/stream';
 import { Transcription } from '~/transcription';
 import { TextToSpeech } from '~/tts';
+import VoiceResponse from 'twilio/lib/twiml/VoiceResponse';
 
 const app = ExpressWs(express()).app;
 const PORT: number = parseInt(process.env.PORT || '5000');
 
 app.post('/incoming', (req: Request, res: Response) => {
-  res.status(200);
-  res.type('text/xml');
-  res.end(`
-    <Response>
-      <Connect>
-        <Stream url="wss://${process.env.SERVER_DOMAIN}/connection" />
-      </Connect>
-    </Response>
-  `);
+  const twiml = new VoiceResponse();
+
+  twiml.connect().stream({
+    url: `wss://${process.env.SERVER_DOMAIN}/connection`,
+  });
+
+  res.writeHead(200, { 'Content-Type': 'text/xml' });
+  res.end(twiml.toString());
 });
 
 app.ws('/connection', (ws: WebSocket) => {
   console.log('Twilio -> Connection opened'.underline.green);
 
   ws.on('error', console.error);
-  // Filled in from start message
-  let streamSid: string;
-  let callSid: string;
 
   const llm = new Llm();
   const stream = new Stream(ws);
   const transcription = new Transcription();
   const textToSpeech = new TextToSpeech();
 
+  let streamSid: string;
+  let callSid: string;
   let marks: string[] = [];
   let interactionCount: number = 0;
 
