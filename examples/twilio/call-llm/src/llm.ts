@@ -24,7 +24,7 @@ export class Llm extends EventEmitter {
   }
 
   // Add the callSid to the chat context in case
-  // ChatGPT decides to transfer the call.
+  // LLM decides to transfer the call.
   setCallSid(callSid: string) {
     this.userContext.push({ role: 'system', content: `callSid: ${callSid}` });
   }
@@ -45,7 +45,7 @@ export class Llm extends EventEmitter {
   ) {
     this.updateUserContext(name, role, text);
 
-    // Step 1: Send user transcription to Chat GPT
+    // Step 1: Send user transcription to LLM
     const stream = await this.openai.chat.completions.create({
       model: 'gpt-3.5-turbo-0125',
       messages: this.userContext,
@@ -67,17 +67,17 @@ export class Llm extends EventEmitter {
       partialResponse += content;
       // Emit last partial response and add complete response to userContext
       if (content.trim().slice(-1) === '•' || finishReason === 'stop') {
-        const gptReply = {
+        const llmReply = {
           partialResponseIndex: this.partialResponseIndex,
           partialResponse,
         };
 
-        this.emit('gptreply', gptReply, interactionCount);
+        this.emit('llmreply', llmReply, interactionCount);
         this.partialResponseIndex++;
         partialResponse = '';
       }
     }
     this.userContext.push({ role: 'assistant', content: completeResponse });
-    console.log(`GPT -> user context length: ${this.userContext.length}`.green);
+    console.log(`LLM -> user context length: ${this.userContext.length}`.green);
   }
 }

@@ -15,13 +15,13 @@ export class TextToSpeech extends EventEmitter {
   }
 
   async generate(
-    gptReply: {
+    llmReply: {
       partialResponseIndex?: number | null;
       partialResponse: string;
     },
     interactionCount: number,
   ) {
-    const { partialResponseIndex, partialResponse } = gptReply;
+    const { partialResponseIndex, partialResponse } = llmReply;
 
     if (!partialResponse) {
       return;

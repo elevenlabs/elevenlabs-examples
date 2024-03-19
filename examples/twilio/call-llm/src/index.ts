@@ -95,18 +95,18 @@ app.ws('/connection', (ws: WebSocket) => {
     if (!text) {
       return;
     }
-    console.log(`Interaction ${interactionCount} – STT -> GPT: ${text}`.yellow);
+    console.log(`Interaction ${interactionCount} – STT -> LLM: ${text}`.yellow);
     llm.completion(text, interactionCount);
     interactionCount += 1;
   });
 
   llm.on(
-    'gptreply',
-    async (gptReply: { partialResponse: string }, icount: number) => {
+    'llmreply',
+    async (llmReply: { partialResponse: string }, icount: number) => {
       console.log(
-        `Interaction ${icount}: GPT -> TTS: ${gptReply.partialResponse}`.green,
+        `Interaction ${icount}: LLM -> TTS: ${llmReply.partialResponse}`.green,
       );
-      textToSpeech.generate(gptReply, icount);
+      textToSpeech.generate(llmReply, icount);
     },
   );
 
