@@ -3,15 +3,13 @@ import { Buffer } from 'node:buffer';
 import fetch from 'node-fetch';
 
 export class TextToSpeech extends EventEmitter {
-  voiceId: string;
-  nextExpectedIndex: number;
-  speechBuffer: Record<number, string>;
+  voiceId = '21m00Tcm4TlvDq8ikWAM';
+  outputFormat = 'ulaw_8000';
+  nextExpectedIndex: number = 0;
+  speechBuffer: Record<number, string> = {};
 
   constructor() {
     super();
-    this.voiceId ||= '21m00Tcm4TlvDq8ikWAM';
-    this.nextExpectedIndex = 0;
-    this.speechBuffer = {};
   }
 
   async generate(
@@ -28,9 +26,8 @@ export class TextToSpeech extends EventEmitter {
     }
 
     try {
-      const outputFormat = 'ulaw_8000';
       const response = await fetch(
-        `https://api.elevenlabs.io/v1/text-to-speech/${this.voiceId}/stream?output_format=${outputFormat}&optimize_streaming_latency=3`,
+        `https://api.elevenlabs.io/v1/text-to-speech/${this.voiceId}/stream?output_format=${this.outputFormat}&optimize_streaming_latency=3`,
         {
           method: 'POST',
           headers: {
@@ -38,7 +35,6 @@ export class TextToSpeech extends EventEmitter {
             'Content-Type': 'application/json',
             accept: 'audio/wav',
           },
-          // TODO: Pull more config? https://docs.elevenlabs.io/api-reference/text-to-speech-stream
           body: JSON.stringify({
             model_id: 'eleven_turbo_v2',
             text: partialResponse,
@@ -46,6 +42,7 @@ export class TextToSpeech extends EventEmitter {
         },
       );
       const audioArrayBuffer = await response.arrayBuffer();
+
       this.emit(
         'speech',
         partialResponseIndex,

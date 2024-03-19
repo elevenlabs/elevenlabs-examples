@@ -3,11 +3,11 @@ import 'colors';
 import express, { Request, Response } from 'express';
 import ExpressWs from 'express-ws';
 import { WebSocket } from 'ws';
+import VoiceResponse from 'twilio/lib/twiml/VoiceResponse';
 import { Llm } from '~/llm';
 import { Stream } from '~/stream';
 import { Transcription } from '~/transcription';
-import { TextToSpeech } from '~/tts';
-import VoiceResponse from 'twilio/lib/twiml/VoiceResponse';
+import { TextToSpeech } from '~/text-to-speech';
 
 const app = ExpressWs(express()).app;
 const PORT: number = parseInt(process.env.PORT || '5000');

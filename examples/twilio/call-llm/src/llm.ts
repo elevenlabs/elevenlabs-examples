@@ -9,7 +9,7 @@ export class Llm extends EventEmitter {
   constructor() {
     super();
     this.openai = new OpenAI();
-    (this.userContext = [
+    this.userContext = [
       {
         role: 'system',
         content:
@@ -19,8 +19,8 @@ export class Llm extends EventEmitter {
         role: 'assistant',
         content: 'Hi, my name is Eleven. How can I help you?',
       },
-    ]),
-      (this.partialResponseIndex = 0);
+    ];
+    this.partialResponseIndex = 0;
   }
 
   // Add the callSid to the chat context in case
