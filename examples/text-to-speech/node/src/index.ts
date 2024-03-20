@@ -1,9 +1,9 @@
 import 'dotenv/config';
-// import { createAudioFileFromText } from './text-to-text';
-import { websocket } from './websocket';
+import { createAudioFileFromText } from './text-to-speech';
 
 (async () => {
-  // await createAudioFileFromText('This is a test.', 'output.mp3');
+  await createAudioFileFromText(
+    'Today, the sky is exceptionally clear, and the sun shines brightly.',
+    'output.mp3',
+  );
 })();
-
-websocket();

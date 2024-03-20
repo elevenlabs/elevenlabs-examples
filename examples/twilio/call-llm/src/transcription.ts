@@ -9,6 +9,7 @@ export class Transcription extends EventEmitter {
 
   constructor() {
     super();
+
     const deepgram = new Deepgram(process.env.DEEPGRAM_API_KEY!);
     this.deepgramLive = deepgram.transcription.live({
       encoding: 'mulaw',
@@ -94,10 +95,11 @@ export class Transcription extends EventEmitter {
    * Send the payload to Deepgram
    * @param {String} payload A base64 MULAW/8000 audio stream
    */
-  send(payload: any) {
-    // TODO: Buffer up the media and then send
+  send(payload: string) {
     if (this.deepgramLive.getReadyState() === 1) {
-      this.deepgramLive.send(Buffer.from(payload, 'base64'));
+      const audioBuffer = Buffer.from(payload, 'base64');
+
+      this.deepgramLive.send(audioBuffer);
     }
   }
 }
