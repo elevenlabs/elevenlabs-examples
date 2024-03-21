@@ -17,9 +17,15 @@ dependencies:
   elevenlabs:
     specifier: ^0.2.0
     version: 0.2.0
+  elevenlabs-alpha:
+    specifier: ^0.0.7
+    version: 0.0.7
   express:
     specifier: ^4.18.2
     version: 4.18.3
+  express-ws:
+    specifier: ^5.0.2
+    version: 5.0.2(express@4.18.3)
   helmet:
     specifier: ^7.0.0
     version: 7.1.0
@@ -37,6 +43,9 @@ devDependencies:
   '@types/express':
     specifier: ^4.17.21
     version: 4.17.21
+  '@types/express-ws':
+    specifier: ^3.0.4
+    version: 3.0.4
   '@types/node':
     specifier: ^20.11.17
     version: 20.11.24
@@ -562,6 +571,14 @@ packages:
       '@types/send': 0.17.4
     dev: true
 
+  /@types/express-ws@3.0.4:
+    resolution: {integrity: sha512-Yjj18CaivG5KndgcvzttWe8mPFinPCHJC2wvyQqVzA7hqeufM8EtWMj6mpp5omg3s8XALUexhOu8aXAyi/DyJQ==}
+    dependencies:
+      '@types/express': 4.17.21
+      '@types/express-serve-static-core': 4.17.43
+      '@types/ws': 8.5.10
+    dev: true
+
   /@types/express@4.17.21:
     resolution: {integrity: sha512-ejlPM315qwLpaQlQDTjPdsUFSc6ZsP4AN6AlWnogPjQ7CVi7PYF3YVz+CY3jE2pwYf7E/7HlDAN0rV2GxTG0HQ==}
     dependencies:
@@ -998,6 +1015,17 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
+  /elevenlabs-alpha@0.0.7:
+    resolution: {integrity: sha512-fm3nxvcBEQecni3cugkJZMuQp4/iRu9BvfcxjDsKzy2uGF9zrLQiaO71XQR5c7ioCBh6+5AxHpnBtayIl8UQVg==}
+    dependencies:
+      elevenlabs: 0.2.0
+      ws: 8.16.0
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - utf-8-validate
+    dev: false
+
   /elevenlabs@0.2.0:
     resolution: {integrity: sha512-VFsmeKvEqDIeFN6NAjV45c0xzGG9AAZI2XtdOxq/FrLIWLx164D4cXGX6cOQA4I2gF345Wo2GHuaZxC44nbUAw==}
     dependencies:
@@ -1217,6 +1245,19 @@ packages:
       onetime: 5.1.2
       signal-exit: 3.0.7
       strip-final-newline: 2.0.0
+
+  /express-ws@5.0.2(express@4.18.3):
+    resolution: {integrity: sha512-0uvmuk61O9HXgLhGl3QhNSEtRsQevtmbL94/eILaliEADZBHZOQUAiHFrGPrgsjikohyrmSG5g+sCfASTt0lkQ==}
+    engines: {node: '>=4.5.0'}
+    peerDependencies:
+      express: ^4.0.0 || ^5.0.0-alpha.1
+    dependencies:
+      express: 4.18.3
+      ws: 7.5.9
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    dev: false
 
   /express@4.18.3:
     resolution: {integrity: sha512-6VyCijWQ+9O7WuVMTRBTl+cjNNIzD5cY5mQ1WM8r/LEkI2u8EYpOotESNwzNlyCn3g+dmjKYI6BmNneSr/FSRw==}
@@ -2702,6 +2743,19 @@ packages:
       string-width: 5.1.2
       strip-ansi: 7.1.0
     dev: true
+
+  /ws@7.5.9:
+    resolution: {integrity: sha512-F+P9Jil7UiSKSkppIiD94dN07AwvFixvLIj1Og1Rl9GGMuNipJnV9JzjD6XuqmAeiswGvUmNLjr5cFuXwNS77Q==}
+    engines: {node: '>=8.3.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: ^5.0.2
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+    dev: false
 
   /ws@8.11.0:
     resolution: {integrity: sha512-HPG3wQd9sNQoT9xHyNCXoDUa+Xw/VevmY9FoHyQ+g+rrMn4j6FB4np7Z0OhdTgjx6MgQLK7jwSy1YecU1+4Asg==}

@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@elevenlabs-alpha/react':
+    specifier: ^0.0.7
+    version: 0.0.7
   '@radix-ui/react-slot':
     specifier: ^1.0.2
     version: 1.0.2(@types/react@18.2.57)(react@18.2.0)
@@ -79,6 +82,10 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.14.1
+    dev: false
+
+  /@elevenlabs-alpha/react@0.0.7:
+    resolution: {integrity: sha512-T7ajRc/q+VNlj/MYKS2HdKoLFCY4eyvLPy43I/NXATctZhmxDW97vNoYZ8/wzjo3b1aI839l9bD5SvR0/jMjVg==}
     dev: false
 
   /@isaacs/cliui@8.0.2:

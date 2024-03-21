@@ -12,8 +12,8 @@ dependencies:
     specifier: ^1.4.0
     version: 1.4.0
   elevenlabs-alpha:
-    specifier: ^0.0.4
-    version: 0.0.4
+    specifier: ^0.0.5
+    version: 0.0.5
   express:
     specifier: ^4.18.3
     version: 4.18.3
@@ -1007,8 +1007,8 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
-  /elevenlabs-alpha@0.0.4:
-    resolution: {integrity: sha512-wTXk558e8UStI7i5tm9g2DLz9vpP+3vEm3C7RE2hRpXTfcTvMe9qn1J0q5vxQO8OyPSQXaITfFWVF+5KCTHARA==}
+  /elevenlabs-alpha@0.0.5:
+    resolution: {integrity: sha512-ZCCx1b+iaQ37/TSPScCalYDc9d/yFT/1AIrlBrNqLI8pm5cDGNKy8JyXErOJs93gUjAvsm/xuZaTs7lhWT4PDg==}
     dependencies:
       ws: 8.16.0
     transitivePeerDependencies:
