@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 
 export class Llm extends EventEmitter {
   private openai: OpenAI;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private userContext: any[];
   private partialResponseIndex: number;
 
@@ -57,7 +58,7 @@ export class Llm extends EventEmitter {
     let finishReason = '';
 
     for await (const chunk of stream) {
-      let content = chunk.choices[0]?.delta?.content || '';
+      const content = chunk.choices[0]?.delta?.content || '';
 
       finishReason = chunk.choices[0]?.finish_reason ?? '';
 

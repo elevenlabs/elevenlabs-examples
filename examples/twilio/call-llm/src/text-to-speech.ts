@@ -1,11 +1,11 @@
 import EventEmitter from 'events';
 import { Buffer } from 'node:buffer';
-import fetch from 'node-fetch';
+import axios from 'axios';
 
 export class TextToSpeech extends EventEmitter {
   voiceId = '21m00Tcm4TlvDq8ikWAM';
   outputFormat = 'ulaw_8000';
-  nextExpectedIndex: number = 0;
+  nextExpectedIndex = 0;
   speechBuffer: Record<number, string> = {};
 
   constructor() {
@@ -26,22 +26,22 @@ export class TextToSpeech extends EventEmitter {
     }
 
     try {
-      const response = await fetch(
+      const response = await axios.post(
         `https://api.elevenlabs.io/v1/text-to-speech/${this.voiceId}/stream?output_format=${this.outputFormat}&optimize_streaming_latency=3`,
         {
-          method: 'POST',
+          model_id: 'eleven_turbo_v2',
+          text: partialResponse,
+        },
+        {
+          responseType: 'arraybuffer', // To handle binary data, such as audio
           headers: {
-            'xi-api-key': process.env.ELEVENLABS_API_KEY!,
-            'Content-Type': 'application/json',
+            'xi-api-key': process.env['ELEVENLABS_API_KEY'],
             accept: 'audio/wav',
           },
-          body: JSON.stringify({
-            model_id: 'eleven_turbo_v2',
-            text: partialResponse,
-          }),
         },
       );
-      const audioArrayBuffer = await response.arrayBuffer();
+
+      const audioArrayBuffer = response.data;
 
       this.emit(
         'speech',

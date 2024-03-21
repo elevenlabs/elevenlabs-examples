@@ -5,6 +5,7 @@ import { WebSocket } from 'ws';
 export class Stream extends EventEmitter {
   ws: WebSocket;
   expectedAudioIndex: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   audioBuffer: any;
   streamSid: string;
 

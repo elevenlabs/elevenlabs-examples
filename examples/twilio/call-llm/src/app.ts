@@ -2,9 +2,10 @@ import express, { Request, Response } from 'express';
 import ExpressWs from 'express-ws';
 import { WebSocket } from 'ws';
 import VoiceResponse from 'twilio/lib/twiml/VoiceResponse';
-import { Llm } from '~/llm';
-import { Stream } from '~/stream';
-import { TextToSpeech } from '~/text-to-speech';
+import { Llm } from './llm';
+import { Stream } from './stream';
+import { TextToSpeech } from './text-to-speech';
+import { SpeechToText } from 'elevenlabs-alpha';
 
 const app = ExpressWs(express()).app;
 const PORT: number = parseInt(process.env.PORT || '5000');
@@ -26,54 +27,28 @@ export const startApp = () => {
 
     ws.on('error', console.error);
 
-    const sttWs = new WebSocket(
-      `${process.env.ELEVENLABS_ALPHA_BASE_URL!.replace(
-        'http',
-        'ws',
-      )}/speech-to-text/connect`,
-      {
-        headers: {
-          'xi-api-key': process.env.ELEVENLABS_API_KEY,
-          'xi-encoding': 'mulaw',
-          'xi-sample-rate': '8000',
-        },
-      },
-    );
+    const llm = new Llm();
+    const stream = new Stream(ws);
+    const speechToText = new SpeechToText();
+    const textToSpeech = new TextToSpeech();
 
-    let sttWsIsOpen = false;
+    let streamSid: string;
+    let callSid: string;
+    let marks: string[] = [];
+    let interactionCount = 0;
 
-    sttWs.on('open', () => {
-      console.log('------------------');
-      console.log('OPEN STT');
-      console.log('------------------');
-      sttWsIsOpen = true;
-    });
-
-    sttWs.on('close', (code, reason) => {
-      console.log(
-        `STT -> Connection closed: ${code} - ${reason}`.underline.red,
-      );
-    });
-
-    sttWs.on('error', console.error);
-
-    sttWs.on('message', (data) => {
-      const message: { event: string; data: string } = JSON.parse(
-        data.toString(),
-      );
-
-      if (message.event === 'transcription') {
+    speechToText.connect({
+      onTranscription: (data: string) => {
         console.log(
-          `Interaction ${interactionCount} – STT -> LLM: ${message.data}`
-            .yellow,
+          `Transcription ${interactionCount} – STT -> LLM: ${data}`.yellow,
         );
-        llm.completion(message.data, interactionCount);
+        llm.completion(data, interactionCount);
         interactionCount += 1;
-      }
+      },
+      onUtterance: (data: string) => {
+        if (marks.length > 0 && data?.length > 5) {
+          console.log('Interruption, Clearing stream'.red);
 
-      if (message.event === 'utterance') {
-        if (marks.length > 0 && message.data?.length > 5) {
-          console.log('Twilio -> Interruption, Clearing stream'.red);
           ws.send(
             JSON.stringify({
               streamSid,
@@ -81,17 +56,8 @@ export const startApp = () => {
             }),
           );
         }
-      }
+      },
     });
-
-    const llm = new Llm();
-    const stream = new Stream(ws);
-    const textToSpeech = new TextToSpeech();
-
-    let streamSid: string;
-    let callSid: string;
-    let marks: string[] = [];
-    let interactionCount: number = 0;
 
     // Incoming from MediaStream
     ws.on('message', (data: string) => {
@@ -119,10 +85,11 @@ export const startApp = () => {
           1,
         );
       } else if (message.event === 'media' && message.media) {
-        if (sttWsIsOpen) {
-          sttWs.send(
-            JSON.stringify({ event: 'audio', data: message.media.payload }),
-          );
+        if (speechToText.isOpen) {
+          speechToText.send({
+            event: 'audio',
+            data: message.media.payload,
+          });
         }
       } else if (message.event === 'mark' && message.mark) {
         const label: string = message.mark.name;
