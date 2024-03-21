@@ -35,15 +35,11 @@ export const startApp = () => {
     let streamSid: string;
     let callSid: string;
     let marks: string[] = [];
-    let interactionCount = 0;
 
     speechToText.connect({
       onTranscription: (data: string) => {
-        console.log(
-          `Transcription ${interactionCount} – STT -> LLM: ${data}`.yellow,
-        );
-        llm.completion(data, interactionCount);
-        interactionCount += 1;
+        console.log(`Transcription – STT -> LLM: ${data}`.yellow);
+        llm.completion(data);
       },
       onUtterance: (data: string) => {
         if (marks.length > 0 && data?.length > 5) {
@@ -77,13 +73,10 @@ export const startApp = () => {
         console.log(
           `Twilio -> Starting Media Stream for ${streamSid}`.underline.red,
         );
-        textToSpeech.generate(
-          {
-            partialResponseIndex: null,
-            partialResponse: 'Hi, my name is Eleven. How can I help you?',
-          },
-          1,
-        );
+        textToSpeech.generate({
+          partialResponseIndex: null,
+          partialResponse: 'Hi, my name is Eleven. How can I help you?',
+        });
       } else if (message.event === 'media' && message.media) {
         if (speechToText.isOpen) {
           speechToText.send({
@@ -105,21 +98,15 @@ export const startApp = () => {
       }
     });
 
-    llm.on(
-      'llmreply',
-      async (llmReply: { partialResponse: string }, icount: number) => {
-        console.log(
-          `Interaction ${icount}: LLM -> TTS: ${llmReply.partialResponse}`
-            .green,
-        );
-        textToSpeech.generate(llmReply, icount);
-      },
-    );
+    llm.on('llmreply', async (llmReply: { partialResponse: string }) => {
+      console.log(`LLM -> TTS: ${llmReply.partialResponse}`.green);
+      textToSpeech.generate(llmReply);
+    });
 
     textToSpeech.on(
       'speech',
-      (responseIndex: number, audio: string, label: string, icount: number) => {
-        console.log(`Interaction ${icount}: TTS -> TWILIO: ${label}`.blue);
+      (responseIndex: number, audio: string, label: string) => {
+        console.log(`TTS -> TWILIO: ${label}`.blue);
 
         stream.buffer(responseIndex, audio);
       },

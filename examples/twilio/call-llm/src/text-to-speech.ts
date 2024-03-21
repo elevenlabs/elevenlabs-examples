@@ -12,13 +12,10 @@ export class TextToSpeech extends EventEmitter {
     super();
   }
 
-  async generate(
-    llmReply: {
-      partialResponseIndex?: number | null;
-      partialResponse: string;
-    },
-    interactionCount: number,
-  ) {
+  async generate(llmReply: {
+    partialResponseIndex?: number | null;
+    partialResponse: string;
+  }) {
     const { partialResponseIndex, partialResponse } = llmReply;
 
     if (!partialResponse) {
@@ -48,7 +45,6 @@ export class TextToSpeech extends EventEmitter {
         partialResponseIndex,
         Buffer.from(audioArrayBuffer).toString('base64'),
         partialResponse,
-        interactionCount,
       );
     } catch (err) {
       console.error('Error occurred in TextToSpeech service');

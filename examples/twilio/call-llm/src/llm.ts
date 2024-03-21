@@ -38,12 +38,7 @@ export class Llm extends EventEmitter {
     }
   }
 
-  async completion(
-    text: string,
-    interactionCount: number,
-    role = 'user',
-    name = 'user',
-  ) {
+  async completion(text: string, role = 'user', name = 'user') {
     this.updateUserContext(name, role, text);
 
     // Step 1: Send user transcription to LLM
@@ -73,7 +68,7 @@ export class Llm extends EventEmitter {
           partialResponse,
         };
 
-        this.emit('llmreply', llmReply, interactionCount);
+        this.emit('llmreply', llmReply);
         this.partialResponseIndex++;
         partialResponse = '';
       }
