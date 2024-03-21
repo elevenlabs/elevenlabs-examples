@@ -29,7 +29,7 @@ export default function Page() {
         />
 
         <Button type="submit" className="w-full">
-          Start
+          Send
         </Button>
       </form>
     </main>

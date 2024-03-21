@@ -12,12 +12,10 @@
     "axios": "^1.6.7",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "elevenlabs": "^0.2.0",
     "elevenlabs-alpha": "^0.0.7",
     "express": "^4.18.2",
     "express-ws": "^5.0.2",
     "helmet": "^7.0.0",
-    "socket.io": "^4.7.5",
     "ws": "^8.16.0"
   },
   "devDependencies": {
