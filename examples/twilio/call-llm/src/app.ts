@@ -13,7 +13,7 @@ const PORT: number = parseInt(process.env.PORT || '5000');
 const elevenlabs = new ElevenLabsAlpha();
 
 export const startApp = () => {
-  app.post('/call/incoming', (req: Request, res: Response) => {
+  app.post('/call/incoming', (_, res: Response) => {
     const twiml = new VoiceResponse();
 
     twiml.connect().stream({
@@ -24,7 +24,7 @@ export const startApp = () => {
     res.end(twiml.toString());
   });
 
-  app.ws('/call/connection', (ws: WebSocket, req: Request) => {
+  app.ws('/call/connection', (ws: WebSocket) => {
     console.log('Twilio -> Connection opened'.underline.green);
 
     ws.on('error', console.error);
