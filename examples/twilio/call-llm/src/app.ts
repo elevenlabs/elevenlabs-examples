@@ -5,38 +5,40 @@ import VoiceResponse from 'twilio/lib/twiml/VoiceResponse';
 import { Llm } from './llm';
 import { Stream } from './stream';
 import { TextToSpeech } from './text-to-speech';
-import { SpeechToText } from 'elevenlabs-alpha';
+import { ElevenLabsAlpha } from 'elevenlabs-alpha';
 
 const app = ExpressWs(express()).app;
 const PORT: number = parseInt(process.env.PORT || '5000');
 
+const elevenlabs = new ElevenLabsAlpha();
+
 export const startApp = () => {
-  app.post('/incoming', (req: Request, res: Response) => {
+  app.post('/call/incoming', (req: Request, res: Response) => {
+    const auth = req.query.auth;
     const twiml = new VoiceResponse();
 
     twiml.connect().stream({
-      url: `wss://${process.env.SERVER_DOMAIN}/connection`,
+      url: `wss://${process.env.SERVER_DOMAIN}/call/connection/${auth}`,
     });
 
     res.writeHead(200, { 'Content-Type': 'text/xml' });
     res.end(twiml.toString());
   });
 
-  app.ws('/connection', (ws: WebSocket) => {
+  app.ws('/call/connection/:auth', (ws: WebSocket, req: Request) => {
     console.log('Twilio -> Connection opened'.underline.green);
 
     ws.on('error', console.error);
 
     const llm = new Llm();
     const stream = new Stream(ws);
-    const speechToText = new SpeechToText();
     const textToSpeech = new TextToSpeech();
 
     let streamSid: string;
     let callSid: string;
     let marks: string[] = [];
 
-    speechToText.connect({
+    elevenlabs.speechToText.connect({
       onTranscription: (data: string) => {
         console.log(`Transcription – STT -> LLM: ${data}`.yellow);
         llm.completion(data);
@@ -78,8 +80,8 @@ export const startApp = () => {
           partialResponse: 'Hi, my name is Eleven. How can I help you?',
         });
       } else if (message.event === 'media' && message.media) {
-        if (speechToText.isOpen) {
-          speechToText.send({
+        if (elevenlabs.speechToText.isOpen) {
+          elevenlabs.speechToText.send({
             event: 'audio',
             data: message.media.payload,
           });
