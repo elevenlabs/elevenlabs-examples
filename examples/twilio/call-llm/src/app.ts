@@ -14,18 +14,17 @@ const elevenlabs = new ElevenLabsAlpha();
 
 export const startApp = () => {
   app.post('/call/incoming', (req: Request, res: Response) => {
-    const auth = req.query.auth;
     const twiml = new VoiceResponse();
 
     twiml.connect().stream({
-      url: `wss://${process.env.SERVER_DOMAIN}/call/connection/${auth}`,
+      url: `wss://${process.env.SERVER_DOMAIN}/call/connection`,
     });
 
     res.writeHead(200, { 'Content-Type': 'text/xml' });
     res.end(twiml.toString());
   });
 
-  app.ws('/call/connection/:auth', (ws: WebSocket, req: Request) => {
+  app.ws('/call/connection', (ws: WebSocket, req: Request) => {
     console.log('Twilio -> Connection opened'.underline.green);
 
     ws.on('error', console.error);
