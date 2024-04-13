@@ -31,7 +31,7 @@ class PronunciationFinder:
             print("Word not found in dictionary.")
 
 if __name__ == "__main__":
-    api_key = "42394d485de1fbf057bd1ccc6f0a9f6f"
+    api_key = input('Input your API key from elevenlabs')
     finder = PronunciationFinder(api_key)
     word_to_search = input("Enter the word you want to search: ")
     finder.search_word(word_to_search)
