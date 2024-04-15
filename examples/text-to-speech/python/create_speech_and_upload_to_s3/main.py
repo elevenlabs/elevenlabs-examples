@@ -1,9 +1,12 @@
-from text_to_speech import text_to_speech_stream
+from dotenv import load_dotenv
+load_dotenv()
+
+from text_to_speech_stream import text_to_speech_stream
 from s3_uploader import upload_audiostream_to_s3
 
 def main():
-    text = "<enter the text to convert into speech>"
-    bucket_name = "<enter the bucket name>"
+    text = "This is James"
+    bucket_name = "<enter your bucket name: ex. elevenlabs-examples>"
 
     audio_stream = text_to_speech_stream(text)
     signed_url = upload_audiostream_to_s3(audio_stream, bucket_name)
