@@ -1,5 +1,5 @@
 {
-  "name": "elevenlabs-twilio-call-llm",
+  "name": "elevenlabs-twilio-call",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
