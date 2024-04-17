@@ -1,8 +1,7 @@
-import EventEmitter from 'events';
 import { v4 as uuid } from 'uuid';
 import { WebSocket } from 'ws';
 
-export class Stream extends EventEmitter {
+export class Stream {
   ws: WebSocket;
   expectedAudioIndex: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -10,7 +9,6 @@ export class Stream extends EventEmitter {
   streamSid: string;
 
   constructor(websocket: WebSocket) {
-    super();
     this.ws = websocket;
     this.expectedAudioIndex = 0;
     this.audioBuffer = {};
@@ -67,6 +65,5 @@ export class Stream extends EventEmitter {
         },
       }),
     );
-    this.emit('audiosent', markLabel);
   }
 }

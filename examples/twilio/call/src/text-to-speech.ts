@@ -12,11 +12,11 @@ export class TextToSpeech extends EventEmitter {
     super();
   }
 
-  async generate(llmReply: {
+  async generate(response: {
     partialResponseIndex?: number | null;
     partialResponse: string;
   }) {
-    const { partialResponseIndex, partialResponse } = llmReply;
+    const { partialResponseIndex, partialResponse } = response;
 
     if (!partialResponse) {
       return;
