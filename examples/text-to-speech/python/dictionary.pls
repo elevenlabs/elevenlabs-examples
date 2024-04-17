@@ -6,11 +6,7 @@
         http://www.w3.org/TR/2007/CR-pronunciation-lexicon-20071212/pls.xsd"
       alphabet="ipa" xml:lang="en-US">
   <lexeme>
-    <grapheme>Siobhan</grapheme>
-    <phoneme>/ʃɪˈvɔːn/</phoneme>
-  </lexeme>
-  <lexeme>
-    <grapheme>Aoife</grapheme>
-    <phoneme>/ˈiːfə/</phoneme>
+    <grapheme>Tomato</grapheme>
+    <phoneme>/tə'meɪtoʊ/</phoneme>
   </lexeme>
 </lexicon>

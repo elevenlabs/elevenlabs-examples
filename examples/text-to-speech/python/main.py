@@ -1,49 +1,48 @@
-from elevenlabs.client import ElevenLabs
-from elevenlabs import play, PronunciationDictionaryVersionLocator
-from elevenlabs.types import AddPronunciationDictionaryResponseModel
-from dotenv import load_dotenv
-
 import os
 
-def main():
-    API_KEY = os.getenv("ELEVEN_API_KEY")
+from dotenv import load_dotenv
+from elevenlabs import PronunciationDictionaryVersionLocator, play
+from elevenlabs.client import ElevenLabs
 
+load_dotenv()
+
+API_KEY = os.getenv("ELEVENLABS_API_KEY")
+
+
+def main():
     if API_KEY is None:
         print("Missing API KEY")
         return
-    
-        
-    client = ElevenLabs(
-        api_key=API_KEY
+
+    client = ElevenLabs(api_key=API_KEY)
+
+    with open("dictionary.pls", "rb") as f:
+        # this dictionary replaces the pronunciation of "Luke" to "Mark"
+        pronunciation_dictionary = client.pronunciation_dictionary.add_from_file(
+            file=f.read(), name="example"
+        )
+
+    audio_1 = client.generate(
+        text="Without the dictionary: Tomato",
+        voice="Rachel",
+        model="eleven_turbo_v2",
     )
-    
-    f = open("rule.pls", "rb")
+    play(audio_1)
 
-    rule = f.read()
-
-    f.close()
-
-    response: AddPronunciationDictionaryResponseModel = client.pronunciation_dictionary.add_from_file(
-        file=rule,
-        name="example"
-    )
-    
-    audio = client.generate(
-        text="Siobhan. Aoife.",
+    audio_2 = client.generate(
+        text="With the dictionary: Tomato",
         voice="Rachel",
         model="eleven_turbo_v2",
         pronunciation_dictionary_locators=[
             PronunciationDictionaryVersionLocator(
-                pronunciation_dictionary_id=response.id,
-                version_id=response.version_id
+                pronunciation_dictionary_id=pronunciation_dictionary.id,
+                version_id=pronunciation_dictionary.version_id,
             )
         ],
     )
 
-    # play
-    play(audio)
+    play(audio_2)
+
 
 if __name__ == "__main__":
-
-    load_dotenv()
     main()
