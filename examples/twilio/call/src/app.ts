@@ -38,14 +38,11 @@ function startApp() {
 
       if (message.event === 'start' && message.start) {
         const streamSid = message.start.streamSid;
-        const response = await elevenlabs.textToSpeech.convertAsStream(
-          voiceId,
-          {
-            model_id: 'eleven_turbo_v2',
-            output_format: outputFormat,
-            text,
-          },
-        );
+        const response = await elevenlabs.textToSpeech.convert(voiceId, {
+          model_id: 'eleven_turbo_v2',
+          output_format: outputFormat,
+          text,
+        });
         const audioArrayBuffer = await streamToArrayBuffer(response);
 
         ws.send(
