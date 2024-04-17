@@ -6,6 +6,10 @@
         http://www.w3.org/TR/2007/CR-pronunciation-lexicon-20071212/pls.xsd"
       alphabet="ipa" xml:lang="en-US">
   <lexeme>
+    <grapheme>tomato</grapheme>
+    <phoneme>/tə'meɪtoʊ/</phoneme>
+  </lexeme>
+  <lexeme>
     <grapheme>Tomato</grapheme>
     <phoneme>/tə'meɪtoʊ/</phoneme>
   </lexeme>

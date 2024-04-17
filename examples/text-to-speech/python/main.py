@@ -17,20 +17,20 @@ def main():
     client = ElevenLabs(api_key=API_KEY)
 
     with open("dictionary.pls", "rb") as f:
-        # this dictionary replaces the pronunciation of "Luke" to "Mark"
+        # this dictionary changes how tomato is pronounced
         pronunciation_dictionary = client.pronunciation_dictionary.add_from_file(
             file=f.read(), name="example"
         )
 
     audio_1 = client.generate(
-        text="Without the dictionary: Tomato",
+        text="Without the dictionary: tomato",
         voice="Rachel",
         model="eleven_turbo_v2",
     )
     play(audio_1)
 
     audio_2 = client.generate(
-        text="With the dictionary: Tomato",
+        text="With the dictionary: tomato",
         voice="Rachel",
         model="eleven_turbo_v2",
         pronunciation_dictionary_locators=[
