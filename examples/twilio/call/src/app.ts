@@ -1,14 +1,20 @@
+import 'dotenv/config';
 import express, { Response } from 'express';
 import ExpressWs from 'express-ws';
 import { WebSocket } from 'ws';
 import VoiceResponse from 'twilio/lib/twiml/VoiceResponse';
-import { Stream } from './stream';
-import { TextToSpeech } from './text-to-speech';
+import { ElevenLabsClient } from 'elevenlabs';
+import internal from 'stream';
 
 const app = ExpressWs(express()).app;
 const PORT: number = parseInt(process.env.PORT || '5000');
 
-export const startApp = () => {
+const elevenlabs = new ElevenLabsClient();
+const voiceId = '21m00Tcm4TlvDq8ikWAM';
+const outputFormat = 'ulaw_8000';
+const text = 'This is a test. You can now hang up. Thank you.';
+
+function startApp() {
   app.post('/call/incoming', (_, res: Response) => {
     const twiml = new VoiceResponse();
 
@@ -21,16 +27,7 @@ export const startApp = () => {
   });
 
   app.ws('/call/connection', (ws: WebSocket) => {
-    console.log('Twilio -> Connection opened'.underline.green);
-
-    ws.on('error', console.error);
-
-    const stream = new Stream(ws);
-    const textToSpeech = new TextToSpeech();
-
-    let streamSid: string;
-
-    ws.on('message', (data: string) => {
+    ws.on('message', async (data: string) => {
       const message: {
         event: string;
         start?: { streamSid: string; callSid: string };
@@ -40,34 +37,49 @@ export const startApp = () => {
       } = JSON.parse(data);
 
       if (message.event === 'start' && message.start) {
-        streamSid = message.start.streamSid;
-        stream.setStreamSid(streamSid);
-        console.log(
-          `Twilio -> Starting Media Stream for ${streamSid}`.underline.red,
+        const streamSid = message.start.streamSid;
+        const response = await elevenlabs.textToSpeech.convertAsStream(
+          voiceId,
+          {
+            model_id: 'eleven_turbo_v2',
+            output_format: outputFormat,
+            text,
+          },
         );
+        const audioArrayBuffer = await streamToArrayBuffer(response);
 
-        textToSpeech.generate({
-          partialResponseIndex: null,
-          partialResponse:
-            'This is a test using the ElevenLabs voice. You can now hang up. Thank you.',
-        });
-      } else if (message.event === 'stop') {
-        console.log(`Twilio -> Media stream ${streamSid} ended.`.underline.red);
+        ws.send(
+          JSON.stringify({
+            streamSid,
+            event: 'media',
+            media: {
+              payload: Buffer.from(audioArrayBuffer as any).toString('base64'),
+            },
+          }),
+        );
       }
     });
 
-    textToSpeech.on(
-      'speech',
-      (responseIndex: number, audio: string, label: string) => {
-        console.log(`TTS -> TWILIO: ${label}`.blue);
-
-        stream.buffer(responseIndex, audio);
-      },
-    );
+    ws.on('error', console.error);
   });
 
   app.listen(PORT, () => {
     console.log(`Local: http://localhost:${PORT}`);
     console.log(`Remote: https://${process.env.SERVER_DOMAIN}`);
   });
-};
+}
+
+function streamToArrayBuffer(readableStream: internal.Readable) {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    readableStream.on('data', (chunk) => {
+      chunks.push(chunk);
+    });
+    readableStream.on('end', () => {
+      resolve(Buffer.concat(chunks).buffer);
+    });
+    readableStream.on('error', reject);
+  });
+}
+
+startApp();
