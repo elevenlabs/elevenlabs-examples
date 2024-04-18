@@ -36,13 +36,8 @@ def create_dub(
             "xi-api-key": ELEVENLABS_API_KEY,
         }
 
-        # response = client.dubbing.get_dubbing_project_metadata(dubbing_id=id)
-        # TODO: fix the get_dubbing_project_metadata, should allow for error being none
-        response = requests.get(
-            "https://api.elevenlabs.io/v1/dubbing/" + dubbing_id, headers=headers
-        )
-
-        if response.json()["status"] == "dubbed":
+        metadata = client.dubbing.get_dubbing_project_metadata(dubbing_id=dubbing_id)
+        if metadata.status == "dubbed":
             # TODO: fix the response type of client.dubbing.get_dubbed_file
             response = requests.get(
                 "https://api.elevenlabs.io/v1/dubbing/"
@@ -59,7 +54,7 @@ def create_dub(
 
             return
 
-        elif response.json()["status"] == "dubbing":
+        elif metadata.status == "dubbing":
             print("Dubbing in progress... Will check status again in 10 seconds")
             time.sleep(10)
         else:
