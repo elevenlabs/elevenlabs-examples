@@ -1,10 +1,10 @@
 import 'dotenv/config';
 import express, { Response } from 'express';
 import ExpressWs from 'express-ws';
-import { WebSocket } from 'ws';
 import VoiceResponse from 'twilio/lib/twiml/VoiceResponse';
 import { ElevenLabsClient } from 'elevenlabs';
-import internal from 'stream';
+import { type WebSocket } from 'ws';
+import { type Readable } from 'stream';
 
 const app = ExpressWs(express()).app;
 const PORT: number = parseInt(process.env.PORT || '5000');
@@ -31,9 +31,6 @@ function startApp() {
       const message: {
         event: string;
         start?: { streamSid: string; callSid: string };
-        media?: { payload: string };
-        mark?: { name: string };
-        sequenceNumber?: number;
       } = JSON.parse(data);
 
       if (message.event === 'start' && message.start) {
@@ -43,6 +40,7 @@ function startApp() {
           output_format: outputFormat,
           text,
         });
+
         const audioArrayBuffer = await streamToArrayBuffer(response);
 
         ws.send(
@@ -66,15 +64,18 @@ function startApp() {
   });
 }
 
-function streamToArrayBuffer(readableStream: internal.Readable) {
+function streamToArrayBuffer(readableStream: Readable) {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
+
     readableStream.on('data', (chunk) => {
       chunks.push(chunk);
     });
+
     readableStream.on('end', () => {
       resolve(Buffer.concat(chunks).buffer);
     });
+
     readableStream.on('error', reject);
   });
 }
