@@ -5,6 +5,11 @@ dist
 tmp
 /out-tsc
 
+# Python files
+Pipfile
+__pycache__
+
+
 # dependencies
 node_modules
 
@@ -41,6 +46,7 @@ Thumbs.db
 # env
 .env*
 !.env.example
+venv
 
 # formatters
 .ruff_cache
