@@ -1,11 +1,8 @@
-import os
-
 from dotenv import load_dotenv
-
-load_dotenv()
-
 from s3_uploader import generate_presigned_url, upload_audiostream_to_s3
 from text_to_speech_stream import text_to_speech_stream
+
+load_dotenv()
 
 
 def main():
