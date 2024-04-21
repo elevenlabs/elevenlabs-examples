@@ -66,7 +66,7 @@ def main():
         ],
     )
 
-    pronunciation_dictionary = (
+    pronunciation_dictionary_rules_removed = (
         client.pronunciation_dictionary.remove_rules_from_the_pronunciation_dictionary(
             pronunciation_dictionary_id=pronunciation_dictionary.id,
             rule_strings=["tomato", "Tomato"],
@@ -76,7 +76,9 @@ def main():
     print("\n\n-- removed rule --\n\n")
 
     print_rules(
-        client, pronunciation_dictionary.id, pronunciation_dictionary.version_id
+        client,
+        pronunciation_dictionary_rules_removed.id,
+        pronunciation_dictionary_rules_removed.version_id,
     )
 
     audio_3 = client.generate(
@@ -85,16 +87,16 @@ def main():
         model="eleven_turbo_v2",
         pronunciation_dictionary_locators=[
             PronunciationDictionaryVersionLocator(
-                pronunciation_dictionary_id=pronunciation_dictionary.id,
-                version_id=pronunciation_dictionary.version_id,
+                pronunciation_dictionary_id=pronunciation_dictionary_rules_removed.id,
+                version_id=pronunciation_dictionary_rules_removed.version_id,
             )
         ],
     )
 
     print(pronunciation_dictionary.id)
 
-    pronunciation_dictionary = client.pronunciation_dictionary.add_rules_to_the_pronunciation_dictionary(
-        pronunciation_dictionary_id=pronunciation_dictionary.id,
+    pronunciation_dictionary_rules_added = client.pronunciation_dictionary.add_rules_to_the_pronunciation_dictionary(
+        pronunciation_dictionary_id=pronunciation_dictionary_rules_removed.id,
         rules=[
             # TODO rename this
             BodyAddRulesToThePronunciationDictionaryV1PronunciationDictionariesPronunciationDictionaryIdAddRulesPostRulesItem_Phoneme(
@@ -115,7 +117,9 @@ def main():
     print("\n\n-- added rule --\n\n")
 
     print_rules(
-        client, pronunciation_dictionary.id, pronunciation_dictionary.version_id
+        client,
+        pronunciation_dictionary_rules_added.id,
+        pronunciation_dictionary_rules_added.version_id,
     )
 
     audio_4 = client.generate(
@@ -124,8 +128,8 @@ def main():
         model="eleven_turbo_v2",
         pronunciation_dictionary_locators=[
             PronunciationDictionaryVersionLocator(
-                pronunciation_dictionary_id=pronunciation_dictionary.id,
-                version_id=pronunciation_dictionary.version_id,
+                pronunciation_dictionary_id=pronunciation_dictionary_rules_added.id,
+                version_id=pronunciation_dictionary_rules_added.version_id,
             )
         ],
     )
