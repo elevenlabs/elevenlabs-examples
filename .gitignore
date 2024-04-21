@@ -42,3 +42,6 @@ Thumbs.db
 .env*
 !.env.example
 venv
+
+# formatters
+.ruff_cache
