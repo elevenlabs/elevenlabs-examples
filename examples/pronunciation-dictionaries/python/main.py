@@ -43,6 +43,11 @@ def main():
             file=f.read(), name="example"
         )
 
+    # TODO: fix this, fails with 307 redirect even though the URL is correct
+    # client.pronunciation_dictionary.get(
+    #     pronunciation_dictionary_id=pronunciation_dictionary.id
+    # )
+
     print("-- initial rules --")
     print_rules(
         client, pronunciation_dictionary.id, pronunciation_dictionary.version_id
