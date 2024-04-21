@@ -27,6 +27,7 @@ def create_dub(
             mode="automatic",
             source_lang="en",
             num_speakers=1,
+            watermark=True,  # reduces the characters used
         )
 
     dubbing_id = response.dubbing_id
