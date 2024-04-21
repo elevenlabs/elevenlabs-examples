@@ -5,6 +5,11 @@ dist
 tmp
 /out-tsc
 
+# Python files
+Pipfile
+__pycache__
+
+
 # dependencies
 node_modules
 
@@ -33,7 +38,6 @@ npm-debug.log
 yarn-error.log
 testem.log
 /typings
-Pipefile
 
 # System Files
 .DS_Store

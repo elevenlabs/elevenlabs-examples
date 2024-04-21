@@ -1,13 +1,18 @@
-# text_to_speech_stream.py
-
 import os
 from io import BytesIO
 from typing import IO
 
+from dotenv import load_dotenv
 from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
 
+load_dotenv()
+
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
+
+if not ELEVENLABS_API_KEY:
+    raise ValueError("ELEVENLABS_API_KEY environment variable not set")
+
 client = ElevenLabs(
     api_key=ELEVENLABS_API_KEY,
 )
@@ -29,7 +34,7 @@ def text_to_speech_stream(text: str) -> IO[bytes]:
     """
     # Perform the text-to-speech conversion
     response = client.text_to_speech.convert(
-        voice_id="4v7HtLWqY9rpQ7Cg2GT4",
+        voice_id="pNInz6obpgDQGcFmaJgB",  # Adam pre-made voice
         optimize_streaming_latency="0",
         output_format="mp3_22050_32",
         text=text,
@@ -41,6 +46,8 @@ def text_to_speech_stream(text: str) -> IO[bytes]:
             use_speaker_boost=True,
         ),
     )
+
+    print("Streaming audio data...")
 
     # Create a BytesIO object to hold audio data
     audio_stream = BytesIO()
@@ -55,3 +62,7 @@ def text_to_speech_stream(text: str) -> IO[bytes]:
 
     # Return the stream for further use
     return audio_stream
+
+
+if __name__ == "__main__":
+    text_to_speech_stream("Hello, world! This is using the streaming API.")

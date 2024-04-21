@@ -1,20 +1,30 @@
-# s3_uploader.py
-
 import os
 import uuid
 
 import boto3
+from dotenv import load_dotenv
+
+load_dotenv()
 
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_REGION_NAME = os.getenv("AWS_REGION_NAME")
 AWS_S3_BUCKET_NAME = os.getenv("AWS_S3_BUCKET_NAME")
 
+if (
+    not AWS_ACCESS_KEY_ID
+    or not AWS_SECRET_ACCESS_KEY
+    or not AWS_REGION_NAME
+    or not AWS_S3_BUCKET_NAME
+):
+    raise ValueError("AWS Environment variables not set properly")
+
 session = boto3.Session(
     aws_access_key_id=AWS_ACCESS_KEY_ID,
     aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
     region_name=AWS_REGION_NAME,
 )
+
 s3 = session.client("s3")
 
 
@@ -31,8 +41,8 @@ def generate_presigned_url(s3_file_name: str) -> str:
     signed_url = s3.generate_presigned_url(
         "get_object",
         Params={"Bucket": AWS_S3_BUCKET_NAME, "Key": s3_file_name},
-        ExpiresIn=3600,
-    )  # URL expires in 1 hour
+        ExpiresIn=3600,  # expires in 1 hour
+    )
     return signed_url
 
 
