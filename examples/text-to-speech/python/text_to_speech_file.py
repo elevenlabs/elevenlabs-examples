@@ -37,7 +37,7 @@ def text_to_speech_file(text: str) -> str:
         optimize_streaming_latency="0",
         output_format="mp3_22050_32",
         text=text,
-        model_id="eleven_multilingual_v2",
+        model_id="eleven_turbo_v2",  # use the turbo model for low latency, for other languages use the `eleven_multilingual_v2`
         voice_settings=VoiceSettings(
             stability=0.0,
             similarity_boost=1.0,
@@ -57,7 +57,7 @@ def text_to_speech_file(text: str) -> str:
 
     print(f"A new audio file was saved successfully at {save_file_path}")
 
-    # Returning the path of the saved audio file
+    # Return the path of the saved audio file
     return save_file_path
 
 
