@@ -1,24 +1,24 @@
-import { ElevenLabsClient } from 'elevenlabs';
-import { Storage } from '@google-cloud/storage';
-import { createWriteStream } from 'fs';
+import { ElevenLabsClient } from "elevenlabs";
+import { Storage } from "@google-cloud/storage";
+import { createWriteStream } from "fs";
 
-import * as dotenv from 'dotenv';
+import * as dotenv from "dotenv";
 dotenv.config();
 
-const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 
 const elevenlabs = new ElevenLabsClient({
-  apiKey : ELEVENLABS_API_KEY
+  apiKey: ELEVENLABS_API_KEY,
 });
 
 const storage = new Storage(/* <enter-your-credentials> */);
-const bucket = storage.bucket('<enter-your-bucket-name>');
+const bucket = storage.bucket("<enter-your-bucket-name>");
 
 export const createAudioFromTextToGcp = async (
   text: string,
-  remotePath: string,
+  remotePath: string
 ) => {
-  const localPath = 'audio.mp3';
+  const localPath = "audio.mp3";
 
   await createAudioFileFromText(text, localPath);
 
@@ -31,14 +31,14 @@ export const createAudioFromTextToGcp = async (
 const createAudioFileFromText = (text: string, fileName: string) => {
   return new Promise<void>(async (resolve, reject) => {
     const audio = await elevenlabs.generate({
-      voice: 'Rachel',
-      model_id: 'eleven_multilingual_v2',
+      voice: "Rachel",
+      model_id: "eleven_multilingual_v2",
       text,
     });
     const fileStream = createWriteStream(fileName);
 
     audio.pipe(fileStream);
-    fileStream.on('finish', resolve);
-    fileStream.on('error', reject);
+    fileStream.on("finish", resolve);
+    fileStream.on("error", reject);
   });
 };
