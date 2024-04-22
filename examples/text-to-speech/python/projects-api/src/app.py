@@ -2,7 +2,7 @@ from elevenlabs import play
 from elevenlabs.client import ElevenLabs
 
 client = ElevenLabs(
-  api_key="c122b355b7b09ac78c248d5ea407b441" # Defaults to ELEVEN_API_KEY
+  api_key="..." # Defaults to ELEVEN_API_KEY
 )
 
 audio = client.generate(
