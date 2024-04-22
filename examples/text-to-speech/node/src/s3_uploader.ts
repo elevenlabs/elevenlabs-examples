@@ -6,6 +6,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { v4 as uuid } from "uuid";
 import * as dotenv from "dotenv";
+
 dotenv.config();
 
 const {
@@ -34,11 +35,9 @@ const s3 = new S3Client({
   region: AWS_REGION_NAME,
 });
 
-const bucketName = AWS_S3_BUCKET_NAME;
-
 export const generatePresignedUrl = async (objectKey: string) => {
   const getObjectParams = {
-    Bucket: bucketName,
+    Bucket: AWS_S3_BUCKET_NAME,
     Key: objectKey,
     Expires: 3600,
   };
@@ -51,7 +50,7 @@ export const uploadAudioStreamToS3 = async (audioStream: Buffer) => {
   const remotePath = `${uuid()}.mp3`;
   await s3.send(
     new PutObjectCommand({
-      Bucket: bucketName,
+      Bucket: AWS_S3_BUCKET_NAME,
       Key: remotePath,
       Body: audioStream,
       ContentType: "audio/mpeg",

@@ -9,16 +9,16 @@ if (!ELEVENLABS_API_KEY) {
   throw new Error("Missing ELEVENLABS_API_KEY in environment variables");
 }
 
-const elevenlabs = new ElevenLabsClient({
+const client = new ElevenLabsClient({
   apiKey: ELEVENLABS_API_KEY,
 });
 
 export const createAudioStreamFromText = async (
   text: string
 ): Promise<Buffer> => {
-  const audioStream = await elevenlabs.generate({
+  const audioStream = await client.generate({
     voice: "Rachel",
-    model_id: "eleven_multilingual_v2",
+    model_id: "eleven_turbo_v2",
     text,
   });
 
