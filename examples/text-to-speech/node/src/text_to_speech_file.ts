@@ -13,7 +13,9 @@ const client = new ElevenLabsClient({
   apiKey: ELEVENLABS_API_KEY,
 });
 
-export const createAudioFileFromText = (text: string): Promise<string> => {
+export const createAudioFileFromText = async (
+  text: string
+): Promise<string> => {
   return new Promise<string>(async (resolve, reject) => {
     try {
       const audio = await client.generate({
