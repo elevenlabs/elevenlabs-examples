@@ -2,7 +2,14 @@ import { ElevenLabsClient } from 'elevenlabs';
 import { Storage } from '@google-cloud/storage';
 import { createWriteStream } from 'fs';
 
-const elevenlabs = new ElevenLabsClient();
+import * as dotenv from 'dotenv';
+dotenv.config();
+
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY
+
+const elevenlabs = new ElevenLabsClient({
+  apiKey : ELEVENLABS_API_KEY
+});
 
 const storage = new Storage(/* <enter-your-credentials> */);
 const bucket = storage.bucket('<enter-your-bucket-name>');
