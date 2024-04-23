@@ -18,18 +18,5 @@ headers = {
 # Path to your document.pdf file
 file_path = 'document.pdf'
 
-# Open the PDF file in binary mode and prepare the multipart payload
-with open(file_path, 'rb') as f:
-    files = {
-        'name': (None, 'Example Project Name'),
-        'from_document': ('document.pdf', f, 'application/pdf'),
-        'default_title_voice_id': (None, voice_id),
-        'default_paragraph_voice_id': (None, voice_id),  # Assuming same voice_id for paragraph
-        'default_model_id': (None, model_id),
-    }
-
-    # Make the POST request
-    response = requests.post(url, files=files, headers=headers)
-
-    # Print the response text
-    print(response.text)
+# Do the same thing as the text file, but with the PDF file
+# Hint: make sure your from_document input is 'application/pdf' for a PDF file
