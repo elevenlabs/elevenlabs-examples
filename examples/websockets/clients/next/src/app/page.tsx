@@ -7,9 +7,7 @@ const url = 'ws://localhost:5000/realtime-audio';
 let socket: WebSocket;
 
 export default function Page() {
-  const [text, setText] = useState(
-    "This is a test to see if the websockets work, if it does, then that's great."
-  );
+  const [text, setText] = useState('');
 
   useEffect(() => {
     socket = new WebSocket(url);
@@ -40,7 +38,7 @@ export default function Page() {
           event.preventDefault();
 
           send(text);
-          // setText('');
+          setText('');
         }}
       >
         <Input
