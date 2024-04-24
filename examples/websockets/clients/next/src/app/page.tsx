@@ -1,13 +1,36 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Input } from '~/components/ui';
-import { useRealtimeAudio } from '@elevenlabs-alpha/react';
+import { AudioContextPlayer } from '~/lib/audio-context-player';
 
-const url = process.env.NEXT_PUBLIC_SERVER_WS_URL ?? '';
+const url = 'ws://localhost:5000/realtime-audio';
+let socket: WebSocket;
 
 export default function Page() {
-  const { send } = useRealtimeAudio({ url });
-  const [text, setText] = useState('');
+  const [text, setText] = useState(
+    "This is a test to see if the websockets work, if it does, then that's great."
+  );
+
+  useEffect(() => {
+    socket = new WebSocket(url);
+    const stream = new AudioContextPlayer();
+
+    socket.onopen = () => {};
+
+    socket.onmessage = async (message) => {
+      stream.playChunk({ buffer: message.data });
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, [url]);
+
+  const send = (text: string) => {
+    if (!text) return;
+
+    socket.send(text);
+  };
 
   return (
     <main className="p-24 max-w-3xl mx-auto">
@@ -16,10 +39,8 @@ export default function Page() {
         onSubmit={(event) => {
           event.preventDefault();
 
-          if (!text) return;
-
           send(text);
-          setText('');
+          // setText('');
         }}
       >
         <Input
