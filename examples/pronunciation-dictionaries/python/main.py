@@ -3,7 +3,7 @@ import os
 import requests
 from dotenv import load_dotenv
 from elevenlabs import (
-    BodyAddRulesToThePronunciationDictionaryV1PronunciationDictionariesPronunciationDictionaryIdAddRulesPostRulesItem_Phoneme,
+    PronunciationDictionaryRule_Phoneme,
     PronunciationDictionaryVersionLocator,
     play,
 )
@@ -18,16 +18,11 @@ if not ELEVENLABS_API_KEY:
 
 
 def print_rules(client: ElevenLabs, dictionary_id: str, version_id: str):
-    # TODO: replace with the SDK when fixed
-    # client.pronunciation_dictionary.get_pls_file_with_a_pronunciation_dictionary_version_rules(
-    #     dictionary_id=dictionary_id,
-    #     version_id=version_id,
-    # )
-    response = requests.get(
-        f"https://api.elevenlabs.io/v1/pronunciation-dictionaries/{dictionary_id}/{version_id}/download",
-        headers={"xi-api-key": ELEVENLABS_API_KEY},
+    rules = client.pronunciation_dictionary.get_pls_file_with_a_pronunciation_dictionary_version_rules(
+        dictionary_id=dictionary_id,
+        version_id=version_id,
     )
-    print("rules", response.text)
+    print("rules", rules)
 
 
 def main():
@@ -43,10 +38,10 @@ def main():
             file=f.read(), name="example"
         )
 
-    # TODO: fix this, fails with 307 redirect even though the URL is correct
-    # client.pronunciation_dictionary.get(
-    #     pronunciation_dictionary_id=pronunciation_dictionary.id
-    # )
+    dictionary = client.pronunciation_dictionary.get(
+        pronunciation_dictionary_id=pronunciation_dictionary.id
+    )
+    print("dictionary name", dictionary.name)
 
     print("-- initial rules --")
     print_rules(
@@ -100,23 +95,24 @@ def main():
 
     print(pronunciation_dictionary.id)
 
-    pronunciation_dictionary_rules_added = client.pronunciation_dictionary.add_rules_to_the_pronunciation_dictionary(
-        pronunciation_dictionary_id=pronunciation_dictionary_rules_removed.id,
-        rules=[
-            # TODO rename this
-            BodyAddRulesToThePronunciationDictionaryV1PronunciationDictionariesPronunciationDictionaryIdAddRulesPostRulesItem_Phoneme(
-                type="phoneme",
-                alphabet="ipa",
-                string_to_replace="tomato",
-                phoneme="/tə'meɪtoʊ/",
-            ),
-            BodyAddRulesToThePronunciationDictionaryV1PronunciationDictionariesPronunciationDictionaryIdAddRulesPostRulesItem_Phoneme(
-                type="phoneme",
-                alphabet="ipa",
-                string_to_replace="Tomato",
-                phoneme="/tə'meɪtoʊ/",
-            ),
-        ],
+    pronunciation_dictionary_rules_added = (
+        client.pronunciation_dictionary.add_rules_to_the_pronunciation_dictionary(
+            pronunciation_dictionary_id=pronunciation_dictionary_rules_removed.id,
+            rules=[
+                PronunciationDictionaryRule_Phoneme(
+                    type="phoneme",
+                    alphabet="ipa",
+                    string_to_replace="tomato",
+                    phoneme="/tə'meɪtoʊ/",
+                ),
+                PronunciationDictionaryRule_Phoneme(
+                    type="phoneme",
+                    alphabet="ipa",
+                    string_to_replace="Tomato",
+                    phoneme="/tə'meɪtoʊ/",
+                ),
+            ],
+        )
     )
 
     print("\n\n-- added rule --\n\n")
