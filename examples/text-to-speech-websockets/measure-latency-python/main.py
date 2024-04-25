@@ -2,8 +2,6 @@ import asyncio
 import websockets
 import json
 import base64
-import shutil
-import os
 import subprocess
 import time
 
@@ -82,7 +80,6 @@ async def text_to_speech_input_streaming(voice_id, text_iterator):
 
         listen_task = asyncio.create_task(stream(listen()))
 
-        start_time = time.time()
         print(f"first byte sent at: {time.time()}")
         async for text in text_chunker(text_iterator):
             await websocket.send(json.dumps({"text": text}))
