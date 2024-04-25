@@ -2,12 +2,13 @@ import asyncio
 import websockets
 import json
 import base64
+import os
 import subprocess
 import time
 
 
 # Define API keys and voice ID
-ELEVENLABS_API_KEY = "48078548d0be3f5b46f87fe1a3a4e829"
+ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY")
 VOICE_ID = 'nPczCjzI2devNBz1zQrb' #Brian
 
 
