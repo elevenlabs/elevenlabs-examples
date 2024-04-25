@@ -13,7 +13,7 @@ app.use(helmet());
 
 app.ws('/realtime-audio', (ws: WebSocket) => {
   const voiceId = '21m00Tcm4TlvDq8ikWAM';
-  const modelId = 'eleven_multilingual_v1';
+  const modelId = 'eleven_turbo_v2';
   const outputFormat = 'pcm_44100';
   const url = `wss://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream-input?model_id=${modelId}&output_format=${outputFormat}`;
   const elevenlabsSocket = new WebSocket(url);
@@ -21,10 +21,6 @@ app.ws('/realtime-audio', (ws: WebSocket) => {
   elevenlabsSocket.onopen = () => {
     const initialMessage = {
       xi_api_key: process.env.ELEVENLABS_API_KEY,
-      generation_config: {
-        // start processing audio after 120 characters, then 160, 250, 290
-        chunk_length_schedule: [120, 160, 250, 290],
-      },
       text: ' ',
     };
 
@@ -55,7 +51,6 @@ app.ws('/realtime-audio', (ws: WebSocket) => {
     const textMessage = {
       text: `${text} `,
       try_trigger_generation: true,
-      flush: text.length < 120,
     };
 
     elevenlabsSocket.send(JSON.stringify(textMessage));
