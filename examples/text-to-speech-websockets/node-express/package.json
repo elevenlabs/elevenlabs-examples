@@ -6,7 +6,6 @@
     "build:app": "tsup src/index.ts",
     "clean": "rimraf dist",
     "start": "node dist/index.js",
-    "latency": "tsx src/latency.ts",
     "lint": "tsc"
   },
   "dependencies": {

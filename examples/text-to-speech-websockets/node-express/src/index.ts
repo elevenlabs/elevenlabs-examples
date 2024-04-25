@@ -22,6 +22,7 @@ app.ws('/realtime-audio', (ws: WebSocket) => {
     const initialMessage = {
       xi_api_key: process.env.ELEVENLABS_API_KEY,
       generation_config: {
+        // start processing audio after 120 characters, then 160, 250, 290
         chunk_length_schedule: [120, 160, 250, 290],
       },
       text: ' ',
