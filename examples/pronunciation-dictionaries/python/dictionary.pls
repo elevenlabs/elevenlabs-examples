@@ -13,4 +13,8 @@
     <grapheme>Tomato</grapheme>
     <phoneme>/tə'meɪtoʊ/</phoneme>
   </lexeme>
+  <lexeme>
+    <grapheme>Mr</grapheme>
+    <alias>mistress</alias>
+  </lexeme>
 </lexicon>
