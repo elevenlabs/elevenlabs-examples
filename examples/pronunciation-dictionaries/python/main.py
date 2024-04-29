@@ -31,6 +31,8 @@ def main():
 
     client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
 
+    model = "eleven_turbo_v2"
+
     with open("dictionary.pls", "rb") as f:
         # this dictionary changes how tomato is pronounced
         pronunciation_dictionary = client.pronunciation_dictionary.add_from_file(
@@ -50,13 +52,13 @@ def main():
     audio_1 = client.generate(
         text="Without the dictionary: tomato",
         voice="Rachel",
-        model="eleven_turbo_v2",
+        model=model,
     )
 
     audio_2 = client.generate(
         text="With the dictionary: tomato",
         voice="Rachel",
-        model="eleven_turbo_v2",
+        model=model,
         pronunciation_dictionary_locators=[
             PronunciationDictionaryVersionLocator(
                 pronunciation_dictionary_id=pronunciation_dictionary.id,
@@ -83,7 +85,7 @@ def main():
     audio_3 = client.generate(
         text="With the rule removed: tomato",
         voice="Rachel",
-        model="eleven_turbo_v2",
+        model=model,
         pronunciation_dictionary_locators=[
             PronunciationDictionaryVersionLocator(
                 pronunciation_dictionary_id=pronunciation_dictionary_rules_removed.id,
@@ -125,7 +127,7 @@ def main():
     audio_4 = client.generate(
         text="With the rule added again: tomato",
         voice="Rachel",
-        model="eleven_turbo_v2",
+        model=model,
         pronunciation_dictionary_locators=[
             PronunciationDictionaryVersionLocator(
                 pronunciation_dictionary_id=pronunciation_dictionary_rules_added.id,
