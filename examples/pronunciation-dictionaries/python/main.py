@@ -3,8 +3,9 @@ import os
 from dotenv import load_dotenv
 from elevenlabs import (
     PronunciationDictionaryRule_Phoneme,
+    PronunciationDictionaryRule_Alias,
     PronunciationDictionaryVersionLocator,
-    play,
+    play
 )
 from elevenlabs.client import ElevenLabs
 
@@ -31,10 +32,8 @@ def main():
 
     client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
 
-    model = "eleven_turbo_v2"
-
     with open("dictionary.pls", "rb") as f:
-        # this dictionary changes how tomato is pronounced
+        # this dictionary changes how tomato and Mr is pronounced
         pronunciation_dictionary = client.pronunciation_dictionary.add_from_file(
             file=f.read(), name="example"
         )
@@ -50,15 +49,15 @@ def main():
     )
 
     audio_1 = client.generate(
-        text="Without the dictionary: tomato",
+        text="Without the dictionary: Mr tomato",
         voice="Rachel",
-        model=model,
+        model="eleven_turbo_v2",
     )
 
     audio_2 = client.generate(
-        text="With the dictionary: tomato",
+        text="With the dictionary: Mr tomato",
         voice="Rachel",
-        model=model,
+        model="eleven_turbo_v2",
         pronunciation_dictionary_locators=[
             PronunciationDictionaryVersionLocator(
                 pronunciation_dictionary_id=pronunciation_dictionary.id,
@@ -70,7 +69,7 @@ def main():
     pronunciation_dictionary_rules_removed = (
         client.pronunciation_dictionary.remove_rules_from_the_pronunciation_dictionary(
             pronunciation_dictionary_id=pronunciation_dictionary.id,
-            rule_strings=["tomato", "Tomato"],
+            rule_strings=["tomato", "Tomato", "Mr"],
         )
     )
 
@@ -83,9 +82,9 @@ def main():
     )
 
     audio_3 = client.generate(
-        text="With the rule removed: tomato",
+        text="With the rule removed: Mr tomato",
         voice="Rachel",
-        model=model,
+        model="eleven_turbo_v2",
         pronunciation_dictionary_locators=[
             PronunciationDictionaryVersionLocator(
                 pronunciation_dictionary_id=pronunciation_dictionary_rules_removed.id,
@@ -112,6 +111,11 @@ def main():
                     string_to_replace="Tomato",
                     phoneme="/tə'meɪtoʊ/",
                 ),
+                PronunciationDictionaryRule_Alias(
+                    type="alias",
+                    string_to_replace="Mr",
+                    alias="mistress"
+                )
             ],
         )
     )
@@ -125,9 +129,9 @@ def main():
     )
 
     audio_4 = client.generate(
-        text="With the rule added again: tomato",
+        text="With the rule added again: Mr tomato",
         voice="Rachel",
-        model=model,
+        model="eleven_turbo_v2",
         pronunciation_dictionary_locators=[
             PronunciationDictionaryVersionLocator(
                 pronunciation_dictionary_id=pronunciation_dictionary_rules_added.id,
