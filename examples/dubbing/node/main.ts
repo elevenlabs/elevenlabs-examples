@@ -4,7 +4,6 @@ async function main() {
   try {
     const result = await createDubFromFile(
       "../example_speech.mp3",  // Input file path
-      "dubbed_file.mp4",       // Output file path
       "audio/mpeg",            // File format
       "en",                    // Source language
       "es"                     // Target language

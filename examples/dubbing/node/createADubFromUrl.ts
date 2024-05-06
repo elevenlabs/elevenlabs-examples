@@ -1,60 +1,39 @@
-import * as fs from 'fs';
-import ytdl from 'ytdl-core';
-import { createDubFromFile } from './createADubFromFile';
+import { ElevenLabsClient } from 'elevenlabs';
 import * as dotenv from 'dotenv';
+import { waitForDubbingCompletion, downloadDubbedFile } from './dubbingUtils';
 
 dotenv.config();
 
-async function downloadYoutubeVideo(videoUrl: string, downloadPath: string): Promise<string> {
-  if (!fs.existsSync(downloadPath)) {
-    fs.mkdirSync(downloadPath, { recursive: true });
-  }
-  
-  const videoId = ytdl.getURLVideoID(videoUrl);
-  const videoInfo = await ytdl.getInfo(videoId);
-  const format = ytdl.chooseFormat(videoInfo.formats, { quality: 'highest' });
-  if (!format.url) {
-    throw new Error("No URL found for the given video quality.");
-  }
-  
-  const videoOutput = `${downloadPath}/${videoId}.mp4`;
-  await new Promise<void>((resolve, reject) => {
-    ytdl.downloadFromInfo(videoInfo, {
-      format: format,
-    })
-      .pipe(fs.createWriteStream(videoOutput))
-      .on('finish', () => resolve())
-      .on('error', (error) => reject(error));
-  });
-  
-  return videoOutput;
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
+if (!ELEVENLABS_API_KEY) {
+  throw new Error("ELEVENLABS_API_KEY environment variable not found. Please set the API key in your environment variables.");
 }
+
+const elevenLabs = new ElevenLabsClient({ apiKey: ELEVENLABS_API_KEY });
 
 export async function createDubFromUrl(
   sourceUrl: string,
-  outputFilePath: string,
-  fileFormat: string,
   sourceLanguage: string,
-  targetLanguage: string
+  targetLanguage: string,
 ): Promise<string | null> {
-  try {
-    const downloadPath = 'downloads';
-    const inputFilePath = await downloadYoutubeVideo(sourceUrl, downloadPath);
-  
-    const dubbedFilePath = await createDubFromFile(
-      inputFilePath,
-      outputFilePath,
-      fileFormat,
-      sourceLanguage,
-      targetLanguage
-    );
-  
-    // Optionally, cleanup the downloaded video
-    fs.unlinkSync(inputFilePath);
-  
-    return dubbedFilePath;
-  } catch (error) {
-    console.error('An error occurred:', error);
+  const response = await elevenLabs.dubbing.dubAVideoOrAnAudioFile(
+    {
+      source_url: sourceUrl,
+      target_lang: targetLanguage,
+      mode: "automatic",
+      source_lang: sourceLanguage,
+      num_speakers: 1,
+      watermark: true,
+    }
+  );
+
+  const dubbingId = response.dubbingId;
+  const completion = await waitForDubbingCompletion(dubbingId);
+
+  if (completion) {
+    const outputFilePath = downloadDubbedFile(dubbingId, targetLanguage)
+    return outputFilePath;
+  } else {
     return null;
   }
 }

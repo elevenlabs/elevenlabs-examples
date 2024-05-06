@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import { ElevenLabsClient } from 'elevenlabs';
 import * as dotenv from 'dotenv';
+import { waitForDubbingCompletion, downloadDubbedFile } from './dubbingUtils';
 
 dotenv.config();
 
@@ -13,7 +14,6 @@ const elevenLabs = new ElevenLabsClient({ apiKey: ELEVENLABS_API_KEY });
 
 export async function createDubFromFile(
   inputFilePath: string,
-  outputFilePath: string,
   fileFormat: string,
   sourceLanguage: string,
   targetLanguage: string,
@@ -35,34 +35,12 @@ export async function createDubFromFile(
   );
 
   const dubbingId = response.dubbingId;
-  const completion = await waitForDubbingCompletion(dubbingId, targetLanguage);
+  const completion = await waitForDubbingCompletion(dubbingId);
 
   if (completion) {
-    const dubbedContent = await elevenLabs.dubbing.getDubbedFile(dubbingId, targetLanguage);
-    fs.writeFileSync(outputFilePath, dubbedContent);
-    console.log(`Dubbing complete and saved to ${outputFilePath}.`);
+    const outputFilePath = downloadDubbedFile(dubbingId, targetLanguage)
     return outputFilePath;
   } else {
     return null;
   }
-}
-
-async function waitForDubbingCompletion(dubbingId: string, languageCode: string): Promise<boolean> {
-  const MAX_ATTEMPTS = 120;
-  const CHECK_INTERVAL = 10000; // In milliseconds
-
-  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-    const metadata = await elevenLabs.dubbing.getDubbingProjectMetadata(dubbingId);
-    if (metadata.status === 'dubbed') {
-      return true;
-    } else if (metadata.status === 'dubbing') {
-      console.log(`Dubbing in progress... Will check status again in ${CHECK_INTERVAL / 1000} seconds.`);
-      await new Promise(resolve => setTimeout(resolve, CHECK_INTERVAL));
-    } else {
-      console.error('Dubbing failed:', metadata.error_message);
-      return false;
-    }
-  }
-  console.error('Dubbing timed out');
-  return false;
 }
