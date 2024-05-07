@@ -1,12 +1,20 @@
 import 'dotenv/config';
 import express from 'express';
-import ExpressWs from 'express-ws';
+import http from 'http';
 import cors from 'cors';
 import helmet from 'helmet';
-import { WebSocket } from 'ws';
+import { Server } from 'socket.io';
+import WebSocket from 'ws';
 
-const app = ExpressWs(express()).app;
-const PORT: number = parseInt(process.env.PORT || '3008');
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:3000',
+  },
+});
+
+const PORT: number = parseInt(process.env.PORT || '5000');
 
 if (!process.env.ELEVENLABS_API_KEY) {
   throw new Error('ELEVENLABS_API_KEY is required');
@@ -15,13 +23,7 @@ if (!process.env.ELEVENLABS_API_KEY) {
 app.use(cors());
 app.use(helmet());
 
-// TODO: handle timeout between server and elevenlabs
-// TODO: handle timeout between client and server
-// TODO: get it working for the normal output format (mp3_44100)
-// TODO: handle saying that it's the last input
-
-app.ws('/realtime-audio', (ws: WebSocket) => {
-  console.log('ws connected');
+io.on('connection', (socket) => {
   const voiceId = '21m00Tcm4TlvDq8ikWAM';
   const modelId = 'eleven_turbo_v2';
   const outputFormat = 'pcm_44100';
@@ -40,44 +42,26 @@ app.ws('/realtime-audio', (ws: WebSocket) => {
   elevenlabsSocket.onmessage = (event: any) => {
     const response = JSON.parse(event.data);
     if (response.error) {
-      console.error(response);
+      socket.emit('error', response);
     }
 
     if (response.audio) {
-      console.log('audio', response.audio);
-      ws.send(response.audio);
-    }
-
-    if (response.isFinal) {
-      console.log('isFinal');
+      socket.emit('audio', response.audio);
     }
   };
 
-  elevenlabsSocket.onerror = (error) => {
-    console.error(error);
-  };
-
-  elevenlabsSocket.onclose = () => {
-    ws.close();
-  };
-
-  ws.on('message', (text: string) => {
+  socket.on('message', (data) => {
+    const message = JSON.parse(data) as { text: string; isFinal?: boolean };
     const textMessage = {
-      text: `${text} `,
+      text: `${message.text} `,
       try_trigger_generation: true,
+      flush: message.isFinal,
     };
-    console.log('sending message', textMessage);
 
     elevenlabsSocket.send(JSON.stringify(textMessage));
   });
-
-  ws.on('error', console.error);
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`http://localhost:${PORT}`);
-
-  app.get('/', (req, res) => {
-    res.send('Hello World');
-  });
 });

@@ -13,6 +13,7 @@
     "express": "^4.18.2",
     "express-ws": "^5.0.2",
     "helmet": "^7.0.0",
+    "socket.io": "^4.7.5",
     "ws": "^8.16.0"
   },
   "devDependencies": {
@@ -26,7 +27,7 @@
     "prettier": "^3.2.5",
     "rimraf": "^5.0.1",
     "tsup": "^6.7.0",
-    "tsx": "^3.12.7",
+    "tsx": "^4.9.3",
     "typescript": "^5.2.2"
   },
   "keywords": [],

@@ -2,32 +2,50 @@
 import { useEffect, useState } from 'react';
 import { Button, Input } from '~/components/ui';
 import { AudioContextPlayer } from '~/lib/audio-context-player';
+import { io, type Socket } from 'socket.io-client';
 
-const url = 'ws://localhost:5000/realtime-audio';
-let socket: WebSocket;
+const url = 'ws://localhost:5000';
+
+let socket: Socket;
+
+let hasMounted = false;
 
 export default function Page() {
   const [text, setText] = useState('');
 
   useEffect(() => {
-    socket = new WebSocket(url);
+    // ensures only connects once during development
+    if (hasMounted) return;
+
+    hasMounted = true;
+    socket = io(url);
+
     const stream = new AudioContextPlayer();
 
-    socket.onopen = () => {};
+    socket.on('audio', (message) => {
+      stream.playChunk({ buffer: message });
+    });
 
-    socket.onmessage = async (message) => {
-      stream.playChunk({ buffer: message.data });
-    };
+    socket.on('error', (error) => {
+      console.error(error);
 
-    return () => {
-      socket.close();
-    };
-  }, [url]);
+      // reconnect on error
+      socket.disconnect();
+      socket.connect();
+    });
+
+    return () => {};
+  }, []);
 
   const send = (text: string) => {
     if (!text) return;
 
-    socket.send(text);
+    socket.send(
+      JSON.stringify({
+        text,
+        isFinal: true,
+      })
+    );
   };
 
   return (
