@@ -27,8 +27,6 @@ export default function Page() {
     });
 
     socket.on('error', (error) => {
-      console.error(error);
-
       // reconnect on error
       socket.disconnect();
       socket.connect();
