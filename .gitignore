@@ -44,3 +44,4 @@ Thumbs.db
 
 # formatters
 .ruff_cache
+venv
