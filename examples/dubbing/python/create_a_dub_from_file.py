@@ -48,12 +48,25 @@ def create_dub_from_file(
             mode="automatic",
             source_lang=source_language,
             num_speakers=1,
-            watermark=True,  # reduces the characters used
+            watermark=False,  # reduces the characters used if enabled, only works for videos not audio
         )
 
     dubbing_id = response.dubbing_id
-    if wait_for_dubbing_completion(dubbing_id, target_language):
+    if wait_for_dubbing_completion(dubbing_id):
         output_file_path = download_dubbed_file(dubbing_id, target_language)
         return output_file_path
     else:
         return None
+
+
+if __name__ == "__main__":
+    result = create_dub_from_file(
+        "../example_speech.mp3",  # Input file path
+        "audio/mpeg",  # File format
+        "en",  # Source language
+        "es",  # Target language
+    )
+    if result:
+        print("Dubbing was successful! File saved at:", result)
+    else:
+        print("Dubbing failed or timed out.")

@@ -29,7 +29,7 @@ def create_dub_from_url(
     Downloads a video from a URL, and creates a dubbed version in the target language.
 
     Args:
-        source_url (str): The URL of the source video to download and dub.
+        source_url (str): The URL of the source video to dub. Can be a YouTube link, TikTok, X (Twitter) or a Vimeo link.
         source_language (str): The language of the source video.
         target_language (str): The target language to dub into.
 
@@ -47,8 +47,19 @@ def create_dub_from_url(
     )
 
     dubbing_id = response.dubbing_id
-    if wait_for_dubbing_completion(dubbing_id, target_language):
+    if wait_for_dubbing_completion(dubbing_id):
         output_file_path = download_dubbed_file(dubbing_id, target_language)
         return output_file_path
     else:
         return None
+
+
+if __name__ == "__main__":
+    source_url = "https://www.youtube.com/watch?v=0EqSXDwTq6U"  # Charlie bit my finger
+    source_language = "en"
+    target_language = "fr"
+    result = create_dub_from_url(source_url, source_language, target_language)
+    if result:
+        print("Dubbing was successful! File saved at:", result)
+    else:
+        print("Dubbing failed or timed out.")
