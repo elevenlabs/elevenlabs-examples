@@ -1,10 +1,11 @@
 import os
 import time
-from dotenv import load_dotenv
-from elevenlabs.client import ElevenLabs
 from typing import Optional
 
-from dubbing_utils import wait_for_dubbing_completion, download_dubbed_file
+from dotenv import load_dotenv
+from elevenlabs.client import ElevenLabs
+
+from dubbing_utils import download_dubbed_file, wait_for_dubbing_completion
 
 # Load environment variables
 load_dotenv()
