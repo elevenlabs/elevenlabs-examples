@@ -39,17 +39,6 @@ io.on('connection', (socket) => {
     elevenlabsSocket.send(JSON.stringify(initialMessage));
   };
 
-  elevenlabsSocket.onmessage = (event: any) => {
-    const response = JSON.parse(event.data);
-    if (response.error) {
-      socket.emit('error', response);
-    }
-
-    if (response.audio) {
-      socket.emit('audio', response.audio);
-    }
-  };
-
   socket.on('message', (data) => {
     const message = JSON.parse(data) as { text: string; isFinal?: boolean };
     const textMessage = {
@@ -60,6 +49,18 @@ io.on('connection', (socket) => {
 
     elevenlabsSocket.send(JSON.stringify(textMessage));
   });
+
+  elevenlabsSocket.onmessage = (event: any) => {
+    const response = JSON.parse(event.data);
+
+    if (response.error) {
+      socket.emit('error', response);
+    }
+
+    if (response.audio) {
+      socket.emit('audio', response.audio);
+    }
+  };
 });
 
 server.listen(PORT, () => {
