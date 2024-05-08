@@ -172,8 +172,14 @@ export const Create = () => {
               )}
             />
             <div className="flex mt-8">
-              <Button type="submit" size={"lg"} disabled={mutation.isLoading}>
-                Submit
+              <Button
+                type="submit"
+                size={"lg"}
+                disabled={
+                  mutation.isLoading || !file || !form.watch("targetLang")
+                }
+              >
+                {mutation.isLoading ? "Loading..." : "Submit"}
               </Button>
             </div>
           </div>

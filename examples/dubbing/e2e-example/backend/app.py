@@ -156,7 +156,7 @@ def project_detail(id: str):
         project.target_languages = new_meta["target_languages"]
 
         if project.status == "failed":
-            raise Exception("Dubbing failed")
+            return make_response(jsonify(project))
 
         for target_lang in project.target_languages:
             download_dub(project.id, project.dubbing_id, target_lang)

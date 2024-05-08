@@ -17,7 +17,7 @@ export const Stream = () => {
   const { data } = useQuery({
     queryKey: ["projects", params.id],
     queryFn: () => getProject(params.id!),
-    refetchInterval: shouldRefetch ? 15000 : false, // refetch every 15 seconds
+    refetchInterval: shouldRefetch ? 2000 : false, // refetch every 15 seconds
   });
 
   useEffect(() => {
@@ -35,9 +35,12 @@ export const Stream = () => {
     <Layout>
       {data && data.status === "dubbing" && (
         <div>
-          <p className="text-center">
-            Video still processing. Please refresh in a few seconds.
-          </p>
+          <p className="text-center">Video still processing. Please wait.</p>
+        </div>
+      )}
+      {data && data.status === "failed" && (
+        <div>
+          <p className="text-center">Video dubbing failed</p>
         </div>
       )}
       {data && data.status === "dubbed" && (
@@ -52,7 +55,7 @@ export const Stream = () => {
               url={getStreamUrl(data.id, selectedDub)}
               controls
               width={"100%"}
-              height={"100%"}
+              height={"400px"}
               onProgress={progress => {
                 setPlayedSeconds(progress.playedSeconds);
               }}
