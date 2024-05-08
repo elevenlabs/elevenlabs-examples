@@ -1,0 +1,16 @@
+.playCircle {
+  transition: transform 0.35s ease;
+  &:hover {
+    transform: scale(0.9);
+  }
+}
+
+.language-btn svg {
+  width: 80%% !important;
+  height: 80% !important;
+}
+
+.language-btn img {
+  width: 50% !important;
+  height: 50% !important;
+}

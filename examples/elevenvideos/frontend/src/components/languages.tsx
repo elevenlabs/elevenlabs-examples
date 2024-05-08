@@ -1,3 +1,4 @@
+import { SearchCheck } from "lucide-react";
 import { ReactNode } from "react";
 import ReactCountryFlag from "react-country-flag";
 
@@ -6,6 +7,12 @@ export interface Language {
   code: string;
   countryLogo: ReactNode;
 }
+
+export const autoDetect: Language = {
+  name: "Auto Detect",
+  code: "detect",
+  countryLogo: <SearchCheck />,
+};
 
 export const languages: Language[] = [
   {

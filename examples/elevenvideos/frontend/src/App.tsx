@@ -4,6 +4,7 @@ import { Home } from "./pages/home";
 import { Create } from "./pages/create";
 import { Stream } from "./pages/stream";
 import { Toaster } from "./components/ui/toaster";
+import { TooltipProvider } from "./components/ui/tooltip";
 
 function App() {
   const queryClient = new QueryClient();
@@ -21,8 +22,10 @@ function App() {
   ]);
   return (
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-      <Toaster />
+      <TooltipProvider>
+        <RouterProvider router={router} />
+        <Toaster />
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }

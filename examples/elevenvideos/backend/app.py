@@ -14,6 +14,7 @@ from flask import request
 from werkzeug.utils import secure_filename
 from datetime import timedelta
 from flask_cors import CORS
+from moviepy.editor import VideoFileClip
 
 
 load_dotenv()
@@ -41,7 +42,7 @@ def upload_dubbing(id: str, source: str, target: str) -> str:
         mode="automatic",
         target_lang=target,
         source_lang=source if source != "detect" else None,
-        file=(f"{id}.mp4", f.read(), "video/mp4")
+        file=(f"{id}.mp4", f.read(), "video/mp4"),
     )
 
     f.close()
@@ -55,7 +56,7 @@ def get_metadata(dubbing_id: str):
     return {
         "dubbing_id": response.dubbing_id,
         "status": response.status,
-        "target_languages": response.target_languages
+        "target_languages": response.target_languages,
     }
 
 
@@ -63,6 +64,23 @@ def download_dub(id: str, dubbing_id: str, language_code: str):
     with open(f"data/{id}/{language_code}.mp4", "wb") as w:
         for chunk in client.dubbing.get_dubbed_file(dubbing_id, language_code):
             w.write(chunk)
+
+
+""" 
+Extract audio from given video and create a video version without audio
+Input: <lang_code>.mp4
+Output: vidnoaudio_<lang_code>.mp4 and audio_<lang_code>.mp3
+"""
+
+
+def process_video(id: str, filename: str, save_noaudio=False):
+    video = VideoFileClip(f"data/{id}/{filename}.mp4")
+    audio = video.audio
+    audio.write_audiofile(f"data/{id}/audio_{filename}.mp3")
+
+    if save_noaudio:
+        video_without_audio: VideoFileClip = video.without_audio()
+        video_without_audio.write_videofile(f"data/{id}/vidnoaudio_{filename}.mp4")
 
 
 @dataclass
@@ -85,6 +103,7 @@ class ProjectData:
     def save(self):
         with open(f"data/{self.id}/meta.json", "w") as w:
             w.write(json.dumps(self.to_dict()))
+
 
 # setup scheduler for checking dubbing progress
 
@@ -113,8 +132,7 @@ class Job(threading.Thread):
 
     def run(self):
         while not self.stopped.wait(self.interval.total_seconds()):
-            dirs = [dir for dir in os.listdir(
-                "data") if os.path.isdir(f"data/{dir}")]
+            dirs = [dir for dir in os.listdir("data") if os.path.isdir(f"data/{dir}")]
 
             data: List[ProjectData] = []
 
@@ -135,19 +153,24 @@ class Job(threading.Thread):
                         if project.status == "failed":
                             continue
 
-                        for target_lang in project.target_languages:
-                            download_dub(
-                                project.id, project.dubbing_id, target_lang)
+                        print(f"Extracting audio from raw video...")
+                        process_video(project.id, "raw", True)
 
                         print(f"Saving dub result for {project.dubbing_id}")
+
+                        for target_lang in project.target_languages:
+                            download_dub(project.id, project.dubbing_id, target_lang)
+                            print(f"Extracting audio from {target_lang} video...")
+                            process_video(project.id, target_lang)
+
                         project.save()
 
 
 # setup server
 
 
-def get_chunk(id: str, lang_code: str, byte1=None, byte2=None):
-    full_path = f"data/{id}/{lang_code}.mp4"
+def get_chunk(id: str, filename: str, byte1=None, byte2=None):
+    full_path = f"data/{id}/{filename}"
     file_size = os.stat(full_path).st_size
     start = 0
 
@@ -158,7 +181,7 @@ def get_chunk(id: str, lang_code: str, byte1=None, byte2=None):
     else:
         length = file_size - start
 
-    with open(full_path, 'rb') as f:
+    with open(full_path, "rb") as f:
         f.seek(start)
         chunk = f.read(length)
     return chunk, start, length, file_size
@@ -168,26 +191,25 @@ app = Flask(__name__)
 
 CORS(app)
 
-ALLOWED_EXTENSIONS = {'mp4'}
+ALLOWED_EXTENSIONS = {"mp4"}
 
 
 def allowed_file(filename: str):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.after_request
 def after_request(response):
-    response.headers.add('Accept-Ranges', 'bytes')
+    response.headers.add("Accept-Ranges", "bytes")
     return response
 
 
-@app.route("/", methods=['GET'])
+@app.route("/", methods=["GET"])
 def hello_world():
     return "Hello, World!"
 
 
-@app.route("/projects", methods=['GET'])
+@app.route("/projects", methods=["GET"])
 def projects():
     dirs = [dir for dir in os.listdir("data") if os.path.isdir(f"data/{dir}")]
 
@@ -201,7 +223,9 @@ def projects():
     return make_response(jsonify(data))
 
 
-@app.route("/projects/<id>", )
+@app.route(
+    "/projects/<id>",
+)
 def project_detail(id: str):
     f = open(f"data/{id}/meta.json", "r")
     data = json.loads(f.read())
@@ -209,12 +233,12 @@ def project_detail(id: str):
     return make_response(jsonify(data))
 
 
-@app.route("/projects/<id>/<lang_code>", methods=['GET'])
+@app.route("/projects/<id>/<lang_code>", methods=["GET"])
 def stream(id: str, lang_code: str):
-    range_header = request.headers.get('Range', None)
+    range_header = request.headers.get("Range", None)
     byte1, byte2 = 0, None
     if range_header:
-        match = re.search(r'(\d+)-(\d*)', range_header)
+        match = re.search(r"(\d+)-(\d*)", range_header)
         groups = match.groups()
 
         if groups[0]:
@@ -222,22 +246,61 @@ def stream(id: str, lang_code: str):
         if groups[1]:
             byte2 = int(groups[1])
 
-    chunk, start, length, file_size = get_chunk(id, lang_code, byte1, byte2)
-    resp = Response(chunk, 206, mimetype='video/mp4',
-                    content_type='video/mp4', direct_passthrough=True)
+    chunk, start, length, file_size = get_chunk(
+        id, f"vidnoaudio_{lang_code}.mp4", byte1, byte2
+    )
+    resp = Response(
+        chunk,
+        206,
+        mimetype="video/mp4",
+        content_type="video/mp4",
+        direct_passthrough=True,
+    )
     resp.headers.add(
-        'Content-Range', 'bytes {0}-{1}/{2}'.format(start, start + length - 1, file_size))
+        "Content-Range",
+        "bytes {0}-{1}/{2}".format(start, start + length - 1, file_size),
+    )
     return resp
 
 
-@app.route("/projects", methods=['POST'])
+@app.route("/projects/<id>/<lang_code>/audio", methods=["GET"])
+def stream_audio(id: str, lang_code: str):
+    range_header = request.headers.get("Range", None)
+    byte1, byte2 = 0, None
+    if range_header:
+        match = re.search(r"(\d+)-(\d*)", range_header)
+        groups = match.groups()
+
+        if groups[0]:
+            byte1 = int(groups[0])
+        if groups[1]:
+            byte2 = int(groups[1])
+
+    chunk, start, length, file_size = get_chunk(
+        id, f"audio_{lang_code}.mp3", byte1, byte2
+    )
+    resp = Response(
+        chunk,
+        206,
+        mimetype="audio/mp3",
+        content_type="audio/mp3",
+        direct_passthrough=True,
+    )
+    resp.headers.add(
+        "Content-Range",
+        "bytes {0}-{1}/{2}".format(start, start + length - 1, file_size),
+    )
+    return resp
+
+
+@app.route("/projects", methods=["POST"])
 def add_dubbing():
-    if 'file' not in request.files:
+    if "file" not in request.files:
         return make_response("No file found", 400)
 
-    file = request.files['file']
+    file = request.files["file"]
 
-    if file.filename is None or file.filename == '':
+    if file.filename is None or file.filename == "":
         return make_response("No file found", 400)
 
     filename = secure_filename(file.filename)
@@ -268,7 +331,7 @@ def add_dubbing():
         status="dubbing",
         source_lang=source_lang,
         original_target_lang=target_lang,
-        target_languages=[target_lang]
+        target_languages=[target_lang],
     )
 
     meta.save()

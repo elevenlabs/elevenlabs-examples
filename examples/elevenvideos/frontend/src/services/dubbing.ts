@@ -22,7 +22,11 @@ export const getProject = async (id: string) => {
 };
 
 export const getStreamUrl = (id: string, lang_code: string) => {
-  return `${VITE_API_URL}/${path}/${id}/${lang_code}`;
+  return `${VITE_API_URL}${path}/${id}/${lang_code}`;
+};
+
+export const getAudioStreamUrl = (id: string, lang_code: string) => {
+  return `${VITE_API_URL}${path}/${id}/${lang_code}/audio`;
 };
 
 export const addProject = async (
