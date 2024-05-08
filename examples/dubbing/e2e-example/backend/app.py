@@ -13,7 +13,7 @@ from typing import List
 from flask import request
 from werkzeug.utils import secure_filename
 from datetime import timedelta
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 
 
 load_dotenv()
@@ -101,53 +101,9 @@ def signal_handler(signum, frame):
     raise ProgramKilled()
 
 
-class Job(threading.Thread):
-    def __init__(self, interval: timedelta):
-        threading.Thread.__init__(self)
-        self.daemon = False
-        self.stopped = threading.Event()
-        self.interval = interval
-
-    def stop(self):
-        self.stopped.set()
-        self.join()
-
-    def run(self):
-        while not self.stopped.wait(self.interval.total_seconds()):
-            dirs = [dir for dir in os.listdir("data") if os.path.isdir(f"data/{dir}")]
-
-            data: List[ProjectData] = []
-
-            for dir in dirs:
-                with open(f"data/{dir}/meta.json", "r") as f:
-                    raw = json.loads(f.read())
-                    data.append(ProjectData.from_dict(raw))
-
-            for project in data:
-                if project.status == "dubbing":
-                    new_meta = get_metadata(project.dubbing_id)
-                    print(new_meta)
-
-                    if new_meta["status"] != project.status:
-                        project.status = new_meta["status"]
-                        project.target_languages = new_meta["target_languages"]
-
-                        if project.status == "failed":
-                            continue
-
-                        for target_lang in project.target_languages:
-                            download_dub(project.id, project.dubbing_id, target_lang)
-
-                        print(f"Saving dub result for {project.dubbing_id}")
-                        project.save()
-
-
-# setup server
-
-
 app = Flask(__name__)
-
 CORS(app)
+
 
 ALLOWED_EXTENSIONS = {"mp4"}
 
@@ -163,11 +119,13 @@ def after_request(response):
 
 
 @app.route("/", methods=["GET"])
+@cross_origin()
 def hello_world():
     return "Hello, World!"
 
 
 @app.route("/projects", methods=["GET"])
+@cross_origin()
 def projects():
     dirs = [dir for dir in os.listdir("data") if os.path.isdir(f"data/{dir}")]
 
@@ -186,12 +144,31 @@ def projects():
 )
 def project_detail(id: str):
     f = open(f"data/{id}/meta.json", "r")
-    data = json.loads(f.read())
+    project = ProjectData.from_dict(json.loads(f.read()))
     f.close()
-    return make_response(jsonify(data))
+
+    # check if ready, if so download it
+    new_meta = get_metadata(project.dubbing_id)
+    print("status is ", new_meta["status"])
+
+    if new_meta["status"] != project.status:
+        project.status = new_meta["status"]
+        project.target_languages = new_meta["target_languages"]
+
+        if project.status == "failed":
+            raise Exception("Dubbing failed")
+
+        for target_lang in project.target_languages:
+            download_dub(project.id, project.dubbing_id, target_lang)
+
+        print(f"Saving dub result for {project.dubbing_id}")
+        project.save()
+
+    return make_response(jsonify(project))
 
 
 @app.route("/projects/<id>/<lang_code>", methods=["GET"])
+@cross_origin()
 def stream(id: str, lang_code: str):
     video_path = f"data/{id}/{lang_code}.mp4"
     return Response(stream_video(video_path), mimetype="video/mp4")
@@ -207,6 +184,7 @@ def stream_video(video_path):
 
 
 @app.route("/projects", methods=["POST"])
+@cross_origin()
 def add_dubbing():
     if "file" not in request.files:
         return make_response("No file found", 400)
@@ -253,12 +231,4 @@ def add_dubbing():
 
 
 if __name__ == "__main__":
-    signal.signal(signal.SIGTERM, signal_handler)
-    signal.signal(signal.SIGINT, signal_handler)
-    job = Job(interval=timedelta(seconds=CHECK_INTERVAL_SECONDS))
-    job.start()
-
-    try:
-        app.run()
-    except ProgramKilled:
-        job.stop()
+    app.run()

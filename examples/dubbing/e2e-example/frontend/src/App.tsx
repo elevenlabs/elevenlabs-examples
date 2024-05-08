@@ -1,6 +1,5 @@
 import { QueryClient, QueryClientProvider } from "react-query";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { Home } from "./pages/home";
 import { Create } from "./pages/create";
 import { Stream } from "./pages/stream";
 import { Toaster } from "./components/ui/toaster";
@@ -11,11 +10,10 @@ function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <Home />,
+      element: <Create />,
     },
-    { path: "/create", element: <Create /> },
     {
-      path: "/stream/:id/:lang_code",
+      path: "/stream/:id",
       element: <Stream />,
     },
   ]);

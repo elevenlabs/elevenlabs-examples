@@ -41,11 +41,16 @@ export const Create = () => {
 
   const mutation = useMutation({
     mutationFn: async (payload: FormProps) => {
-      await addProject(payload.sourceLang, payload.targetLang, payload.file);
+      const dubbing_id = await addProject(
+        payload.sourceLang,
+        payload.targetLang,
+        payload.file
+      );
+      return dubbing_id;
     },
-    onSuccess: () => {
+    onSuccess: (dubbing_id: string) => {
       toast({ description: "Project added successfully" });
-      navigate("/");
+      navigate(`/stream/${dubbing_id}`);
     },
     onError: () => {
       toast({
@@ -58,15 +63,15 @@ export const Create = () => {
   const file = form.watch("file");
 
   return (
-    <Layout pageTitle="Add New Project">
+    <Layout>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit((val) => {
+          onSubmit={form.handleSubmit(val => {
             mutation.mutate(val);
           })}
         >
           <Dropzone
-            onDrop={(acceptedFiles) => {
+            onDrop={acceptedFiles => {
               if (acceptedFiles.length === 1) {
                 form.setValue("file", acceptedFiles[0]);
               }
@@ -77,23 +82,24 @@ export const Create = () => {
             maxFiles={1}
           >
             {({ getRootProps, getInputProps }) => (
-              <section className="w-full p-8 bg-gray-100 hover:bg-gray-200 rounded-lg">
-                <div {...getRootProps()}>
+              <section className="w-full bg-gray-100 hover:bg-gray-200 rounded-lg h-96 flex">
+                <div
+                  {...getRootProps()}
+                  className="text-center w-full h-full flex items-center justify-center cursor-pointer"
+                >
                   <input {...getInputProps()} />
                   {file ? (
-                    <p className="text-center">
+                    <p>
                       Selected <span className="font-bold">{file.name}</span>
                     </p>
                   ) : (
-                    <p className="text-center">
-                      Drag 'n' drop a video file here, or click to select file
-                    </p>
+                    <p>Drag and drop a video</p>
                   )}
                 </div>
               </section>
             )}
           </Dropzone>
-          <div className="flex gap-x-4 mt-4 justify-center">
+          <div className="flex gap-x-4 mt-4">
             <FormField
               control={form.control}
               name="sourceLang"
@@ -115,7 +121,7 @@ export const Create = () => {
                       </SelectItem>
                       {languages
                         .sort((a, b) => a.name.localeCompare(b.name))
-                        .map((language) => {
+                        .map(language => {
                           return (
                             <SelectItem
                               value={language.code}
@@ -149,7 +155,7 @@ export const Create = () => {
                     <SelectContent>
                       {languages
                         .sort((a, b) => a.name.localeCompare(b.name))
-                        .map((language) => {
+                        .map(language => {
                           return (
                             <SelectItem
                               value={language.code}
@@ -165,11 +171,11 @@ export const Create = () => {
                 </FormItem>
               )}
             />
-          </div>
-          <div className="flex justify-end">
-            <Button type="submit" size={"lg"} disabled={mutation.isLoading}>
-              Submit
-            </Button>
+            <div className="flex mt-8">
+              <Button type="submit" size={"lg"} disabled={mutation.isLoading}>
+                Submit
+              </Button>
+            </div>
           </div>
         </form>
       </Form>

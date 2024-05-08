@@ -5,8 +5,9 @@ import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import ReactPlayer from "react-player";
 import { languages } from "@/components/languages";
+
 export const Stream = () => {
-  const params = useParams<{ id: string; lang_code: string }>();
+  const params = useParams<{ id: string }>();
   const [selectedDub, setSelectedDub] = useState<string>("raw");
   const [playedSeconds, setPlayedSeconds] = useState<number>(0);
   const ref = useRef<ReactPlayer | null>(null);
@@ -26,13 +27,17 @@ export const Stream = () => {
   }, [data]);
 
   const sourceLang = languages.find(l => l.code === data?.source_lang);
-  const targetLang = languages.find(l => l.code === params.lang_code);
+  const targetLangs = languages.filter(l =>
+    data?.target_languages.includes(l.code)
+  );
 
   return (
-    <Layout pageTitle="Stream Project">
+    <Layout>
       {data && data.status === "dubbing" && (
         <div>
-          <p className="text-center">Video still processed. Please wait</p>
+          <p className="text-center">
+            Video still processing. Please refresh in a few seconds.
+          </p>
         </div>
       )}
       {data && data.status === "dubbed" && (
@@ -71,18 +76,20 @@ export const Stream = () => {
                   )}
                 </div>
               </div>
-              <div
-                className={`p-3 rounded-full hover:cursor-pointer ${selectedDub === params.lang_code ? "bg-zinc-400" : "bg-zinc-200"}`}
-                onClick={() => {
-                  setSelectedDub(params.lang_code!);
-                }}
-              >
-                {targetLang && (
-                  <div>
-                    {targetLang.countryLogo} {targetLang.name}
-                  </div>
-                )}
-              </div>
+              {targetLangs.map(lang => (
+                <div
+                  className={`p-3 rounded-full hover:cursor-pointer ${selectedDub === lang.code ? "bg-zinc-400" : "bg-zinc-200"}`}
+                  onClick={() => {
+                    setSelectedDub(lang.code);
+                  }}
+                >
+                  {lang && (
+                    <div>
+                      {lang.countryLogo} {lang.name}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </>
