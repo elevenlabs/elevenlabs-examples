@@ -153,7 +153,7 @@ class Job(threading.Thread):
                         if project.status == "failed":
                             continue
 
-                        print(f"Extracting audio from raw video...")
+                        print("Extracting audio from raw video...")
                         process_video(project.id, "raw", True)
 
                         print(f"Saving dub result for {project.dubbing_id}")
