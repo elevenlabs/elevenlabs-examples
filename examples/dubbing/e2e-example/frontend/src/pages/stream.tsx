@@ -52,7 +52,7 @@ export const Stream = () => {
                 ref.current?.seekTo(playedSeconds, "seconds");
               }}
               ref={ref}
-              url={getStreamUrl(data.id, selectedDub)}
+              url={getStreamUrl(data.id)}
               controls
               width={"100%"}
               height={"400px"}

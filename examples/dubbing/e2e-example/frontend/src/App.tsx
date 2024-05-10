@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Create } from "./pages/create";
 import { Stream } from "./pages/stream";
 import { Toaster } from "./components/ui/toaster";
+import Carousel from "./pages/carousel";
 
 function App() {
   const queryClient = new QueryClient();
@@ -15,6 +16,10 @@ function App() {
     {
       path: "/stream/:id",
       element: <Stream />,
+    },
+    {
+      path: "/carousel/:id",
+      element: <Carousel />,
     },
   ]);
   return (

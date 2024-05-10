@@ -14,6 +14,7 @@ from flask import request
 from werkzeug.utils import secure_filename
 from datetime import timedelta
 from flask_cors import CORS, cross_origin
+from moviepy.editor import VideoFileClip
 
 
 load_dotenv()
@@ -31,7 +32,19 @@ if ELEVENLABS_API_KEY is None:
 
 client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
 
-# helper function regarding dubbing
+
+def process_video(id: str, filename: str):
+    """
+    Extract audio from given video and create a video version without audio
+    Input: <lang_code>.mp4
+    Output: vidnoaudio_<lang_code>.mp4 and audio_<lang_code>.mp3
+    """
+    video = VideoFileClip(f"data/{id}/{filename}.mp4")
+    audio = video.audio
+    audio.write_audiofile(f"data/{id}/audio_{filename}.mp3")
+
+    video_without_audio: VideoFileClip = video.without_audio()
+    video_without_audio.write_videofile(f"data/{id}/vidnoaudio_{filename}.mp4")
 
 
 def upload_dubbing(id: str, source: str, target: str) -> str:
@@ -51,6 +64,7 @@ def upload_dubbing(id: str, source: str, target: str) -> str:
 
 def get_metadata(dubbing_id: str):
     response = client.dubbing.get_dubbing_project_metadata(dubbing_id)
+    print(response)
 
     return {
         "dubbing_id": response.dubbing_id,
@@ -158,8 +172,11 @@ def project_detail(id: str):
         if project.status == "failed":
             return make_response(jsonify(project))
 
+        process_video(project.id, "raw")
+
         for target_lang in project.target_languages:
             download_dub(project.id, project.dubbing_id, target_lang)
+            process_video(project.id, target_lang)
 
         print(f"Saving dub result for {project.dubbing_id}")
         project.save()
@@ -167,17 +184,23 @@ def project_detail(id: str):
     return make_response(jsonify(project))
 
 
-@app.route("/projects/<id>/<lang_code>", methods=["GET"])
+@app.route("/projects/<id>/video", methods=["GET"])
 @cross_origin()
-def stream(id: str, lang_code: str):
-    video_path = f"data/{id}/{lang_code}.mp4"
-    return Response(stream_video(video_path), mimetype="video/mp4")
+def stream(id: str):
+    video_path = f"data/{id}/vidnoaudio_raw.mp4"
+    return Response(stream_media(video_path), mimetype="video/mp4")
 
 
-def stream_video(video_path):
+@app.route("/projects/<id>/audio/<lang_code>", methods=["GET"])
+def stream_audio(id: str, lang_code: str):
+    stream_audio = f"data/{id}/audio_{lang_code}.mp3"
+    return Response(stream_media(stream_audio), mimetype="audio/mp3")
+
+
+def stream_media(video_path):
     with open(video_path, "rb") as video_file:
         while True:
-            chunk = video_file.read(1024 * 1024)  # Read 1MB chunks of the video
+            chunk = video_file.read(1024 * 1024)  # Read 1MB chunks of the media
             if not chunk:
                 break
             yield chunk

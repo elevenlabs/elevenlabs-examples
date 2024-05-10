@@ -21,8 +21,12 @@ export const getProject = async (id: string) => {
   return (await api.get(`${path}/${id}`)).data as ProjectData;
 };
 
-export const getStreamUrl = (id: string, lang_code: string) => {
-  return `http://127.0.0.1:5000/${path}/${id}/${lang_code}`;
+export const getStreamUrl = (id: string) => {
+  return `http://127.0.0.1:5000${path}/${id}/video`;
+};
+
+export const getAudioUrl = (id: string, lang: string) => {
+  return `http://127.0.0.1:5000${path}/${id}/audio/${lang}`;
 };
 
 export const addProject = async (
