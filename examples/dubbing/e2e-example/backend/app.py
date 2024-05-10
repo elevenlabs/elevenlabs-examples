@@ -1,21 +1,19 @@
-import os
 import json
-import uuid
+import os
 import re
-import threading
 import signal
+import threading
+import uuid
+from dataclasses import asdict, dataclass
+from datetime import timedelta
+from typing import List
 
-from flask import Flask, jsonify, make_response, Response
 from dotenv import load_dotenv
 from elevenlabs.client import ElevenLabs
-from dataclasses import dataclass, asdict
-from typing import List
-from flask import request
-from werkzeug.utils import secure_filename
-from datetime import timedelta
+from flask import Flask, Response, jsonify, make_response, request
 from flask_cors import CORS, cross_origin
 from moviepy.editor import VideoFileClip
-
+from werkzeug.utils import secure_filename
 
 load_dotenv()
 
