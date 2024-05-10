@@ -11,7 +11,7 @@ export interface Language {
 export const autoDetect: Language = {
   name: "Auto Detect",
   code: "detect",
-  countryLogo: <SearchCheck />,
+  countryLogo: <SearchCheck className="rounded-full w-full h-full p-2" />,
 };
 
 export const languages: Language[] = [

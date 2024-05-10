@@ -195,12 +195,8 @@ export default function VideoPlayer({ data }: { data: ProjectData }) {
                   onChange={val => {
                     toggleAudio(val, audio[val]);
                   }}
-                  tracks={[
-                    autoDetect,
-                    ...data.target_languages.map(
-                      target => languages.find(l => l.code === target)!
-                    ),
-                  ]}
+                  sourceLanguage={data.source_lang}
+                  targetLanguages={data.target_languages}
                 />
               </motion.div>
             </AnimatePresence>
