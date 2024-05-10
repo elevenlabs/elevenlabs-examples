@@ -41,11 +41,16 @@ export const Create = () => {
 
   const mutation = useMutation({
     mutationFn: async (payload: FormProps) => {
-      await addProject(payload.sourceLang, payload.targetLang, payload.file);
+      const dubbingId = await addProject(
+        payload.sourceLang,
+        payload.targetLang,
+        payload.file
+      );
+      return dubbingId;
     },
-    onSuccess: () => {
+    onSuccess: (dubbingId: string) => {
       toast({ description: "Project added successfully" });
-      navigate("/");
+      navigate(`/stream/${dubbingId}`);
     },
     onError: () => {
       toast({
@@ -58,15 +63,15 @@ export const Create = () => {
   const file = form.watch("file");
 
   return (
-    <Layout pageTitle="Add New Project">
+    <Layout>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit((val) => {
+          onSubmit={form.handleSubmit(val => {
             mutation.mutate(val);
           })}
         >
           <Dropzone
-            onDrop={(acceptedFiles) => {
+            onDrop={acceptedFiles => {
               if (acceptedFiles.length === 1) {
                 form.setValue("file", acceptedFiles[0]);
               }
@@ -115,7 +120,7 @@ export const Create = () => {
                       </SelectItem>
                       {languages
                         .sort((a, b) => a.name.localeCompare(b.name))
-                        .map((language) => {
+                        .map(language => {
                           return (
                             <SelectItem
                               value={language.code}
@@ -149,7 +154,7 @@ export const Create = () => {
                     <SelectContent>
                       {languages
                         .sort((a, b) => a.name.localeCompare(b.name))
-                        .map((language) => {
+                        .map(language => {
                           return (
                             <SelectItem
                               value={language.code}

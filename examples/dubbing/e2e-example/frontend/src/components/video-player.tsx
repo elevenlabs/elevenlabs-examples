@@ -1,58 +1,63 @@
-import { getAudioStreamUrl, getStreamUrl } from "@/services/dubbing";
+import {
+  getAudioStreamUrl,
+  getStreamUrl,
+  ProjectData,
+} from "@/services/dubbing";
 import { Howl } from "howler";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, cubicBezier, motion } from "framer-motion";
 import { PlayCircle } from "lucide-react";
 import "./video-player.css";
 import { LanguageToggle } from "./language-toggle";
+import { autoDetect, languages } from "./languages";
+
+interface AudioTracks {
+  [key: string]: Howl | null;
+}
 
 // let's hope that this event could work
 const events = ["click"];
 
-const useLoadAudio = (
-  originalTrackUrl: string,
-  alternativeTrackUrl: string
-) => {
+const useLoadAudio = (tracks: { key: string; url: string }[]) => {
   const [loaded, setLoaded] = useState<boolean>(false);
-  const [audio, setAudio] = useState<{
-    audioRaw: Howl | null;
-    audioConverted: Howl | null;
-  }>({
-    audioConverted: null,
-    audioRaw: null,
+  const [audio, setAudio] = useState<AudioTracks>(() => {
+    const obj: AudioTracks = {};
+    tracks.forEach(track => {
+      obj[track.key] = null;
+    });
+    return obj;
   });
 
   const listener = () => {
-    setAudio({
-      audioRaw: new Howl({
-        src: originalTrackUrl,
+    const data: AudioTracks = {};
+
+    tracks.forEach(track => {
+      data[track.key] = new Howl({
+        src: track.url,
         preload: false,
         format: "mp3",
-      }),
-      audioConverted: new Howl({
-        src: alternativeTrackUrl,
-        preload: false,
-        format: "mp3",
-      }),
+      });
     });
+
+    setAudio(data);
     setLoaded(true);
   };
 
   useEffect(() => {
     if (loaded) {
-      events.forEach((event) => {
+      events.forEach(event => {
         document.removeEventListener(event, listener);
       });
     }
   }, [loaded]);
 
   useEffect(() => {
-    events.forEach((event) => {
+    events.forEach(event => {
       document.addEventListener(event, listener);
     });
 
     return () => {
-      events.forEach((event) => {
+      events.forEach(event => {
         document.removeEventListener(event, listener);
       });
     };
@@ -61,22 +66,17 @@ const useLoadAudio = (
   return audio;
 };
 
-export default function VideoPlayer({
-  id,
-  sourceLang,
-  targetLang,
-}: {
-  id: string;
-  sourceLang: string;
-  targetLang: string;
-}) {
-  const { audioRaw, audioConverted } = useLoadAudio(
-    getAudioStreamUrl(id, "raw"),
-    getAudioStreamUrl(id, targetLang)
-  );
+export default function VideoPlayer({ data }: { data: ProjectData }) {
+  const audio = useLoadAudio([
+    { key: "raw", url: getAudioStreamUrl(data.id, "raw") },
+    ...data.target_languages.map(target => ({
+      key: target,
+      url: getAudioStreamUrl(data.id, target),
+    })),
+  ]);
 
   const videoElement = useRef<HTMLVideoElement | null>(null);
-  const [isAlternativeTrack, setIsAlternativeTrack] = useState<boolean>(false);
+  const [selectedTrack, setSelectedTrack] = useState<string>("raw");
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
   const playVideo = (sample: Howl | null) => {
@@ -97,13 +97,13 @@ export default function VideoPlayer({
       videoElement.current.pause();
       videoElement.current.load();
     }
-    setIsAlternativeTrack(false);
+    setSelectedTrack("raw");
     setIsPlaying(false);
   };
 
   const toggleAudio = useCallback(
-    (isAlternativeTrack: boolean, sample: Howl | null) => {
-      setIsAlternativeTrack(isAlternativeTrack);
+    (track: string, sample: Howl | null) => {
+      setSelectedTrack(track);
 
       if (!isPlaying || videoElement.current === null || sample === null)
         return;
@@ -117,16 +117,16 @@ export default function VideoPlayer({
   );
 
   useEffect(() => {
-    if (
-      videoElement.current === null ||
-      audioRaw === null ||
-      audioConverted === null
-    )
-      return;
-    audioRaw.load();
-    audioConverted.load();
-    // videoElement.current.load(); // this line of cause cause a headache for 1 hour
-  }, [audioRaw, audioConverted]);
+    if (videoElement.current === null) return;
+
+    for (const key of Object.keys(audio)) {
+      const value = audio[key];
+
+      if (value !== null) {
+        value.load();
+      }
+    }
+  }, [audio]);
 
   useEffect(() => {
     return () => {
@@ -150,12 +150,15 @@ export default function VideoPlayer({
               ref={videoElement}
               className="w-full h-wull object-cover pointer-events-none"
               onEnded={() => {
-                playVideo(isAlternativeTrack ? audioConverted : audioRaw);
+                playVideo(audio[selectedTrack]);
               }}
               muted
               playsInline
             >
-              <motion.source src={getStreamUrl(id, "raw")} type="video/mp4" />
+              <motion.source
+                src={getStreamUrl(data.id, "raw")}
+                type="video/mp4"
+              />
             </motion.video>
             <AnimatePresence>
               {!isPlaying && (
@@ -168,9 +171,7 @@ export default function VideoPlayer({
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.5 }}
-                  onClick={() =>
-                    playVideo(isAlternativeTrack ? audioConverted : audioRaw)
-                  }
+                  onClick={() => playVideo(audio[selectedTrack])}
                   transition={{
                     ease: cubicBezier(0.7, 0.05, 0.4, 1),
                     duration: 0.5,
@@ -190,12 +191,16 @@ export default function VideoPlayer({
                 transition={{ duration: 0.3 }}
               >
                 <LanguageToggle
-                  isAlternativeTrack={isAlternativeTrack}
-                  onChange={(val) => {
-                    toggleAudio(val, val ? audioConverted : audioRaw);
+                  selectedTrack={selectedTrack}
+                  onChange={val => {
+                    toggleAudio(val, audio[val]);
                   }}
-                  sourceLang={sourceLang}
-                  targetLang={targetLang}
+                  tracks={[
+                    autoDetect,
+                    ...data.target_languages.map(
+                      target => languages.find(l => l.code === target)!
+                    ),
+                  ]}
                 />
               </motion.div>
             </AnimatePresence>

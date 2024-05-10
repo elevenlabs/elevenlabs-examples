@@ -39,5 +39,7 @@ export const addProject = async (
   formData.append("target_lang", target_lang);
   formData.append("file", file);
 
-  await api.postForm(path, formData);
+  const response = await api.postForm(path, formData);
+
+  return response.data.id as string;
 };

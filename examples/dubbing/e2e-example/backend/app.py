@@ -9,7 +9,6 @@ from dataclasses import dataclass, asdict
 from typing import List
 from flask import request
 from werkzeug.utils import secure_filename
-from datetime import timedelta
 from flask_cors import CORS, cross_origin
 from moviepy.editor import VideoFileClip
 
