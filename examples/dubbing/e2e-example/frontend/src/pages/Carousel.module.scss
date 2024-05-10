@@ -55,7 +55,8 @@
   z-index: 0;
   pointer-events: none;
   user-select: none;
-  top: 0;
+  top: 50%;
+  transform: translateY(-50%);
   @media (max-width: 1280px) {
     height: calc(650px * 0.5625);
   }

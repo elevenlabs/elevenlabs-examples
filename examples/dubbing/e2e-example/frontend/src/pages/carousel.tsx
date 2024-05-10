@@ -3,22 +3,14 @@ import * as AspectRatio from "@radix-ui/react-aspect-ratio";
 import { AnimatePresence, PanInfo, cubicBezier, motion } from "framer-motion";
 import cn from "classnames";
 import { Howler, Howl } from "howler";
-import {
-  Suspense,
-  lazy,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 
-import { languageMap } from "./Carousel/languageMap";
 import LanguageToggle from "./Carousel/LanguageToggle/LanguageToggle";
 import styles from "./Carousel.module.scss";
 import { useParams } from "react-router-dom";
 import { useQuery } from "react-query";
 import { getAudioUrl, getProject, getStreamUrl } from "@/services/dubbing";
-import { languages } from "@/components/languages";
+import { getLanguageMap } from "./Carousel/languageMap";
 const Waveform = lazy(() => import("./Carousel/Waveform/Waveform"));
 
 function PlayCircle({ size = "1rem", color = "currentColor", ...otherProps }) {
@@ -55,7 +47,7 @@ type Config = {
 
 const DEFAULT_WAVEFORM_COLORS = ["#C369F8", "#ffffff"];
 
-export default function Carousel() {
+export default function Stream() {
   const [audioTrackIndex, setAudioTrackIndex] = useState(0);
   // Add a negative buffer to support infinite navigation
   const [data, setData] = useState<Config>();
@@ -78,45 +70,40 @@ export default function Carousel() {
   }, [projectData]);
 
   useEffect(() => {
-    if (projectData) {
+    if (projectData && projectData.status === "dubbed") {
+      console.log(getAudioUrl(projectData.id, "raw"));
       setData({
         id: "demovideo",
         video: getStreamUrl(projectData.id),
         audioTracks: [
           {
-            language: "english-uk",
+            language: "en",
             sample: new Howl({
               src: [getAudioUrl(projectData.id, "raw")],
-              preload: false,
+              preload: true,
             }),
           },
-          {
-            // TODO: replace this with the other video
-            language: "english-uk",
+          ...projectData.target_languages.map(language => ({
+            language,
             sample: new Howl({
-              src: [getAudioUrl(projectData.id, "raw")],
-              preload: false,
+              src: [getAudioUrl(projectData.id, language)],
+              preload: true,
             }),
-          },
+          })),
         ],
         index: 0,
       });
     }
   }, [projectData]);
 
-  // const sourceLang = languages.find(l => l.code === projectData?.source_lang);
-  // const targetLangs = languages.filter(l =>
-  //   projectData?.target_languages.includes(l.code)
-  // );
-
-  const playVideo = useCallback((sample: Howl) => {
+  const playVideo = (sample: Howl) => {
     const activeVideo = document.getElementById(`video`) as HTMLVideoElement;
     const playing = activeVideo.play();
     playing.then(() => {
       sample.play();
       setIsPlaying(true);
     });
-  }, []);
+  };
 
   function resetMedia() {
     Howler.stop();
@@ -130,26 +117,28 @@ export default function Carousel() {
   function toggleAudio(audioIndex: number, sample: Howl) {
     setAudioTrackIndex(audioIndex);
     if (!isPlaying) return;
+    console.log("toggling audio 2");
     const activeVideo = document.getElementById(`video`) as HTMLVideoElement;
     const elapsedTime = activeVideo.currentTime;
     Howler.stop();
     sample.seek(elapsedTime);
-    debugger;
     sample.play();
   }
 
   const currentLanguage = useMemo(() => {
+    if (!data) return;
     return data?.audioTracks[audioTrackIndex].language;
-  }, [audioTrackIndex]);
+  }, [audioTrackIndex, data]);
 
   useEffect(() => {
+    if (!data) return;
     const track1 = data?.audioTracks[0].sample;
     const track2 = data?.audioTracks[1].sample;
     const activeVideo = document.getElementById(`video`) as HTMLVideoElement;
     track1?.load();
     track2?.load();
     activeVideo?.load();
-  }, []);
+  }, [data]);
 
   return (
     <div className="relative h-screen flex items-center justify-center">
@@ -159,7 +148,7 @@ export default function Carousel() {
             colors={
               !isPlaying
                 ? DEFAULT_WAVEFORM_COLORS
-                : languageMap[currentLanguage || "english"].colors
+                : getLanguageMap(currentLanguage || "en").colors
             }
           />
         </Suspense>
@@ -263,6 +252,11 @@ export default function Carousel() {
               </AspectRatio.Root>
             </motion.div>
           </motion.div>
+        )}
+        {projectData && projectData.status === "dubbing" && (
+          <div>
+            <p className="text-center">Video still processing. Please wait.</p>
+          </div>
         )}
       </div>
     </div>

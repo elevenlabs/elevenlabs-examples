@@ -26,7 +26,7 @@ export const getStreamUrl = (id: string) => {
 };
 
 export const getAudioUrl = (id: string, lang: string) => {
-  return `http://127.0.0.1:5000${path}/${id}/audio/${lang}`;
+  return `http://127.0.0.1:5000${path}/${id}/audio/${lang}.mp3`;
 };
 
 export const addProject = async (

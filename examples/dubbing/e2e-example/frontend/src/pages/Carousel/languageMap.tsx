@@ -1300,7 +1300,7 @@ export function Recommended({ size = 24, ...props }) {
       <g clipPath="url(#clip0_383_434)">
         <path
           d="M8.33333 12.9167L11.0833 15.6667L15.6667 9.25M23 12C23 13.4445 22.7155 14.8749 22.1627 16.2095C21.6099 17.5441 20.7996 18.7567 19.7782 19.7782C18.7567 20.7996 17.5441 21.6099 16.2095 22.1627C14.8749 22.7155 13.4445 23 12 23C10.5555 23 9.12506 22.7155 7.79048 22.1627C6.4559 21.6099 5.24327 20.7996 4.22183 19.7782C3.20038 18.7567 2.39013 17.5441 1.83733 16.2095C1.28452 14.8749 1 13.4445 1 12C1 9.08262 2.15893 6.28473 4.22183 4.22183C6.28473 2.15893 9.08262 1 12 1C14.9174 1 17.7153 2.15893 19.7782 4.22183C21.8411 6.28473 23 9.08262 23 12Z"
-          stroke="#5c5a6e"
+          stroke="#ffffff"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -1315,27 +1315,35 @@ export function Recommended({ size = 24, ...props }) {
   );
 }
 
-export const languageMap: {
-  [key: string]: { name: string; flag: JSX.Element; colors: string[] };
-} = {
-  english: {
-    name: "English",
-    flag: <AmericanFlag />,
-    colors: ["#fc92b6", "#806eff"],
-  },
-  "english-uk": {
-    name: "English",
-    flag: <UKFlag />,
-    colors: ["#fc92b6", "#806eff"],
-  },
-  spanish: {
-    name: "Spanish",
-    flag: <SpanishFlag />,
-    colors: ["#f88a8a", "#fff900"],
-  },
-  hindi: {
-    name: "Hindi",
-    flag: <IndianFlag />,
-    colors: ["#fcc85b", "#5cff78"],
-  },
+export const getLanguageMap = (
+  language: string
+): { name: string; flag: JSX.Element; colors: string[] } => {
+  const map: {
+    [key: string]: { name: string; flag: JSX.Element; colors: string[] };
+  } = {
+    en: {
+      name: "English",
+      flag: <AmericanFlag />,
+      colors: ["#fc92b6", "#806eff"],
+    },
+    es: {
+      name: "Spanish",
+      flag: <SpanishFlag />,
+      colors: ["#f88a8a", "#fff900"],
+    },
+    hi: {
+      name: "Hindi",
+      flag: <IndianFlag />,
+      colors: ["#fcc85b", "#5cff78"],
+    },
+    other: {
+      name: "Other",
+      flag: <Recommended />,
+      colors: ["#fcc85b", "#5cff78"],
+    },
+  };
+  if (language in map) {
+    return map[language];
+  }
+  return map.other;
 };

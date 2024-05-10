@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-
-import { languageMap } from "../languageMap";
+import { getLanguageMap } from "../languageMap";
 
 export default function LanguageToggle({
   value,
@@ -38,9 +37,8 @@ export default function LanguageToggle({
           <button
             className="w-10 h-10 rounded-full flex justify-center items-center p-0 m-0"
             onClick={e => handleSelection(index, e)}
-            key={language + index}
           >
-            {languageMap[language].flag}
+            {getLanguageMap(language).flag}
           </button>
         );
       })}

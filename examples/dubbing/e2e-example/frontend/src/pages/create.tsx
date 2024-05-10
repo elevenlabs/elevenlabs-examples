@@ -50,7 +50,7 @@ export const Create = () => {
     },
     onSuccess: (dubbing_id: string) => {
       toast({ description: "Project added successfully" });
-      navigate(`/stream/${dubbing_id}`);
+      navigate(`/carousel/${dubbing_id}`);
     },
     onError: () => {
       toast({

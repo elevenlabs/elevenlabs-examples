@@ -191,7 +191,7 @@ def stream(id: str):
     return Response(stream_media(video_path), mimetype="video/mp4")
 
 
-@app.route("/projects/<id>/audio/<lang_code>", methods=["GET"])
+@app.route("/projects/<id>/audio/<lang_code>.mp3", methods=["GET"])
 def stream_audio(id: str, lang_code: str):
     stream_audio = f"data/{id}/audio_{lang_code}.mp3"
     return Response(stream_media(stream_audio), mimetype="audio/mp3")
