@@ -1,9 +1,6 @@
 import os
 import json
 import uuid
-import re
-import threading
-import signal
 
 from flask import Flask, jsonify, make_response, Response
 from dotenv import load_dotenv
@@ -103,65 +100,29 @@ class ProjectData:
             w.write(json.dumps(self.to_dict()))
 
 
-# setup scheduler for checking dubbing progress
+def update_project(project: ProjectData) -> ProjectData:
+    if project.status == "dubbing":
+        new_meta = get_metadata(project.dubbing_id)
+        print(new_meta)
 
+        if new_meta["status"] != project.status:
+            project.status = new_meta["status"]
+            project.target_languages = new_meta["target_languages"]
 
-CHECK_INTERVAL_SECONDS = 10
+            if project.status == "dubbed":
+                print("Extracting audio from raw video...")
+                process_video(project.id, "raw", True)
 
+                print(f"Saving dub result for {project.dubbing_id}")
 
-class ProgramKilled(Exception):
-    pass
+                for target_lang in project.target_languages:
+                    download_dub(project.id, project.dubbing_id, target_lang)
+                    print(f"Extracting audio from {target_lang} video...")
+                    process_video(project.id, target_lang)
 
+            project.save()
 
-def signal_handler(signum, frame):
-    raise ProgramKilled()
-
-
-class Job(threading.Thread):
-    def __init__(self, interval: timedelta):
-        threading.Thread.__init__(self)
-        self.daemon = False
-        self.stopped = threading.Event()
-        self.interval = interval
-
-    def stop(self):
-        self.stopped.set()
-        self.join()
-
-    def run(self):
-        while not self.stopped.wait(self.interval.total_seconds()):
-            dirs = [dir for dir in os.listdir("data") if os.path.isdir(f"data/{dir}")]
-
-            data: List[ProjectData] = []
-
-            for dir in dirs:
-                with open(f"data/{dir}/meta.json", "r") as f:
-                    raw = json.loads(f.read())
-                    data.append(ProjectData.from_dict(raw))
-
-            for project in data:
-                if project.status == "dubbing":
-                    new_meta = get_metadata(project.dubbing_id)
-                    print(new_meta)
-
-                    if new_meta["status"] != project.status:
-                        project.status = new_meta["status"]
-                        project.target_languages = new_meta["target_languages"]
-
-                        if project.status == "failed":
-                            continue
-
-                        print("Extracting audio from raw video...")
-                        process_video(project.id, "raw", True)
-
-                        print(f"Saving dub result for {project.dubbing_id}")
-
-                        for target_lang in project.target_languages:
-                            download_dub(project.id, project.dubbing_id, target_lang)
-                            print(f"Extracting audio from {target_lang} video...")
-                            process_video(project.id, target_lang)
-
-                        project.save()
+    return project
 
 
 def stream_video(video_path: str):
@@ -216,9 +177,13 @@ def projects():
 )
 def project_detail(id: str):
     f = open(f"data/{id}/meta.json", "r")
-    data = json.loads(f.read())
+    data = ProjectData.from_dict(json.loads(f.read()))
     f.close()
-    return make_response(jsonify(data))
+
+    if data.status == "dubbing":
+        data = update_project(data)
+
+    return make_response(jsonify(data.to_dict()))
 
 
 @app.route("/projects/<id>/<lang_code>", methods=["GET"])
@@ -281,12 +246,4 @@ def add_dubbing():
 
 
 if __name__ == "__main__":
-    signal.signal(signal.SIGTERM, signal_handler)
-    signal.signal(signal.SIGINT, signal_handler)
-    job = Job(interval=timedelta(seconds=CHECK_INTERVAL_SECONDS))
-    job.start()
-
-    try:
-        app.run()
-    except ProgramKilled:
-        job.stop()
+    app.run()
