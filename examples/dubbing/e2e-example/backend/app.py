@@ -157,9 +157,17 @@ def projects():
     "/projects/<id>",
 )
 def project_detail(id: str):
-    f = open(f"data/{id}/meta.json", "r")
-    project = ProjectData.from_dict(json.loads(f.read()))
-    f.close()
+    try:
+        f = open(f"data/{id}/meta.json", "r")
+        project = ProjectData.from_dict(json.loads(f.read()))
+        f.close()
+    except FileNotFoundError:
+        try:
+            new_meta = get_metadata(id)
+            project = ProjectData.from_dict(new_meta)
+            project.save()
+        except Exception as e:
+            return make_response(jsonify({"error": "Project not found"}), 404)
 
     # check if ready, if so download it
     new_meta = get_metadata(project.dubbing_id)

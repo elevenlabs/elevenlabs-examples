@@ -1336,10 +1336,125 @@ export const getLanguageMap = (
       flag: <IndianFlag />,
       colors: ["#fcc85b", "#5cff78"],
     },
-    other: {
-      name: "Other",
-      flag: <Recommended />,
-      colors: ["#fcc85b", "#5cff78"],
+    zh: {
+      name: "Chinese",
+      flag: <ChineseFlag />,
+      colors: ["#ff3333", "#ffcc00"],
+    },
+    fr: {
+      name: "French",
+      flag: <FrenchFlag />,
+      colors: ["#0055a4", "#ef4135"],
+    },
+    de: {
+      name: "German",
+      flag: <GermanFlag />,
+      colors: ["#000000", "#dd0000"],
+    },
+    ja: {
+      name: "Japanese",
+      flag: <JapaneseFlag />,
+      colors: ["#bc002d", "#ffffff"],
+    },
+    ar: {
+      name: "Arabic",
+      flag: <UAEFlag />,
+      colors: ["#007a3d", "#ce1126"],
+    },
+    ru: {
+      name: "Russian",
+      flag: <RussianFlag />,
+      colors: ["#0033a0", "#da291c"],
+    },
+    ko: {
+      name: "Korean",
+      flag: <KoreanFlag />,
+      colors: ["#003478", "#c60c30"],
+    },
+    id: {
+      name: "Indonesian",
+      flag: <IndonesianFlag />,
+      colors: ["#ce1126", "#ffffff"],
+    },
+    it: {
+      name: "Italian",
+      flag: <ItalianFlag />,
+      colors: ["#009246", "#ce2b37"],
+    },
+    nl: {
+      name: "Dutch",
+      flag: <DutchFlag />,
+      colors: ["#21468b", "#ae1c28"],
+    },
+    tr: {
+      name: "Turkish",
+      flag: <TurkishFlag />,
+      colors: ["#e30a17", "#ffffff"],
+    },
+    pl: {
+      name: "Polish",
+      flag: <PolishFlag />,
+      colors: ["#dc143c", "#ffffff"],
+    },
+    sv: {
+      name: "Swedish",
+      flag: <SwedishFlag />,
+      colors: ["#006aa7", "#fecc00"],
+    },
+    fil: {
+      name: "Filipino",
+      flag: <FilipinoFlag />,
+      colors: ["#0038a8", "#ce1126"],
+    },
+    ms: {
+      name: "Malay",
+      flag: <MalayFlag />,
+      colors: ["#010066", "#cc0001"],
+    },
+    ro: {
+      name: "Romanian",
+      flag: <RomanianFlag />,
+      colors: ["#fcd116", "#002b7f"],
+    },
+    uk: {
+      name: "Ukrainian",
+      flag: <UkrainianFlag />,
+      colors: ["#005bbb", "#ffd500"],
+    },
+    el: {
+      name: "Greek",
+      flag: <GreekFlag />,
+      colors: ["#0d5eaf", "#ffffff"],
+    },
+    cs: {
+      name: "Czech",
+      flag: <CzechFlag />,
+      colors: ["#d7141a", "#11457e"],
+    },
+    da: {
+      name: "Danish",
+      flag: <DanishFlag />,
+      colors: ["#c60c30", "#ffffff"],
+    },
+    fi: {
+      name: "Finnish",
+      flag: <FinnishFlag />,
+      colors: ["#003580", "#ffffff"],
+    },
+    bg: {
+      name: "Bulgarian",
+      flag: <BulgarianFlag />,
+      colors: ["#00966e", "#d62612"],
+    },
+    hr: {
+      name: "Croatian",
+      flag: <CroatianFlag />,
+      colors: ["#1d1d1b", "#f4c300"],
+    },
+    sk: {
+      name: "Slovak",
+      flag: <SlovakFlag />,
+      colors: ["#0b4ea2", "#ee1c25"],
     },
   };
   if (language in map) {

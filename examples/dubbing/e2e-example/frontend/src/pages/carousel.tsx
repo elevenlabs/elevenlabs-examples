@@ -57,7 +57,7 @@ export default function Stream() {
 
   const [shouldRefetch, setShouldRefetch] = useState<boolean>(true);
 
-  const { data: projectData } = useQuery({
+  const { data: projectData, isError } = useQuery({
     queryKey: ["projects", params.id],
     queryFn: () => getProject(params.id!),
     refetchInterval: shouldRefetch ? 2000 : false, // refetch every 15 seconds
@@ -153,6 +153,16 @@ export default function Stream() {
           />
         </Suspense>
       </div>
+      {projectData && projectData.status === "dubbing" && (
+        <div className="z-40">
+          <p
+            className="text-center font-semibold text-2xl"
+            style={{ color: "black" }}
+          >
+            Video still processing. Please wait.
+          </p>
+        </div>
+      )}
 
       <div className="content">
         {data && (
@@ -252,11 +262,6 @@ export default function Stream() {
               </AspectRatio.Root>
             </motion.div>
           </motion.div>
-        )}
-        {projectData && projectData.status === "dubbing" && (
-          <div>
-            <p className="text-center">Video still processing. Please wait.</p>
-          </div>
         )}
       </div>
     </div>
