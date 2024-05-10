@@ -47,7 +47,7 @@ type Config = {
 
 const DEFAULT_WAVEFORM_COLORS = ["#C369F8", "#ffffff"];
 
-export default function Stream() {
+export default function Watch() {
   const [audioTrackIndex, setAudioTrackIndex] = useState(0);
   // Add a negative buffer to support infinite navigation
   const [data, setData] = useState<Config>();

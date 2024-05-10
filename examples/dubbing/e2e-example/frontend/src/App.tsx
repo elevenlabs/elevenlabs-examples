@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Create } from "./pages/create";
 import { Toaster } from "./components/ui/toaster";
-import Carousel from "./pages/carousel";
+import Watch from "./pages/watch";
 
 function App() {
   const queryClient = new QueryClient();
@@ -13,8 +13,8 @@ function App() {
       element: <Create />,
     },
     {
-      path: "/carousel/:id",
-      element: <Carousel />,
+      path: "/watch/:id",
+      element: <Watch />,
     },
   ]);
   return (

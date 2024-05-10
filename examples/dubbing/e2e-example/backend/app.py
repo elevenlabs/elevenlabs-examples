@@ -30,6 +30,9 @@ if ELEVENLABS_API_KEY is None:
 
 client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
 
+app = Flask(__name__)
+CORS(app)
+
 
 def process_video(id: str, filename: str):
     """
@@ -99,29 +102,7 @@ class ProjectData:
             w.write(json.dumps(self.to_dict()))
 
 
-# setup scheduler for checking dubbing progress
-
-
 CHECK_INTERVAL_SECONDS = 10
-
-
-class ProgramKilled(Exception):
-    pass
-
-
-def signal_handler(signum, frame):
-    raise ProgramKilled()
-
-
-app = Flask(__name__)
-CORS(app)
-
-
-ALLOWED_EXTENSIONS = {"mp4"}
-
-
-def allowed_file(filename: str):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.after_request
