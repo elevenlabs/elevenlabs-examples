@@ -13,7 +13,7 @@ from typing import List
 from flask import request
 from werkzeug.utils import secure_filename
 from datetime import timedelta
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from moviepy.editor import VideoFileClip
 
 
@@ -66,14 +66,12 @@ def download_dub(id: str, dubbing_id: str, language_code: str):
             w.write(chunk)
 
 
-""" 
-Extract audio from given video and create a video version without audio
-Input: <lang_code>.mp4
-Output: vidnoaudio_<lang_code>.mp4 and audio_<lang_code>.mp3
-"""
-
-
 def process_video(id: str, filename: str, save_noaudio=False):
+    """
+    Extract audio from given video and create a video version without audio
+    Input: <lang_code>.mp4
+    Output: vidnoaudio_<lang_code>.mp4 and audio_<lang_code>.mp3
+    """
     video = VideoFileClip(f"data/{id}/{filename}.mp4")
     audio = video.audio
     audio.write_audiofile(f"data/{id}/audio_{filename}.mp3")
@@ -166,29 +164,17 @@ class Job(threading.Thread):
                         project.save()
 
 
+def stream_video(video_path: str):
+    with open(video_path, "rb") as video_file:
+        while True:
+            chunk = video_file.read(1024 * 1024)  # Read 1MB chunks of the video
+            if not chunk:
+                break
+            yield chunk
+
+
 # setup server
-
-
-def get_chunk(id: str, filename: str, byte1=None, byte2=None):
-    full_path = f"data/{id}/{filename}"
-    file_size = os.stat(full_path).st_size
-    start = 0
-
-    if byte1 < file_size:
-        start = byte1
-    if byte2:
-        length = byte2 + 1 - byte1
-    else:
-        length = file_size - start
-
-    with open(full_path, "rb") as f:
-        f.seek(start)
-        chunk = f.read(length)
-    return chunk, start, length, file_size
-
-
 app = Flask(__name__)
-
 CORS(app)
 
 ALLOWED_EXTENSIONS = {"mp4"}
@@ -205,11 +191,13 @@ def after_request(response):
 
 
 @app.route("/", methods=["GET"])
+@cross_origin()
 def hello_world():
     return "Hello, World!"
 
 
 @app.route("/projects", methods=["GET"])
+@cross_origin()
 def projects():
     dirs = [dir for dir in os.listdir("data") if os.path.isdir(f"data/{dir}")]
 
@@ -235,65 +223,18 @@ def project_detail(id: str):
 
 @app.route("/projects/<id>/<lang_code>", methods=["GET"])
 def stream(id: str, lang_code: str):
-    range_header = request.headers.get("Range", None)
-    byte1, byte2 = 0, None
-    if range_header:
-        match = re.search(r"(\d+)-(\d*)", range_header)
-        groups = match.groups()
-
-        if groups[0]:
-            byte1 = int(groups[0])
-        if groups[1]:
-            byte2 = int(groups[1])
-
-    chunk, start, length, file_size = get_chunk(
-        id, f"vidnoaudio_{lang_code}.mp4", byte1, byte2
-    )
-    resp = Response(
-        chunk,
-        206,
-        mimetype="video/mp4",
-        content_type="video/mp4",
-        direct_passthrough=True,
-    )
-    resp.headers.add(
-        "Content-Range",
-        "bytes {0}-{1}/{2}".format(start, start + length - 1, file_size),
-    )
-    return resp
+    video_path = f"data/{id}/vidnoaudio_{lang_code}.mp4"
+    return Response(stream_video(video_path), mimetype="video/mp4")
 
 
 @app.route("/projects/<id>/<lang_code>/audio", methods=["GET"])
 def stream_audio(id: str, lang_code: str):
-    range_header = request.headers.get("Range", None)
-    byte1, byte2 = 0, None
-    if range_header:
-        match = re.search(r"(\d+)-(\d*)", range_header)
-        groups = match.groups()
-
-        if groups[0]:
-            byte1 = int(groups[0])
-        if groups[1]:
-            byte2 = int(groups[1])
-
-    chunk, start, length, file_size = get_chunk(
-        id, f"audio_{lang_code}.mp3", byte1, byte2
-    )
-    resp = Response(
-        chunk,
-        206,
-        mimetype="audio/mp3",
-        content_type="audio/mp3",
-        direct_passthrough=True,
-    )
-    resp.headers.add(
-        "Content-Range",
-        "bytes {0}-{1}/{2}".format(start, start + length - 1, file_size),
-    )
-    return resp
+    video_path = f"data/{id}/audio_{lang_code}.mp3"
+    return Response(stream_video(video_path), mimetype="audio/mp3")
 
 
 @app.route("/projects", methods=["POST"])
+@cross_origin()
 def add_dubbing():
     if "file" not in request.files:
         return make_response("No file found", 400)
