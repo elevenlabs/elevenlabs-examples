@@ -1,5 +1,11 @@
 # ElevenVideos Example
 
+This is an end to end example of using the ElevenLabs dubbing API to create "ElevenVideos" a simple site that lets you dub a video.
+
+![the create page](examples/dubbing/e2e-example/create_page.png)
+
+![the streaming page](examples/dubbing/e2e-example/dub_page.png)
+
 ## Prerequisites
 
 - Python
