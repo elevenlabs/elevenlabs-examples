@@ -1,11 +1,7 @@
 import json
 import os
-import re
-import signal
-import threading
 import uuid
 from dataclasses import asdict, dataclass
-from datetime import timedelta
 from typing import List
 
 from dotenv import load_dotenv
@@ -145,7 +141,7 @@ def project_detail(id: str):
             new_meta = get_metadata(id)
             project = ProjectData.from_dict(new_meta)
             project.save()
-        except Exception as e:
+        except Exception:
             return make_response(jsonify({"error": "Project not found"}), 404)
 
     # check if ready, if so download it
