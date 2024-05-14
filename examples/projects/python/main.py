@@ -6,8 +6,7 @@ from elevenlabs import (
     ProjectSnapshotResponse,
     PronunciationDictionaryVersionLocator,
     ProjectExtendedResponseModel,
-    ProjectResponse,
-    save
+    save,
 )
 from elevenlabs.client import ElevenLabs
 from time import sleep
@@ -44,7 +43,7 @@ def main():
         from_document=(filename, f.read(), mime_type),
         default_model_id=model,
         default_title_voice_id=voice_id,
-        default_paragraph_voice_id=voice_id
+        default_paragraph_voice_id=voice_id,
     )
 
     f.close()
@@ -65,13 +64,15 @@ def main():
     project_id = add_project_response.project.project_id
 
     # add the pronunciation dictionary to our project
-    client.projects.update_pronunciation_dictionaries(project_id=project_id,
-                                                      pronunciation_dictionary_locators=[
-                                                          PronunciationDictionaryVersionLocator(
-                                                              pronunciation_dictionary_id=pronunciation_dictionary.id,
-                                                              version_id=pronunciation_dictionary.version_id
-                                                          )
-                                                      ])
+    client.projects.update_pronunciation_dictionaries(
+        project_id=project_id,
+        pronunciation_dictionary_locators=[
+            PronunciationDictionaryVersionLocator(
+                pronunciation_dictionary_id=pronunciation_dictionary.id,
+                version_id=pronunciation_dictionary.version_id,
+            )
+        ],
+    )
 
     # start conversion process
     client.projects.convert(project_id=project_id)
@@ -79,23 +80,15 @@ def main():
     is_completed = False
     can_be_downloaded = False
     snapshot: ProjectSnapshotResponse = None
-    # todo use this instead of ProjectResponse when get project method is fixed
-    # project_info: ProjectExtendedResponseModel = None
-    project_info: ProjectResponse = None
+    project_info: ProjectExtendedResponseModel = None
 
     # wait for snapshot
     while not is_completed:
         if not can_be_downloaded:
             sleep(10)
             print("Checking if the project can be downloaded ...")
-            # todo use this instead of get_all when this method is fixed
-            # project_info = client.projects.get(project_id)
 
-            projects = client.projects.get_all()
-
-            for project in projects.projects:
-                if project.project_id == project_id:
-                    project_info = project
+            project_info = client.projects.get(project_id)
 
             if project_info is None:
                 raise Exception("project_info not found")
@@ -107,7 +100,8 @@ def main():
                 print(f"Waiting for 10 seconds ...")
         else:
             get_snapshots_response = client.projects.get_snapshots(
-                project_id=project_id)
+                project_id=project_id
+            )
 
             if len(get_snapshots_response.snapshots) != 0:
                 is_completed = True
@@ -121,7 +115,8 @@ def main():
     print(f"Snapshot response:\n{snapshot.dict()}")
 
     response = client.projects.stream_audio(
-        snapshot.project_id, snapshot.project_snapshot_id)
+        snapshot.project_id, snapshot.project_snapshot_id
+    )
 
     # Create a BytesIO object to hold audio data
     audio_stream = BytesIO()
