@@ -97,7 +97,7 @@ def main():
                 print(f"Project info {project_info.dict()}")
                 can_be_downloaded = True
             else:
-                print(f"Waiting for 10 seconds ...")
+                print("Waiting for 10 seconds ...")
         else:
             get_snapshots_response = client.projects.get_snapshots(
                 project_id=project_id
@@ -105,10 +105,10 @@ def main():
 
             if len(get_snapshots_response.snapshots) != 0:
                 is_completed = True
-                print(f"Snapshot found")
+                print("Snapshot found")
                 snapshot = get_snapshots_response.snapshots[0]
             else:
-                print(f"Waiting for 10 seconds ...")
+                print("Waiting for 10 seconds ...")
                 # wait for 10 seconds before checking the conversion progress
                 sleep(10)
 
@@ -130,7 +130,7 @@ def main():
     audio_stream.seek(0)
 
     # save to file
-    print(f"Writing to example.mp3")
+    print("Writing to example.mp3")
     save(audio_stream.read(), "example.mp3")
 
     audio_stream.seek(0)
