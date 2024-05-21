@@ -33,7 +33,7 @@ def text_to_speech_stream(text: str) -> IO[bytes]:
         IO[bytes]: A BytesIO stream containing the audio data.
     """
     # Perform the text-to-speech conversion
-    response = client.text_to_speech.convert(
+    response = client.text_to_speech.convert_to_stream(
         voice_id="pNInz6obpgDQGcFmaJgB",  # Adam pre-made voice
         optimize_streaming_latency="0",
         output_format="mp3_22050_32",
