@@ -1,13 +1,13 @@
 ---
-title: 'Audacy and ElevenLabs Strike Partnership'
-excerpt: 'ElevenLabs’ Synthetic Voice Capabilities to Augment Audacy Programming and Production Workflows'
-coverImage: '/assets/blog/dynamic-routing/cover.jpg'
-date: '2020-03-16T05:35:07.322Z'
+title: "Audacy and ElevenLabs Strike Partnership"
+excerpt: "ElevenLabs’ Synthetic Voice Capabilities to Augment Audacy Programming and Production Workflows"
+coverImage: "/assets/blog/dynamic-routing/cover.jpg"
+date: "2020-03-16T05:35:07.322Z"
 author:
   name: ElevenLabs Team
-  picture: '/assets/blog/authors/joe.jpeg'
+  picture: "/assets/blog/authors/team.png"
 ogImage:
-  url: '/assets/blog/dynamic-routing/cover.jpg'
+  url: "/assets/blog/dynamic-routing/cover.jpg"
 ---
 
 ## ElevenLabs’ Synthetic Voice Capabilities to Augment Audacy Programming and Production Workflows

@@ -1,13 +1,13 @@
 ---
-title: 'HarperCollins Publishers and ElevenLabs to Bring More Stories to Life Through Audio'
+title: "HarperCollins Publishers and ElevenLabs to Bring More Stories to Life Through Audio"
 excerpt: "Together we're creating audio versions of select deep backlist series books that would not otherwise have been created"
-coverImage: '/assets/blog/dynamic-routing/cover.jpg'
-date: '2020-03-16T05:35:07.322Z'
+coverImage: "/assets/blog/dynamic-routing/cover.jpg"
+date: "2020-03-16T05:35:07.322Z"
 author:
   name: ElevenLabs Team
-  picture: '/assets/blog/authors/joe.jpeg'
+  picture: "/assets/blog/authors/team.png"
 ogImage:
-  url: '/assets/blog/dynamic-routing/cover.jpg'
+  url: "/assets/blog/dynamic-routing/cover.jpg"
 ---
 
 We're working with HarperCollins Publishers to create audiobooks for HarperCollins’s foreign language business using our text to speech technology. The agreement will lead to the production of audio versions of select deep backlist series books that would not otherwise have been created.

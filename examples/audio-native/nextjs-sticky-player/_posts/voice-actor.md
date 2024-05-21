@@ -1,13 +1,13 @@
 ---
-title: 'Top strategies to market yourself as a voice actor'
-excerpt: 'ElevenLabs’ Synthetic Voice Capabilities to Augment Audacy Programming and Production Workflows'
-coverImage: '/assets/blog/dynamic-routing/cover.jpg'
-date: '2020-03-16T05:35:07.322Z'
+title: "Top strategies to market yourself as a voice actor"
+excerpt: "ElevenLabs’ Synthetic Voice Capabilities to Augment Audacy Programming and Production Workflows"
+coverImage: "/assets/blog/dynamic-routing/cover.jpg"
+date: "2020-03-16T05:35:07.322Z"
 author:
   name: ElevenLabs Team
-  picture: '/assets/blog/authors/joe.jpeg'
+  picture: "/assets/blog/authors/team.png"
 ogImage:
-  url: '/assets/blog/dynamic-routing/cover.jpg'
+  url: "/assets/blog/dynamic-routing/cover.jpg"
 ---
 
 ## The importance of marketing for voice acting

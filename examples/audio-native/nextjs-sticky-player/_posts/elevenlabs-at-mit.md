@@ -1,13 +1,13 @@
 ---
-title: 'In focus: ElevenLabs at MIT EmTech Digital'
-excerpt: 'Enhancing AI safety through a focus on content provenance, traceability, and moderation'
-coverImage: '/assets/blog/dynamic-routing/cover.jpg'
-date: '2020-03-16T05:35:07.322Z'
+title: "In focus: ElevenLabs at MIT EmTech Digital"
+excerpt: "Enhancing AI safety through a focus on content provenance, traceability, and moderation"
+coverImage: "/assets/blog/dynamic-routing/cover.jpg"
+date: "2020-03-16T05:35:07.322Z"
 author:
   name: ElevenLabs Team
-  picture: '/assets/blog/authors/joe.jpeg'
+  picture: "/assets/blog/authors/team.png"
 ogImage:
-  url: '/assets/blog/dynamic-routing/cover.jpg'
+  url: "/assets/blog/dynamic-routing/cover.jpg"
 ---
 
 Last week at the MIT EmTech Digital conference in London, I participated in a panel focused on how business, government, and academia can collaborate to maximize opportunities and manage challenges associated with advanced AI products. Alongside ElevenLabs, the panel included leaders from the Alan Turing Institute, the Ada Lovelace Institute, and BT, with MIT Technology Review’s Melissa Heikkilä moderating the discussion.
