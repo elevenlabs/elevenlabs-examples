@@ -10,6 +10,7 @@ import { useMutation } from "@tanstack/react-query";
 import { exampleResponse } from "./api/exampleResponse";
 import { InlineInput } from "@/components/ui/inline-input";
 import AutosizeTextarea from "react-textarea-autosize";
+import { Orchestrator } from "./state/orchestrator";
 
 const LoadingIndicator = () => {
   const { ref, replay } = useScramble({
@@ -54,7 +55,7 @@ const variants = {
     },
     hasFile: {
       scale: 1,
-      y: -240,
+      y: -260,
       transition: springs.xxslow(),
     },
   },
@@ -93,6 +94,8 @@ const timeout = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
+  const [orchestrator, setOrchestrator] = useState<Orchestrator | null>(null);
+
   const mutations = {
     convertImagesToSfx: useMutation({
       mutationFn: async () => {
@@ -149,7 +152,14 @@ export default function Home() {
               className="h-full w-full"
               onChange={({ files }) => {
                 setFile(files[0]);
-                mutations.convertImagesToSfx.mutate();
+                mutations.convertImagesToSfx.mutateAsync().then(data => {
+                  setOrchestrator(
+                    new Orchestrator({
+                      soundEffects: data.soundEffects,
+                      caption: data.caption,
+                    })
+                  );
+                });
               }}
             />
           )}
@@ -170,16 +180,32 @@ export default function Home() {
             <LoadingIndicator />
           </motion.div>
         )}
-        {mutations.convertImagesToSfx.data && (
-          <motion.div className="w-full px-8">
-            <AutosizeTextarea
-              className="w-full px-2 py-1 bg-transparent focus:outline-none"
-              value={mutations.convertImagesToSfx.data.caption}
-              onChange={() => {}}
-            />
-          </motion.div>
+        {orchestrator && (
+          <>
+            <motion.div className="w-full px-8">
+              <AutosizeTextarea
+                className="w-full px-2 py-1 bg-transparent focus:outline-none"
+                value={orchestrator.caption}
+                onChange={() => {}}
+              />
+            </motion.div>
+            <div className="stack gap-4 w-full">
+              {orchestrator.sfxPlayers.map((player, index) => (
+                <SoundEffect onPlay={() => orchestrator.play(index)} />
+              ))}
+            </div>
+          </>
         )}
       </motion.div>
     </motion.main>
   );
 }
+
+const SoundEffect = ({ onPlay }: any) => {
+  return (
+    <button
+      className="h-16 rounded-lg border w-full"
+      onClick={() => onPlay?.()}
+    ></button>
+  );
+};
