@@ -1,3 +1,6 @@
+export const maxDuration = 60; // This function can run for a maximum of 5 seconds
+export const dynamic = "force-dynamic";
+
 // TODO: switch to the elevenlabs typescript sdk
 import {
   VideoToSFXRequestBody,
