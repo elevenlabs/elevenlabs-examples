@@ -8,6 +8,11 @@ const apiVideoToSFX = async (frames: string[]) => {
     method: "POST",
     body: JSON.stringify({ frames } as VideoToSFXRequestBody),
   });
+  if (!response.ok) {
+    throw new Error(
+      `Unable to convert video to sound effects: ${response.statusText}`
+    );
+  }
   return (await response.json()) as VideoToSFXResponseBody;
 };
 
@@ -18,10 +23,8 @@ const getFramesFromVideo = async (
 ) => {
   return new Promise(resolve => {
     video.currentTime = time;
-    console.log("time", time);
     const canPlayThrough = () => {
       setTimeout(() => {
-        console.log("canplay");
         const ctx = canvas.getContext("2d");
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
@@ -42,28 +45,34 @@ const getFramesFromVideo = async (
 export const convertVideoToSFX = async (
   previewUrl: string
 ): Promise<VideoToSFXResponseBody> => {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const video = document.createElement("video");
     video.src = previewUrl;
     const onLoad = async () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
 
-      const frames: string[] = [];
+        const frames: string[] = [];
 
-      for (let i = 0; i < 4; i++) {
-        video.currentTime = i;
-        const frame = await getFramesFromVideo(video, canvas, i);
-        frames.push(frame as string);
+        for (let i = 0; i < 4; i++) {
+          video.currentTime = i;
+          const frame = await getFramesFromVideo(video, canvas, i);
+          frames.push(frame as string);
+        }
+        const sfx = await apiVideoToSFX(frames);
+        video.removeEventListener("loadeddata", onLoad);
+        resolve({
+          soundEffects: sfx.soundEffects,
+          caption: sfx.caption,
+        });
+      } catch (e) {
+        debugger;
+        video.removeEventListener("loadeddata", onLoad);
+        console.error(e);
+        reject(e);
       }
-
-      const sfx = await apiVideoToSFX(frames);
-      video.removeEventListener("loadeddata", onLoad);
-      resolve({
-        soundEffects: sfx.soundEffects,
-        caption: sfx.caption,
-      });
     };
     video.addEventListener("loadeddata", onLoad);
   });

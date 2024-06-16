@@ -140,16 +140,24 @@ export default function Home() {
               onChange={async ({ files }) => {
                 setFile(files[0]);
                 setIsLoading(true);
-                const sfx = await convertVideoToSFX(
-                  URL.createObjectURL(files[0])
-                );
-                setOrchestrator(
-                  new Orchestrator({
-                    soundEffects: sfx.soundEffects,
-                    caption: sfx.caption,
-                  })
-                );
-                setIsLoading(false);
+                try {
+                  const sfx = await convertVideoToSFX(
+                    URL.createObjectURL(files[0])
+                  );
+
+                  setOrchestrator(
+                    new Orchestrator({
+                      soundEffects: sfx.soundEffects,
+                      caption: sfx.caption,
+                    })
+                  );
+                  setIsLoading(false);
+                } catch (e) {
+                  console.error(e);
+                  setIsLoading(false);
+                  setFile(null);
+                  window.alert(`Error: ${e}`);
+                }
               }}
             />
           )}
