@@ -2,7 +2,7 @@ import {
   VideoToSFXRequestBody,
   VideoToSFXResponseBody,
 } from "@/app/api/interface";
-import { useMutation } from "@tanstack/react-query";
+import { Orchestrator } from "@/app/state/orchestrator";
 import { useEffect, useRef, useState } from "react";
 
 // get the first frame of the video
@@ -10,6 +10,14 @@ import { useEffect, useRef, useState } from "react";
 // send it to the api
 // get the response
 // play the response
+
+const apiVideoToSFX = async (frames: string[]) => {
+  const response = await fetch("/api", {
+    method: "POST",
+    body: JSON.stringify({ frames } as VideoToSFXRequestBody),
+  });
+  return (await response.json()) as VideoToSFXResponseBody;
+};
 
 const getFramesFromVideo = async (
   video: HTMLVideoElement,
@@ -39,20 +47,11 @@ const getFramesFromVideo = async (
   });
 };
 
-export const useVideoToSFX = (previewUrl: string | null) => {
-  const [sfx, setSfx] = useState<VideoToSFXResponseBody | null>(null);
-
-  const mutations = {
-    convertImagesToSfx: useMutation({
-      mutationFn: async (frames: string[]) => {
-        const response = await fetch("/api", {
-          method: "POST",
-          body: JSON.stringify({ frames } as VideoToSFXRequestBody),
-        });
-        return (await response.json()) as VideoToSFXResponseBody;
-      },
-    }),
-  };
+export const useVideoToSFX = (
+  previewUrl: string | null,
+  setOrchestrator: (orchestrator: Orchestrator) => void
+) => {
+  const [isLoading, setIsLoading] = useState(false);
 
   // TODO: can remove frame, just used for debugging
   const [frames, setFrames] = useState<string[]>([]);
@@ -78,7 +77,15 @@ export const useVideoToSFX = (previewUrl: string | null) => {
           setFrames(frames);
         }
 
-        mutations.convertImagesToSfx.mutate(frames);
+        setIsLoading(true);
+        const sfx = await apiVideoToSFX(frames);
+        setOrchestrator(
+          new Orchestrator({
+            soundEffects: sfx.soundEffects,
+            caption: sfx.caption,
+          })
+        );
+        setIsLoading(false);
       };
       video.addEventListener("loadeddata", onLoad);
       return () => video.removeEventListener("loadeddata", onLoad);
@@ -86,5 +93,5 @@ export const useVideoToSFX = (previewUrl: string | null) => {
     getFrames();
   }, [previewUrl]);
 
-  return { frames, mutations };
+  return { frames, isLoading };
 };

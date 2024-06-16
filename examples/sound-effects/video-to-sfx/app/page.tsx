@@ -11,6 +11,7 @@ import { exampleResponse } from "./api/exampleResponse";
 import { InlineInput } from "@/components/ui/inline-input";
 import AutosizeTextarea from "react-textarea-autosize";
 import { Orchestrator } from "./state/orchestrator";
+import { useVideoToSFX } from "@/lib/videoToSFX";
 
 const LoadingIndicator = () => {
   const { ref, replay } = useScramble({
@@ -96,19 +97,12 @@ export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [orchestrator, setOrchestrator] = useState<Orchestrator | null>(null);
 
-  const mutations = {
-    convertImagesToSfx: useMutation({
-      mutationFn: async () => {
-        await timeout(3000);
-        return exampleResponse;
-      },
-    }),
-  };
-
   const previewUrl = useMemo(
     () => (file ? URL.createObjectURL(file) : null),
     [file]
   );
+
+  const { frames, isLoading } = useVideoToSFX(previewUrl, setOrchestrator);
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
@@ -152,14 +146,6 @@ export default function Home() {
               className="h-full w-full"
               onChange={({ files }) => {
                 setFile(files[0]);
-                mutations.convertImagesToSfx.mutateAsync().then(data => {
-                  setOrchestrator(
-                    new Orchestrator({
-                      soundEffects: data.soundEffects,
-                      caption: data.caption,
-                    })
-                  );
-                });
               }}
             />
           )}
@@ -172,7 +158,7 @@ export default function Home() {
             />
           )}
         </motion.div>
-        {mutations.convertImagesToSfx.isPending && (
+        {isLoading && (
           <motion.div
             variants={variants.loader}
             className="w-[600px] center font-mono"
@@ -191,7 +177,10 @@ export default function Home() {
             </motion.div>
             <div className="stack gap-4 w-full">
               {orchestrator.sfxPlayers.map((player, index) => (
-                <SoundEffect onPlay={() => orchestrator.play(index)} />
+                <SoundEffect
+                  key={index}
+                  onPlay={() => orchestrator.play(index)}
+                />
               ))}
             </div>
           </>
