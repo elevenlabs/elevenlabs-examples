@@ -1,14 +1,15 @@
+import { maxDuration } from "./../app/api/route";
 import { posthog } from "posthog-js";
 import {
   VideoToSFXRequestBody,
   VideoToSFXResponseBody,
 } from "@/app/api/interface";
 
-const apiVideoToSFX = async (frames: string[]) => {
+const apiVideoToSFX = async (frames: string[], maxDuration: number) => {
   posthog?.capture("video_to_sfx_started");
   const response = await fetch("/api", {
     method: "POST",
-    body: JSON.stringify({ frames } as VideoToSFXRequestBody),
+    body: JSON.stringify({ frames, maxDuration } as VideoToSFXRequestBody),
   });
   if (!response.ok) {
     const errorText = await response.text();
@@ -62,7 +63,7 @@ export const convertVideoToSFX = async (
           const frame = await getFramesFromVideo(video, canvas, i);
           frames.push(frame as string);
         }
-        const sfx = await apiVideoToSFX(frames);
+        const sfx = await apiVideoToSFX(frames, video.duration);
         resolve({
           soundEffects: sfx.soundEffects,
           caption: sfx.caption,
