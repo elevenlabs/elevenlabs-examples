@@ -10,8 +10,6 @@ const MAX_SFX_PROMPT_LENGTH = 200;
 const NUM_SAMPLES = 4;
 const MAX_DURATION = 11;
 
-
-
 const generateSoundEffect = async (
   prompt: string,
   maxDuration: number
