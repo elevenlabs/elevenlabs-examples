@@ -1,17 +1,13 @@
 "use client";
 import { shadows } from "@/frostin-ui";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { FileInput } from "@/components/ui/file-input";
 import { springs } from "@/frostin-ui/utils/springs";
 import { useScramble } from "use-scramble";
-import { useMutation } from "@tanstack/react-query";
-import { exampleResponse } from "./api/exampleResponse";
-import { InlineInput } from "@/components/ui/inline-input";
 import AutosizeTextarea from "react-textarea-autosize";
 import { Orchestrator } from "./state/orchestrator";
-import { convertVideoToSFX, useVideoToSFX } from "@/lib/videoToSFX";
+import { convertVideoToSFX } from "@/lib/videoToSFX";
 
 const LoadingIndicator = () => {
   const { ref, replay } = useScramble({
@@ -90,8 +86,6 @@ const variants = {
     },
   },
 };
-
-const timeout = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);

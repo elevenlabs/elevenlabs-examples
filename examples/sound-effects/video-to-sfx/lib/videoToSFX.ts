@@ -3,12 +3,6 @@ import {
   VideoToSFXResponseBody,
 } from "@/app/api/interface";
 
-// get the first frame of the video
-// convert it to a base64 string
-// send it to the api
-// get the response
-// play the response
-
 const apiVideoToSFX = async (frames: string[]) => {
   const response = await fetch("/api", {
     method: "POST",
