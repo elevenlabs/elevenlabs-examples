@@ -24,6 +24,7 @@ export const HoverOverlay = ({ className }: { className?: string }) => {
   );
 };
 import { convertVideoToSFX } from "@/lib/videoToSFX";
+import { useMutation } from "@tanstack/react-query";
 
 const LoadingIndicator = () => {
   const { ref, replay } = useScramble({
@@ -63,6 +64,7 @@ const variants = {
         distance: 50,
         intensity: 0.8,
         blurriness: 0.8,
+        color: "currentColor",
         layers: 1,
       }),
     },
@@ -72,6 +74,7 @@ const variants = {
         distance: 50,
         intensity: 0,
         blurriness: 0.8,
+        color: "currentColor",
         layers: 1,
       }),
       transition: springs.xxslow(),
@@ -163,6 +166,10 @@ const Home = observer(() => {
     );
   }, [orchestrator]);
 
+  const mutations = {
+    videoToSfx: useMutation({ mutationFn: async () => {} }),
+  };
+
   return (
     <motion.main
       className=""
@@ -175,7 +182,7 @@ const Home = observer(() => {
         muted
         loop
         controls={false}
-        className="fixed overlay object-cover pointer-events-none opacity-75"
+        className="fixed overlay object-cover pointer-events-none opacity-75 hidden md:block"
         variants={variants.wave}
       />
       <motion.div
@@ -183,12 +190,12 @@ const Home = observer(() => {
         className="fixed overlay bg-white/85 backdrop-blur-lg pointer-events-none"
       ></motion.div>
       <motion.div
-        className="absolute w-full md:w-[620px] top-[50vh] left-1/2 mx-auto stack items-center gap-6 p-12 px-0 pb-16"
+        className="absolute  w-full md:w-[620px] top-[50vh] left-1/2 mx-auto stack items-center gap-6 p-6 pt-0 pb-8 md:p-12 md:px-4 md:pb-16"
         variants={variants.content}
       >
         <motion.div
           variants={variants.card}
-          className="w-full h-[340px] rounded-3xl bg-white/80 backdrop-blur-md"
+          className="w-full aspect-video rounded-3xl bg-white/80 backdrop-blur-md text-transparent md:text-black"
         >
           {!previewUrl && (
             <FileInput
@@ -220,7 +227,7 @@ const Home = observer(() => {
                 src="/logo-squircle.svg"
                 className="w-16 h-16 mb-3 mix-blend-luminosity"
               />
-              <div className="font-mono text-sm mb-1">
+              <div className="font-mono text-sm mb-1 text-gray-900">
                 Video to sound effects.
               </div>
               <div className="font-mono text-sm text-center text-gray-800/60 h-[1rem]">
