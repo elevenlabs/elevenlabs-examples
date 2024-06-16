@@ -6,10 +6,14 @@ export async function GET(request: Request) {
 }
 
 const MAX_SFX_PROMPT_LENGTH = 200;
+const NUM_SAMPLES = 4;
 
-const generateSoundEffect = async (prompt: string) => {
+const generateSoundEffect = async (
+  prompt: string,
+  maxDuration: number
+): Promise<string> => {
   if (!process.env.ELEVENLABS_API_KEY) {
-    return new Response("No API key", { status: 500 });
+    throw new Error("No API key");
   }
   const options = {
     method: "POST",
@@ -21,7 +25,7 @@ const generateSoundEffect = async (prompt: string) => {
       text: prompt,
       generation_settings: {
         use_auto_duration: false,
-        duration_seconds: 11,
+        duration_seconds: maxDuration,
         prompt_influence: 0.3,
       },
     }),
@@ -32,16 +36,13 @@ const generateSoundEffect = async (prompt: string) => {
   );
 
   if (!response.ok) {
-    return new Response("Failed to generate sound effect", {
-      status: response.status,
-    });
+    throw new Error("Failed to generate sound effect");
   }
-  const blob = await response.blob();
-  return new Response(blob, {
-    headers: {
-      "Content-Type": "audio/mpeg",
-    },
-  });
+  const buffer = await response.arrayBuffer(); // Get an ArrayBuffer from the response
+
+  // Convert ArrayBuffer to base64 string
+  const base64 = Buffer.from(buffer).toString("base64");
+  return `data:audio/mpeg;base64,${base64}`;
 };
 
 const generateCaptionForImage = async (
@@ -86,7 +87,12 @@ Give a short prompt that only include the details needed for the main sound in t
 };
 
 export async function POST(request: Request) {
-  const { firstFrame } = (await request.json()) as { firstFrame: string };
+  const { firstFrame, maxDuration } = (await request.json()) as {
+    firstFrame: string;
+    maxDuration: number;
+  };
+
+  const duration = maxDuration < 11 ? maxDuration : 11;
 
   let caption = "";
   try {
@@ -100,8 +106,19 @@ export async function POST(request: Request) {
   console.log("caption", caption);
 
   try {
-    return generateSoundEffect(caption);
+    const soundEffects: string[] = [];
+    await Promise.all(
+      [...Array(NUM_SAMPLES)].map(() => generateSoundEffect(caption, duration))
+    ).then(results => {
+      soundEffects.push(...results);
+    });
+    return new Response(JSON.stringify({ soundEffects, caption }), {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
   } catch (error) {
+    console.error(error);
     return new Response("Failed to generate sound effect", {
       status: 500,
     });
