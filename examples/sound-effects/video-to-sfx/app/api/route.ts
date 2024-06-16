@@ -1,6 +1,15 @@
+export const maxDuration = 60; // This function can run for a maximum of 60 seconds
+export const dynamic = "force-dynamic";
+
 // TODO: switch to the elevenlabs typescript sdk
+import {
+  VideoToSFXRequestBody,
+  VideoToSFXResponseBody,
+} from "@/app/api/interface";
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
+import { Ratelimit } from "@upstash/ratelimit";
+import { kv } from "@vercel/kv";
 
 export async function GET(request: Request) {
   return new Response("Live");
@@ -9,8 +18,6 @@ export async function GET(request: Request) {
 const MAX_SFX_PROMPT_LENGTH = 200;
 const NUM_SAMPLES = 4;
 const MAX_DURATION = 11;
-
-
 
 const generateSoundEffect = async (
   prompt: string,
@@ -49,16 +56,16 @@ const generateSoundEffect = async (
   return `data:audio/mpeg;base64,${base64}`;
 };
 
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 const generateCaptionForImage = async (
   imagesBase64: string[]
 ): Promise<string> => {
   if (!process.env.OPENAI_API_KEY) {
     throw new Error("No API key");
   }
-  const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
     messages: [
@@ -91,7 +98,41 @@ const generateCaptionForImage = async (
 };
 
 export async function POST(request: Request) {
-  const { frames, maxDuration } = (await request.json()) as RequestBody;
+  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+    const ip = request.headers.get("x-forwarded-for");
+    const MAX_PER_HOUR = 20;
+    const HOUR = 60 * 60;
+    const ratelimit = new Ratelimit({
+      redis: kv,
+      limiter: Ratelimit.slidingWindow(MAX_PER_HOUR, `${HOUR}s`),
+    });
+
+    const { success, limit, reset, remaining } = await ratelimit.limit(
+      `ratelimit_${ip}`
+    );
+
+    if (!success) {
+      return new Response(
+        `You have reached your request limit for the hour of ${HOUR} requests. Please try again in 1 hour`,
+        {
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": limit.toString(),
+            "X-RateLimit-Remaining": remaining.toString(),
+            "X-RateLimit-Reset": reset.toString(),
+          },
+        }
+      );
+    }
+  } else {
+    console.log(
+      "KV_REST_API_URL and KV_REST_API_TOKEN env vars not found, not rate limiting..."
+    );
+  }
+
+  const { frames, maxDuration } =
+    (await request.json()) as VideoToSFXRequestBody;
+  console.log("request started", frames, maxDuration);
 
   const duration =
     maxDuration && maxDuration < MAX_DURATION ? maxDuration : MAX_DURATION;
@@ -118,7 +159,7 @@ export async function POST(request: Request) {
       JSON.stringify({
         soundEffects,
         caption,
-      } as ResponseBody),
+      } as VideoToSFXResponseBody),
       {
         headers: {
           "Content-Type": "application/json",

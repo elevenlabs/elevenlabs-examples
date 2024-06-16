@@ -1,18 +1,20 @@
 "use client";
 import "@/app/globals.css";
 import { Inter as FontSans } from "next/font/google";
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import posthog from "posthog-js";
 
 const queryClient = new QueryClient();
 
+if (typeof window !== "undefined") {
+  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY || "", {
+    api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "",
+    person_profiles: "identified_only", // or 'always' to create profiles for anonymous users as well
+  });
+}
+
 import { cn } from "@/lib/utils";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -20,6 +22,9 @@ const fontSans = FontSans({
 });
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  useEffect(() => {
+    posthog.capture("$pageview");
+  }, []);
   return (
     <html lang="en" suppressHydrationWarning>
       <head />

@@ -1,52 +1,78 @@
+import { posthog } from "posthog-js";
 import {
   VideoToSFXRequestBody,
   VideoToSFXResponseBody,
 } from "@/app/api/interface";
-import { useEffect, useRef } from "react";
 
-// get the first frame of the video
-// convert it to a base64 string
-// send it to the api
-// get the response
-// play the response
-
-const apiVideoToSFX = async (previewUrl: string | null) => {
+const apiVideoToSFX = async (frames: string[]) => {
+  posthog?.capture("video_to_sfx_started");
   const response = await fetch("/api", {
     method: "POST",
-    body: JSON.stringify({ frames: [previewUrl] } as VideoToSFXRequestBody),
+    body: JSON.stringify({ frames } as VideoToSFXRequestBody),
   });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Request failed: ${errorText}`);
+  }
   return (await response.json()) as VideoToSFXResponseBody;
 };
 
-export const useVideoToSFX = (previewUrl: string | null) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(document.createElement("canvas"));
-  useEffect(() => {
-    const captureFrame = async () => {
-      if (videoRef.current) {
-        const video = videoRef.current;
-        const canvas = canvasRef.current;
+const getFramesFromVideo = async (
+  video: HTMLVideoElement,
+  canvas: HTMLCanvasElement,
+  time: number
+) => {
+  return new Promise(resolve => {
+    video.currentTime = time;
+    const canPlayThrough = () => {
+      setTimeout(() => {
+        const ctx = canvas.getContext("2d");
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        const ctx = canvas.getContext("2d");
-        ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+        if (!ctx) {
+          throw new Error("canvas context is null");
+        }
+        ctx.drawImage(video, 0, 0);
+
         const imageDataUrl = canvas.toDataURL("image/png");
-        console.log(imageDataUrl); // Use this data URL as needed
-        const response = await apiVideoToSFX(imageDataUrl);
-        console.log(response);
+        video.removeEventListener("canplay", canPlayThrough);
+        resolve(imageDataUrl);
+      }, 50);
+    };
+    video.addEventListener("canplay", canPlayThrough);
+  });
+};
+
+export const convertVideoToSFX = async (
+  previewUrl: string
+): Promise<VideoToSFXResponseBody> => {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement("video");
+    video.src = previewUrl;
+    const onLoad = async () => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const frames: string[] = [];
+
+        for (let i = 0; i < 4; i++) {
+          video.currentTime = i;
+          const frame = await getFramesFromVideo(video, canvas, i);
+          frames.push(frame as string);
+        }
+        const sfx = await apiVideoToSFX(frames);
+        resolve({
+          soundEffects: sfx.soundEffects,
+          caption: sfx.caption,
+        });
+        video.removeEventListener("loadeddata", onLoad);
+      } catch (e) {
+        reject(e);
+        video.removeEventListener("loadeddata", onLoad);
       }
     };
-
-    if (videoRef.current) {
-      videoRef.current.addEventListener("loadeddata", captureFrame);
-    }
-
-    return () => {
-      if (videoRef.current) {
-        videoRef.current.removeEventListener("loadeddata", captureFrame);
-      }
-    };
-  }, [previewUrl]);
-
-  return { videoRef };
+    video.addEventListener("loadeddata", onLoad);
+  });
 };

@@ -6,9 +6,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FileInput } from "@/components/ui/file-input";
 import { springs } from "@/frostin-ui/utils/springs";
 import { useScramble } from "use-scramble";
-import { useMutation } from "@tanstack/react-query";
-import { exampleResponse } from "./api/exampleResponse";
-import { InlineInput } from "@/components/ui/inline-input";
 import AutosizeTextarea from "react-textarea-autosize";
 import { Orchestrator } from "./state/orchestrator";
 import { AudioPlayer } from "./state/player";
@@ -26,6 +23,7 @@ export const HoverOverlay = ({ className }: { className?: string }) => {
     ></div>
   );
 };
+import { convertVideoToSFX } from "@/lib/videoToSFX";
 
 const LoadingIndicator = () => {
   const { ref, replay } = useScramble({
@@ -107,21 +105,11 @@ const variants = {
   },
 };
 
-const timeout = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [orchestrator, setOrchestrator] = useState<Orchestrator | null>(null);
-
-  const mutations = {
-    convertImagesToSfx: useMutation({
-      mutationFn: async () => {
-        await timeout(3000);
-        return exampleResponse;
-      },
-    }),
-  };
+  const [isLoading, setIsLoading] = useState(false);
 
   const previewUrl = useMemo(
     () => (file ? URL.createObjectURL(file) : null),
@@ -179,26 +167,37 @@ export default function Home() {
         className="fixed overlay bg-white/85 backdrop-blur-lg pointer-events-none"
       ></motion.div>
       <motion.div
-        className="absolute w-[640px] top-[50vh] left-1/2 mx-auto stack items-center gap-6 p-12 pb-16"
+        className="absolute w-full md:w-[640px] top-[50vh] left-1/2 mx-auto stack items-center gap-6 p-12 px-0 pb-16"
         variants={variants.content}
       >
         <motion.div
           variants={variants.card}
-          className="w-[640px] h-[340px] rounded-3xl bg-white/80 backdrop-blur-md"
+          className="w-full h-[340px] rounded-3xl bg-white/80 backdrop-blur-md"
         >
           {!previewUrl && (
             <FileInput
               className="h-full w-full"
-              onChange={({ files }) => {
+              onChange={async ({ files }) => {
                 setFile(files[0]);
-                mutations.convertImagesToSfx.mutateAsync().then(data => {
+                setIsLoading(true);
+                try {
+                  const sfx = await convertVideoToSFX(
+                    URL.createObjectURL(files[0])
+                  );
+
                   setOrchestrator(
                     new Orchestrator({
-                      soundEffects: data.soundEffects,
-                      caption: data.caption,
+                      soundEffects: sfx.soundEffects,
+                      caption: sfx.caption,
                     })
                   );
-                });
+                  setIsLoading(false);
+                } catch (e) {
+                  console.error(e);
+                  setIsLoading(false);
+                  setFile(null);
+                  window.alert(`Error: ${e}`);
+                }
               }}
             />
           )}
@@ -211,10 +210,10 @@ export default function Home() {
             />
           )}
         </motion.div>
-        {mutations.convertImagesToSfx.isPending && (
+        {isLoading && (
           <motion.div
             variants={variants.loader}
-            className="w-[640px] center font-mono py-4"
+            className="w-full center font-mono py-4"
           >
             <LoadingIndicator />
           </motion.div>
