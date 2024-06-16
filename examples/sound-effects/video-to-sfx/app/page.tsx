@@ -128,7 +128,6 @@ const Home = observer(() => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [orchestrator, setOrchestrator] = useState<Orchestrator | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   const previewUrl = useMemo(
     () => (file ? URL.createObjectURL(file) : null),
@@ -167,7 +166,10 @@ const Home = observer(() => {
   }, [orchestrator]);
 
   const mutations = {
-    videoToSfx: useMutation({ mutationFn: async () => {} }),
+    videoToSfx: useMutation({
+      mutationFn: async (file: File) =>
+        convertVideoToSFX(URL.createObjectURL(file)),
+    }),
   };
 
   return (
@@ -202,24 +204,22 @@ const Home = observer(() => {
               className="h-full w-full"
               onChange={async ({ files }) => {
                 setFile(files[0]);
-                setIsLoading(true);
-                try {
-                  const sfx = await convertVideoToSFX(
-                    URL.createObjectURL(files[0])
-                  );
-
+                // const sfx = await convertVideoToSFX(
+                //   URL.createObjectURL(files[0])
+                // );
+                const sfx = await mutations.videoToSfx.mutateAsync(files[0], {
+                  onError: e => {
+                    setFile(null);
+                    window.alert(`Error: ${e}`);
+                  },
+                });
+                if (file) {
                   setOrchestrator(
                     new Orchestrator({
                       soundEffects: sfx.soundEffects,
                       caption: sfx.caption,
                     })
                   );
-                  setIsLoading(false);
-                } catch (e) {
-                  console.error(e);
-                  setIsLoading(false);
-                  setFile(null);
-                  window.alert(`Error: ${e}`);
                 }
               }}
             >
@@ -250,7 +250,7 @@ const Home = observer(() => {
             />
           )}
         </motion.div>
-        {isLoading && (
+        {mutations.videoToSfx.isPending && (
           <motion.div
             variants={variants.loader}
             className="w-full center font-mono py-4"
