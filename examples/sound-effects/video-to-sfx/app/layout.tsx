@@ -7,8 +7,8 @@ import posthog from "posthog-js";
 const queryClient = new QueryClient();
 
 if (typeof window !== "undefined") {
-  posthog.init("phc_Sr8tySR1UL8RrsY83xDl9AmA1fXyG2gusWsZbTPC16V", {
-    api_host: "https://eu.i.posthog.com",
+  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY || "", {
+    api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "",
     person_profiles: "identified_only", // or 'always' to create profiles for anonymous users as well
   });
 }
