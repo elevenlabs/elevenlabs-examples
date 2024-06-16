@@ -143,12 +143,12 @@ export class AudioPlayer {
       resample(
         this._player.buffer.getChannelData(0),
         this._player.buffer.sampleRate,
-        20
+        40
       ).map(s => ({
         time: s.time,
         value: s.value,
       })),
-      70
+      80
     );
   }
 }

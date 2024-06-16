@@ -39,6 +39,22 @@ const LoadingIndicator = () => {
   return <p ref={ref} />;
 };
 
+const FunText = ({ text }: { text: string }) => {
+  const { ref, replay } = useScramble({
+    text: text,
+    tick: 3,
+    speed: 0.6,
+    playOnMount: true,
+    onAnimationEnd: () => {
+      setTimeout(() => {
+        replay();
+      }, 1000);
+    },
+  });
+
+  return <p ref={ref} />;
+};
+
 const variants = {
   card: {
     noFile: {
@@ -105,7 +121,7 @@ const variants = {
   },
 };
 
-export default function Home() {
+const Home = observer(() => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [orchestrator, setOrchestrator] = useState<Orchestrator | null>(null);
@@ -159,7 +175,7 @@ export default function Home() {
         muted
         loop
         controls={false}
-        className="fixed overlay object-cover pointer-events-none"
+        className="fixed overlay object-cover pointer-events-none opacity-75"
         variants={variants.wave}
       />
       <motion.div
@@ -167,7 +183,7 @@ export default function Home() {
         className="fixed overlay bg-white/85 backdrop-blur-lg pointer-events-none"
       ></motion.div>
       <motion.div
-        className="absolute w-full md:w-[640px] top-[50vh] left-1/2 mx-auto stack items-center gap-6 p-12 px-0 pb-16"
+        className="absolute w-full md:w-[620px] top-[50vh] left-1/2 mx-auto stack items-center gap-6 p-12 px-0 pb-16"
         variants={variants.content}
       >
         <motion.div
@@ -199,7 +215,18 @@ export default function Home() {
                   window.alert(`Error: ${e}`);
                 }
               }}
-            />
+            >
+              <img
+                src="/logo-squircle.svg"
+                className="w-16 h-16 mb-3 mix-blend-luminosity"
+              />
+              <div className="font-mono text-sm mb-1">
+                Video to sound effects.
+              </div>
+              <div className="font-mono text-sm text-center text-gray-800/60 h-[1rem]">
+                <FunText text="Upload a video." />
+              </div>
+            </FileInput>
           )}
           {previewUrl && (
             <motion.video
@@ -207,6 +234,12 @@ export default function Home() {
               src={previewUrl}
               className="h-full w-full rounded-[inherit] object-cover"
               controls
+              onPlay={() => {
+                orchestrator?.play(orchestrator.activeIndex);
+              }}
+              onPause={() => {
+                orchestrator?.stop();
+              }}
             />
           )}
         </motion.div>
@@ -227,13 +260,15 @@ export default function Home() {
                 onChange={() => {}}
               /> */}
             </motion.div>
-            <motion.div className="stack gap-4 w-full">
+            <motion.div className="stack gap-4 px-6 w-full">
               {orchestrator.sfxPlayers.map((player, index) => (
                 <SoundEffect
+                  key={index}
                   index={index}
                   onPlay={() => orchestrator.play(index)}
                   onPause={() => orchestrator.stop()}
                   player={player}
+                  active={orchestrator.activeIndex === index}
                 />
               ))}
             </motion.div>
@@ -242,7 +277,7 @@ export default function Home() {
       </motion.div>
     </motion.main>
   );
-}
+});
 
 const Waveform = observer(
   ({
@@ -282,13 +317,14 @@ const SoundEffect = observer(
     player,
     onPlay,
     onPause,
+    active,
   }: {
     index: number;
     player: AudioPlayer;
     onPlay: () => void;
     onPause: () => void;
+    active: boolean;
   }) => {
-    console.log(player.progress);
     return (
       <motion.button
         initial={{ opacity: 0, scale: 0.9 }}
@@ -316,9 +352,9 @@ const SoundEffect = observer(
           }
         }}
       >
-        <HoverOverlay />
+        <HoverOverlay className={cn(active && "opacity-20 inset-0")} />
         <div className="overlay inset-4">
-          <Waveform player={player} barBgColor="bg-gray-800/20" />
+          <Waveform player={player} barBgColor="bg-gray-900/30" />
           <Mask
             className="overlay"
             image={masks.linear({
@@ -327,10 +363,12 @@ const SoundEffect = observer(
               positions: [0, player.progress - 0.001, player.progress, 1],
             })}
           >
-            <Waveform player={player} barBgColor="bg-gray-800/80" />
+            <Waveform player={player} barBgColor="bg-gray-900/100" />
           </Mask>
         </div>
       </motion.button>
     );
   }
 );
+
+export default Home;
