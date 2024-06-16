@@ -120,10 +120,13 @@ def generate_video_with_sound_effect(
 
     os.remove(sound_effect_path)
 
+    open_file_mac(output_video_path)
+
     return output_video_path
 
 
 if __name__ == "__main__":
+    NUM_VIDEOS = 4
     INPUT_VIDEO_PATH = "/Users/luke/dev/elevenlabs-examples/examples/sound-effects/python-video-to-sfx/video.mp4"
     OUTPUT_DIR = "/Users/luke/dev/elevenlabs-examples/examples/sound-effects/python-video-to-sfx/output"
     TEMP_DIR = tempfile.mkdtemp()
@@ -140,7 +143,7 @@ Give short prompts that only include the details needed for the main sound in th
     caption = get_caption_for_image(IMAGE_PATH, PROMPT)
     print("Caption: ", caption)
 
-    for i in range(2):
+    for i in range(NUM_VIDEOS):
         output_video_path = generate_video_with_sound_effect(
             INPUT_VIDEO_PATH,
             OUTPUT_DIR,
@@ -148,7 +151,5 @@ Give short prompts that only include the details needed for the main sound in th
             caption,
             f"output_{datetime.now().strftime('%Y%m%d%H%M%S')}_{i}",
         )
-
-        open_file_mac(output_video_path)
 
     print(f"Done, saved to {OUTPUT_DIR}")
