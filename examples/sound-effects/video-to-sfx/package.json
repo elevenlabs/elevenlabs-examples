@@ -53,6 +53,7 @@
     "next": "14.2.4",
     "next-themes": "^0.3.0",
     "openai": "^4.51.0",
+    "posthog-js": "^1.139.2",
     "react": "^18",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18",
