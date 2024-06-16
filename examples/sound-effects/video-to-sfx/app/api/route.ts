@@ -1,5 +1,6 @@
 // TODO: switch to the elevenlabs typescript sdk
 import OpenAI from "openai";
+import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 
 export async function GET(request: Request) {
   return new Response("Live");
@@ -57,7 +58,7 @@ const generateSoundEffect = async (
 };
 
 const generateCaptionForImage = async (
-  imageBase64: string
+  imagesBase64: string[]
 ): Promise<string> => {
   if (!process.env.OPENAI_API_KEY) {
     throw new Error("No API key");
@@ -75,20 +76,20 @@ const generateCaptionForImage = async (
           {
             type: "text",
             text: `Act as an expert prompt engineer
-
-Understand what's in this video and create a prompt for a video to SFX model
-
-Give a short prompt that only include the details needed for the main sound in the video. It should be ${MAX_SFX_PROMPT_LENGTH} characters or less. Just give the prompt, don't say anything else.`,
+    
+    Understand what's in this video and create a prompt for a video to SFX model
+    
+    Give a short prompt that only include the details needed for the main sound in the video. It should be ${MAX_SFX_PROMPT_LENGTH} characters or less. Just give the prompt, don't say anything else.`,
           },
-          {
+          ...imagesBase64.map(imageBase64 => ({
             type: "image_url",
             image_url: {
               url: `${imageBase64}`,
             },
-          },
+          })),
         ],
       },
-    ],
+    ] as ChatCompletionMessageParam[],
   });
   const caption = response.choices[0].message.content;
   if (!caption) {
@@ -105,7 +106,7 @@ export async function POST(request: Request) {
 
   let caption = "";
   try {
-    caption = await generateCaptionForImage(frames[0]);
+    caption = await generateCaptionForImage(frames);
   } catch (error) {
     console.error(error);
     return new Response("Failed to generate caption", {
