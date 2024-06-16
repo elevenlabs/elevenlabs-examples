@@ -2,6 +2,7 @@ import {
   VideoToSFXRequestBody,
   VideoToSFXResponseBody,
 } from "@/app/api/interface";
+import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 
 // get the first frame of the video
@@ -9,14 +10,6 @@ import { useEffect, useRef, useState } from "react";
 // send it to the api
 // get the response
 // play the response
-
-const apiVideoToSFX = async (previewUrl: string | null) => {
-  const response = await fetch("/api", {
-    method: "POST",
-    body: JSON.stringify({ frames: [previewUrl] } as VideoToSFXRequestBody),
-  });
-  return (await response.json()) as VideoToSFXResponseBody;
-};
 
 const getFramesFromVideo = async (
   video: HTMLVideoElement,
@@ -27,23 +20,39 @@ const getFramesFromVideo = async (
     video.currentTime = time;
     console.log("time", time);
     const canPlayThrough = () => {
-      console.log("canplaythrough");
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        throw new Error("canvas context is null");
-      }
-      ctx.drawImage(video, 0, 0);
+      setTimeout(() => {
+        console.log("canplay");
+        const ctx = canvas.getContext("2d");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        if (!ctx) {
+          throw new Error("canvas context is null");
+        }
+        ctx.drawImage(video, 0, 0);
 
-      const imageDataUrl = canvas.toDataURL("image/png");
-      resolve(imageDataUrl);
+        const imageDataUrl = canvas.toDataURL("image/png");
+        video.removeEventListener("canplay", canPlayThrough);
+        resolve(imageDataUrl);
+      }, 50);
     };
-    video.addEventListener("canplaythrough", canPlayThrough);
-    return () => video.removeEventListener("canplaythrough", canPlayThrough);
+    video.addEventListener("canplay", canPlayThrough);
   });
 };
 
 export const useVideoToSFX = (previewUrl: string | null) => {
   const [sfx, setSfx] = useState<VideoToSFXResponseBody | null>(null);
+
+  const mutations = {
+    convertImagesToSfx: useMutation({
+      mutationFn: async (frames: string[]) => {
+        const response = await fetch("/api", {
+          method: "POST",
+          body: JSON.stringify({ frames } as VideoToSFXRequestBody),
+        });
+        return (await response.json()) as VideoToSFXResponseBody;
+      },
+    }),
+  };
 
   // TODO: can remove frame, just used for debugging
   const [frames, setFrames] = useState<string[]>([]);
@@ -62,13 +71,14 @@ export const useVideoToSFX = (previewUrl: string | null) => {
 
         const frames: string[] = [];
 
-        for (let i = 1; i < 5; i++) {
-          video.currentTime = i + 0.1;
+        for (let i = 0; i < 4; i++) {
+          video.currentTime = i;
           const frame = await getFramesFromVideo(video, canvas, i);
           frames.push(frame as string);
+          setFrames(frames);
         }
 
-        setFrames(frames);
+        mutations.convertImagesToSfx.mutate(frames);
       };
       video.addEventListener("loadeddata", onLoad);
       return () => video.removeEventListener("loadeddata", onLoad);
@@ -76,5 +86,5 @@ export const useVideoToSFX = (previewUrl: string | null) => {
     getFrames();
   }, [previewUrl]);
 
-  return { frames, sfx };
+  return { frames, mutations };
 };

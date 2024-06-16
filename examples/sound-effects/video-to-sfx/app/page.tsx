@@ -90,24 +90,14 @@ const variants = {
   },
 };
 
-const timeout = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
-  const mutations = {
-    convertImagesToSfx: useMutation({
-      mutationFn: async () => {
-        await timeout(3000);
-        return exampleResponse;
-      },
-    }),
-  };
 
   const previewUrl = useMemo(
     () => (file ? URL.createObjectURL(file) : null),
     [file]
   );
-  const { frames } = useVideoToSFX(previewUrl);
+  const { frames, mutations } = useVideoToSFX(previewUrl);
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
@@ -164,10 +154,14 @@ export default function Home() {
             />
           )}
         </motion.div>
-        {frames.map((frame, index) => (
-          <img key={index} src={frame} alt="frame" />
-        ))}
-        {mutations.convertImagesToSfx.isPending && (
+        {process.env.NODE_ENV === "development" && (
+          <div className="absolute top-0 left-0 flex h-20 w-20">
+            {frames.map((frame, index) => (
+              <img key={index} src={frame} alt="frame" />
+            ))}
+          </div>
+        )}
+        {!sfx?.caption && (
           <motion.div
             variants={variants.loader}
             className="w-[600px] center font-mono"
