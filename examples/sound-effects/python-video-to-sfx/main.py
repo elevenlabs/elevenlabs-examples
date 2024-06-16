@@ -11,6 +11,7 @@ import base64
 import requests
 import os
 from datetime import datetime
+import sys
 
 load_dotenv()
 
@@ -126,9 +127,9 @@ def generate_video_with_sound_effect(
 
 
 if __name__ == "__main__":
-    NUM_VIDEOS = 4
-    INPUT_VIDEO_PATH = "/Users/luke/dev/elevenlabs-examples/examples/sound-effects/python-video-to-sfx/video.mp4"
-    OUTPUT_DIR = "/Users/luke/dev/elevenlabs-examples/examples/sound-effects/python-video-to-sfx/output"
+    NUM_VIDEOS = 1
+    input_video_path = sys.argv[1]
+    output_dir = os.path.dirname(input_video_path)
     TEMP_DIR = tempfile.mkdtemp()
     IMAGE_PATH = f"{TEMP_DIR}/frame.jpg"
 
@@ -138,18 +139,18 @@ Understand what's in this video and create a prompt for a video to SFX model
 
 Give short prompts that only include the details needed for the main sound in the video"""
 
-    get_first_frame_from_video_and_save_as_image(INPUT_VIDEO_PATH, IMAGE_PATH)
+    get_first_frame_from_video_and_save_as_image(input_video_path, IMAGE_PATH)
 
     caption = get_caption_for_image(IMAGE_PATH, PROMPT)
     print("Caption: ", caption)
 
     for i in range(NUM_VIDEOS):
         output_video_path = generate_video_with_sound_effect(
-            INPUT_VIDEO_PATH,
-            OUTPUT_DIR,
+            input_video_path,
+            output_dir,
             TEMP_DIR,
             caption,
             f"output_{datetime.now().strftime('%Y%m%d%H%M%S')}_{i}",
         )
 
-    print(f"Done, saved to {OUTPUT_DIR}")
+    print(f"Done, saved to {output_dir}")
