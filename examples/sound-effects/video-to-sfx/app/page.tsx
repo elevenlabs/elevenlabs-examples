@@ -11,7 +11,7 @@ import { exampleResponse } from "./api/exampleResponse";
 import { InlineInput } from "@/components/ui/inline-input";
 import AutosizeTextarea from "react-textarea-autosize";
 import { Orchestrator } from "./state/orchestrator";
-import { useVideoToSFX } from "@/lib/videoToSFX";
+import { convertVideoToSFX, useVideoToSFX } from "@/lib/videoToSFX";
 
 const LoadingIndicator = () => {
   const { ref, replay } = useScramble({
@@ -96,13 +96,12 @@ const timeout = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [orchestrator, setOrchestrator] = useState<Orchestrator | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const previewUrl = useMemo(
     () => (file ? URL.createObjectURL(file) : null),
     [file]
   );
-
-  const { frames, isLoading } = useVideoToSFX(previewUrl, setOrchestrator);
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
@@ -144,8 +143,19 @@ export default function Home() {
           {!previewUrl && (
             <FileInput
               className="h-full w-full"
-              onChange={({ files }) => {
+              onChange={async ({ files }) => {
                 setFile(files[0]);
+                setIsLoading(true);
+                const sfx = await convertVideoToSFX(
+                  URL.createObjectURL(files[0])
+                );
+                setOrchestrator(
+                  new Orchestrator({
+                    soundEffects: sfx.soundEffects,
+                    caption: sfx.caption,
+                  })
+                );
+                setIsLoading(false);
               }}
             />
           )}
