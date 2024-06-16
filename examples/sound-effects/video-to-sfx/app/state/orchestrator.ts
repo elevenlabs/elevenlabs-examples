@@ -30,7 +30,7 @@ export class Orchestrator {
       if (this.playing) {
         this.sfxPlayers.forEach((player, index) => {
           if (index === this.activeIndex) {
-            player.start(0, Infinity);
+            player.start();
           } else {
             player.stop();
           }
