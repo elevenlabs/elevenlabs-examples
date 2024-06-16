@@ -7,15 +7,16 @@ export async function GET(request: Request) {
 
 const MAX_SFX_PROMPT_LENGTH = 200;
 const NUM_SAMPLES = 4;
+const MAX_DURATION = 11;
 
 type RequestBody = {
-  frames: string[];
-  maxDuration?: number;
+  frames: string[]; // base64 encoded images
+  maxDuration?: number; // maximum of 11
 };
 
 type ResponseBody = {
-  soundEffects: string[];
-  captions: string[];
+  soundEffects: string[]; // base64 encoded sound effects
+  caption: string; // captions for frame
 };
 
 const generateSoundEffect = async (
@@ -99,7 +100,8 @@ Give a short prompt that only include the details needed for the main sound in t
 export async function POST(request: Request) {
   const { frames, maxDuration } = (await request.json()) as RequestBody;
 
-  const duration = maxDuration && maxDuration < 11 ? maxDuration : 11;
+  const duration =
+    maxDuration && maxDuration < MAX_DURATION ? maxDuration : MAX_DURATION;
 
   let caption = "";
   try {
@@ -122,7 +124,7 @@ export async function POST(request: Request) {
     return new Response(
       JSON.stringify({
         soundEffects,
-        captions: [caption],
+        caption,
       } as ResponseBody),
       {
         headers: {
