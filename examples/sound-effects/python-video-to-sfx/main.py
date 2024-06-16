@@ -16,7 +16,7 @@ import sys
 load_dotenv()
 
 elevenlabs = ElevenLabs(
-    api_key=os.getenv("ELEVENLABS_API_KEY"), base_url="http://localhost:8000"
+    api_key=os.getenv("ELEVENLABS_API_KEY")
 )
 
 
