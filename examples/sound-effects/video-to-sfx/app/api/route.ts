@@ -1,4 +1,8 @@
 // TODO: switch to the elevenlabs typescript sdk
+import {
+  VideoToSFXRequestBody,
+  VideoToSFXResponseBody,
+} from "@/app/api/interface";
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 
@@ -89,7 +93,9 @@ const generateCaptionForImage = async (
 };
 
 export async function POST(request: Request) {
-  const { frames, maxDuration } = (await request.json()) as RequestBody;
+  const { frames, maxDuration } =
+    (await request.json()) as VideoToSFXRequestBody;
+  console.log("request started", frames, maxDuration);
 
   const duration =
     maxDuration && maxDuration < MAX_DURATION ? maxDuration : MAX_DURATION;
@@ -116,7 +122,7 @@ export async function POST(request: Request) {
       JSON.stringify({
         soundEffects,
         caption,
-      } as ResponseBody),
+      } as VideoToSFXResponseBody),
       {
         headers: {
           "Content-Type": "application/json",

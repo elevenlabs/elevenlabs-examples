@@ -18,58 +18,63 @@ const apiVideoToSFX = async (previewUrl: string | null) => {
   return (await response.json()) as VideoToSFXResponseBody;
 };
 
-function getFirstFrameFromVideo(
-  videoRef: HTMLVideoElement,
-  canvasRef: HTMLCanvasElement | null
-) {
-  if (!canvasRef) {
-    throw new Error("canvasRef is null");
-  }
-  const video = videoRef;
-  const canvas = canvasRef;
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  const ctx = canvas.getContext("2d");
-  ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
-  const imageDataUrl = canvas.toDataURL("image/png");
-  return imageDataUrl;
-}
+const getFramesFromVideo = async (
+  video: HTMLVideoElement,
+  canvas: HTMLCanvasElement,
+  time: number
+) => {
+  return new Promise(resolve => {
+    video.currentTime = time;
+    console.log("time", time);
+    const canPlayThrough = () => {
+      console.log("canplaythrough");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        throw new Error("canvas context is null");
+      }
+      ctx.drawImage(video, 0, 0);
+
+      const imageDataUrl = canvas.toDataURL("image/png");
+      resolve(imageDataUrl);
+    };
+    video.addEventListener("canplaythrough", canPlayThrough);
+    return () => video.removeEventListener("canplaythrough", canPlayThrough);
+  });
+};
 
 export const useVideoToSFX = (previewUrl: string | null) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(
-    typeof window !== "undefined" ? document.createElement("canvas") : null
-  );
+  const [sfx, setSfx] = useState<VideoToSFXResponseBody | null>(null);
+
   // TODO: can remove frame, just used for debugging
-  const [frame, setFrame] = useState<string | null>(null);
+  const [frames, setFrames] = useState<string[]>([]);
+
   useEffect(() => {
-    const captureFrame = async () => {
-      // TODO: find better way than the timeout
-      setTimeout(async () => {
-        if (videoRef.current) {
-          const imageDataUrl = getFirstFrameFromVideo(
-            videoRef.current,
-            canvasRef?.current
-          );
-          setFrame(imageDataUrl);
-          const response = await apiVideoToSFX(imageDataUrl);
-          console.log(response);
-        }
-      }, 100);
-    };
-
-    if (videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-      videoRef.current.addEventListener("loadeddata", captureFrame);
-    }
-
-    return () => {
-      if (videoRef.current) {
-        videoRef.current.removeEventListener("loadeddata", captureFrame);
+    const getFrames = async () => {
+      if (!previewUrl) {
+        return;
       }
-    };
-  }, [previewUrl, canvasRef, videoRef]);
+      const video = document.createElement("video");
+      video.src = previewUrl;
+      const onLoad = async () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
 
-  return { videoRef };
+        const frames: string[] = [];
+
+        for (let i = 1; i < 5; i++) {
+          video.currentTime = i + 0.1;
+          const frame = await getFramesFromVideo(video, canvas, i);
+          frames.push(frame as string);
+        }
+
+        setFrames(frames);
+      };
+      video.addEventListener("loadeddata", onLoad);
+      return () => video.removeEventListener("loadeddata", onLoad);
+    };
+    getFrames();
+  }, [previewUrl]);
+
+  return { frames, sfx };
 };

@@ -10,6 +10,7 @@ import { useMutation } from "@tanstack/react-query";
 import { exampleResponse } from "./api/exampleResponse";
 import { InlineInput } from "@/components/ui/inline-input";
 import AutosizeTextarea from "react-textarea-autosize";
+import { useVideoToSFX } from "@/lib/videoToSFX";
 
 const LoadingIndicator = () => {
   const { ref, replay } = useScramble({
@@ -106,6 +107,7 @@ export default function Home() {
     () => (file ? URL.createObjectURL(file) : null),
     [file]
   );
+  const { frames } = useVideoToSFX(previewUrl);
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
@@ -162,6 +164,9 @@ export default function Home() {
             />
           )}
         </motion.div>
+        {frames.map((frame, index) => (
+          <img key={index} src={frame} alt="frame" />
+        ))}
         {mutations.convertImagesToSfx.isPending && (
           <motion.div
             variants={variants.loader}
