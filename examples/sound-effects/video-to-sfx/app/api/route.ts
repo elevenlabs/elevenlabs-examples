@@ -74,9 +74,7 @@ const generateCaptionForImage = async (
         content: [
           {
             type: "text",
-            text: `Act as an expert prompt engineer
-    
-    Understand what's in this video and create a prompt for a video to SFX model
+            text: `Understand what's in this video and create a prompt for an AI video to SFX model
     
     Give a short prompt that only include the details needed for the main sound in the video. It should be ${MAX_SFX_PROMPT_LENGTH} characters or less. Just give the prompt, don't say anything else.`,
           },
