@@ -9,9 +9,8 @@ const apiVideoToSFX = async (frames: string[]) => {
     body: JSON.stringify({ frames } as VideoToSFXRequestBody),
   });
   if (!response.ok) {
-    throw new Error(
-      `Unable to convert video to sound effects: ${response.statusText}`
-    );
+    const errorText = await response.text();
+    throw new Error(`Request failed: ${errorText}`);
   }
   return (await response.json()) as VideoToSFXResponseBody;
 };
@@ -62,16 +61,14 @@ export const convertVideoToSFX = async (
           frames.push(frame as string);
         }
         const sfx = await apiVideoToSFX(frames);
-        video.removeEventListener("loadeddata", onLoad);
         resolve({
           soundEffects: sfx.soundEffects,
           caption: sfx.caption,
         });
-      } catch (e) {
-        debugger;
         video.removeEventListener("loadeddata", onLoad);
-        console.error(e);
+      } catch (e) {
         reject(e);
+        video.removeEventListener("loadeddata", onLoad);
       }
     };
     video.addEventListener("loadeddata", onLoad);
