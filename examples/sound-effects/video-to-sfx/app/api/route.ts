@@ -10,15 +10,7 @@ const MAX_SFX_PROMPT_LENGTH = 200;
 const NUM_SAMPLES = 4;
 const MAX_DURATION = 11;
 
-type RequestBody = {
-  frames: string[]; // base64 encoded images
-  maxDuration?: number; // maximum of 11
-};
 
-type ResponseBody = {
-  soundEffects: string[]; // base64 encoded sound effects
-  caption: string; // captions for frame
-};
 
 const generateSoundEffect = async (
   prompt: string,
