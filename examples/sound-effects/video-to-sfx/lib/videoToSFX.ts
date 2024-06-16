@@ -1,9 +1,11 @@
+import { posthog } from "posthog-js";
 import {
   VideoToSFXRequestBody,
   VideoToSFXResponseBody,
 } from "@/app/api/interface";
 
 const apiVideoToSFX = async (frames: string[]) => {
+  posthog?.capture("video_to_sfx_started");
   const response = await fetch("/api", {
     method: "POST",
     body: JSON.stringify({ frames } as VideoToSFXRequestBody),
