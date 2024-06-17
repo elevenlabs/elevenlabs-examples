@@ -39,10 +39,17 @@ export async function mergeAndDownload(
     await ffmpeg.exec(["-v", "error", "-i", "audio.mpeg", "-f", "null", "-"]);
 
     await ffmpeg.exec([
+      "-i",
+      "input.mp4",
+      "-an", // This option removes the audio
+      "no_audio.mp4",
+    ]);
+
+    await ffmpeg.exec([
       "-v",
       "verbose",
       "-i",
-      "input.mp4",
+      "no_audio.mp4",
       "-i",
       "audio.mpeg",
       "-c:v",
@@ -54,7 +61,7 @@ export async function mergeAndDownload(
       "output.mp4",
     ]);
     console.log("transcoding completed");
-    const data = await ffmpeg.readFile("output.mp4");
+    const data = (await ffmpeg.readFile("output.mp4")) as Uint8Array;
     const final_url = URL.createObjectURL(
       new Blob([data.buffer], { type: "video/mp4" })
     );

@@ -1,12 +1,10 @@
 "use client";
 import { Mask, masks, shadows } from "@/frostin-ui";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FileInput } from "@/components/ui/file-input";
 import { springs } from "@/frostin-ui/utils/springs";
 import { useScramble } from "use-scramble";
-import AutosizeTextarea from "react-textarea-autosize";
 import { Orchestrator } from "./state/orchestrator";
 import { AudioPlayer } from "./state/player";
 import { observer } from "mobx-react";
@@ -25,7 +23,7 @@ const HoverOverlay = ({ className }: { className?: string }) => {
 };
 import { convertVideoToSFX } from "@/lib/videoToSFX";
 import { useMutation } from "@tanstack/react-query";
-import { DownloadIcon } from "lucide-react";
+import { DownloadIcon, LoaderCircle, LoaderPinwheel } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mergeAndDownload } from "@/lib/mergeAndDownload";
 
@@ -132,6 +130,12 @@ const Home = observer(() => {
   const [file, setFile] = useState<File | null>(null);
   const [orchestrator, setOrchestrator] = useState<Orchestrator | null>(null);
   const canceledRef = useRef(false);
+  const [isDownloading, setIsDownloading] = useState([
+    false,
+    false,
+    false,
+    false,
+  ]);
 
   const previewUrl = useMemo(
     () => (file ? URL.createObjectURL(file) : null),
@@ -254,6 +258,7 @@ const Home = observer(() => {
               onPause={() => {
                 orchestrator?.stop();
               }}
+              muted
             />
           )}
         </motion.div>
@@ -284,14 +289,25 @@ const Home = observer(() => {
                     onPause={() => orchestrator.stop()}
                     player={player}
                     active={orchestrator.activeIndex === index}
-                    onDownload={() => {
+                    onDownload={async () => {
                       const url = orchestrator.getAudioUrl(index);
                       if (!file || !url) {
                         window.alert("Error downloading");
                         return;
                       }
-                      mergeAndDownload(file, url);
+                      setIsDownloading(prev => {
+                        const newState = [...prev];
+                        newState[index] = true;
+                        return newState;
+                      });
+                      await mergeAndDownload(file, url);
+                      setIsDownloading(prev => {
+                        const newState = [...prev];
+                        newState[index] = false;
+                        return newState;
+                      });
                     }}
+                    isDownloading={isDownloading[index]}
                   />
                 </div>
               ))}
@@ -343,6 +359,7 @@ const SoundEffect = observer(
     onPause,
     active,
     onDownload,
+    isDownloading,
   }: {
     index: number;
     player: AudioPlayer;
@@ -350,6 +367,7 @@ const SoundEffect = observer(
     onPause: () => void;
     active: boolean;
     onDownload: () => void;
+    isDownloading: boolean;
   }) => {
     return (
       <motion.button
@@ -404,7 +422,11 @@ const SoundEffect = observer(
           key={"download" + index}
           className="self-center mr-3 rounded-full bg-transparent hover:bg-white/20 active:bg-white/20 border-gray-800/15"
         >
-          <DownloadIcon size={16} />
+          {isDownloading ? (
+            <LoaderCircle className="animate-spin" size={16} />
+          ) : (
+            <DownloadIcon size={16} />
+          )}
         </Button>
       </motion.button>
     );
