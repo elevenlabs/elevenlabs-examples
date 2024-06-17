@@ -55,4 +55,9 @@ export class Orchestrator {
   stop() {
     this.playing = false;
   }
+
+  getAudioUrl(index: number) {
+    const player = this.sfxPlayers[index];
+    return player.data;
+  }
 }
