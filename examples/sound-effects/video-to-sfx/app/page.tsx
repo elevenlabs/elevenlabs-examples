@@ -10,6 +10,7 @@ import { AudioPlayer } from "./state/player";
 import { observer } from "mobx-react";
 import { cn } from "@/lib/utils";
 import { autorun, reaction, when } from "mobx";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const HoverOverlay = ({ className }: { className?: string }) => {
   return (
@@ -32,6 +33,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mergeAndDownload } from "@/lib/mergeAndDownload";
+import posthog from "posthog-js";
+
+const queryClient = new QueryClient();
 
 const LoadingIndicator = () => {
   const { ref, replay } = useScramble({
@@ -131,7 +135,14 @@ const variants = {
   },
 };
 
-const Home = observer(() => {
+if (typeof window !== "undefined") {
+  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY || "", {
+    api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "",
+    person_profiles: "identified_only", // or 'always' to create profiles for anonymous users as well
+  });
+}
+
+const HomeDetails = observer(() => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [orchestrator, setOrchestrator] = useState<Orchestrator | null>(null);
@@ -186,6 +197,10 @@ const Home = observer(() => {
         convertVideoToSFX(URL.createObjectURL(file)),
     }),
   };
+
+  useEffect(() => {
+    posthog.capture("$pageview");
+  }, []);
 
   return (
     <motion.main
@@ -365,6 +380,14 @@ const Home = observer(() => {
     </motion.main>
   );
 });
+
+const Home = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <HomeDetails />
+    </QueryClientProvider>
+  );
+};
 
 const Waveform = observer(
   ({

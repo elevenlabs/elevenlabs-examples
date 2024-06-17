@@ -1,31 +1,29 @@
-"use client";
 import "@/app/globals.css";
 import { Inter as FontSans } from "next/font/google";
 import { GeistMono } from "geist/font/mono";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import posthog from "posthog-js";
-
-const queryClient = new QueryClient();
-
-if (typeof window !== "undefined") {
-  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY || "", {
-    api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "",
-    person_profiles: "identified_only", // or 'always' to create profiles for anonymous users as well
-  });
-}
 
 import { cn } from "@/lib/utils";
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
+
+import metaImage from "@/public/meta-image.png";
+import { Metadata } from "next";
 
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
 });
 
+export const metadata: Metadata = {
+  title: "ElevenLabs Video to SFX Generator",
+  description: "Generate a custom AI sound effect for your video",
+  openGraph: {
+    title: "ElevenLabs Video to SFX Generator",
+    description: "Generate a custom AI sound effect for your video",
+    images: [{ url: metaImage.src }],
+  },
+};
+
 export default function RootLayout({ children }: { children: ReactNode }) {
-  useEffect(() => {
-    posthog.capture("$pageview");
-  }, []);
   return (
     <html
       lang="en"
@@ -37,16 +35,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       }}
     >
       <head />
-      <QueryClientProvider client={queryClient}>
-        <body
-          className={cn(
-            "min-h-screen bg-background font-sans antialiased",
-            fontSans.variable
-          )}
-        >
-          {children}
-        </body>
-      </QueryClientProvider>
+      <body
+        className={cn(
+          "min-h-screen bg-background font-sans antialiased",
+          fontSans.variable
+        )}
+      >
+        {children}
+      </body>
     </html>
   );
 }
