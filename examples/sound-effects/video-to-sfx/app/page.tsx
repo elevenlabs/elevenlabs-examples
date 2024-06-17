@@ -268,7 +268,7 @@ const HomeDetails = observer(() => {
       >
         <motion.div
           variants={variants.card}
-          className="w-full aspect-video rounded-3xl bg-white/80 backdrop-blur-md text-transparent md:text-black"
+          className="w-full aspect-video rounded-3xl bg-white/80 backdrop-blur-[16px] text-transparent md:text-black"
         >
           {!previewUrl && (
             <FileInput
@@ -297,7 +297,7 @@ const HomeDetails = observer(() => {
             >
               <img
                 src="/logo-squircle.svg"
-                className="w-16 h-16 mb-3 mix-blend-luminosity"
+                className="w-16 h-16 mb-3 mix-blend-hard-light"
               />
               <div className="font-mono text-sm mb-1 text-gray-900">
                 Video to sound effects
