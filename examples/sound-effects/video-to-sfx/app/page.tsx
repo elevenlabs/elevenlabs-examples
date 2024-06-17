@@ -289,16 +289,7 @@ const Home = observer(() => {
                     onPause={() => orchestrator.stop()}
                     player={player}
                     active={orchestrator.activeIndex === index}
-<<<<<<< HEAD
                     onDownload={async () => {
-=======
-                  />
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={isDownloading[index]}
-                    onClick={async () => {
->>>>>>> efdb800 (added download button)
                       const url = orchestrator.getAudioUrl(index);
                       if (!file || !url) {
                         window.alert("Error downloading");
