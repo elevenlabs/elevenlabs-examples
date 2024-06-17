@@ -217,7 +217,7 @@ const Home = observer(() => {
           </div>
         </a>
         <a
-          href="https://github.com/elevenlabs/elevenlabs-examples/tree/main/examples/sound-effects"
+          href="https://github.com/elevenlabs/elevenlabs-examples/tree/main/examples/sound-effects/video-to-sfx"
           className="font-mono text-sm mb-1 text-gray-900"
         >
           <span className="pr-2">This code is open source on GitHub</span>
@@ -239,7 +239,7 @@ const Home = observer(() => {
         </a>
         <a
           className="font-mono text-sm mb-1 text-gray-900"
-          href="https://github.com/elevenlabs/elevenlabs-examples/tree/main/examples/sound-effects"
+          href="https://github.com/elevenlabs/elevenlabs-examples/tree/main/examples/sound-effects/video-to-sfx"
         >
           <span className="pr-2">
             This code is open source{" "}
