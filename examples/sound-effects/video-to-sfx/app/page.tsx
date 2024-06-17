@@ -341,7 +341,7 @@ const HomeDetails = observer(() => {
                 onChange={() => {}}
               /> */}
             </motion.div>
-            <motion.div className="stack gap-4 px-6 w-full">
+            <motion.div className="stack gap-3 px-6 w-full">
               {orchestrator.sfxPlayers.map((player, index) => (
                 <div className="flex items-center">
                   <SoundEffect
@@ -469,7 +469,7 @@ const SoundEffect = observer(
         <HoverOverlay className={cn(active && "opacity-20 inset-0")} />
         <div className="relative flex-1 h-full rounded-inherit hstack gap-1">
           <div className="overlay inset-4">
-            <Waveform player={player} barBgColor="bg-gray-900/30" />
+            <Waveform player={player} barBgColor="bg-gray-900/20" />
             <Mask
               className="overlay"
               image={masks.linear({
@@ -490,12 +490,12 @@ const SoundEffect = observer(
             onDownload?.();
           }}
           key={"download" + index}
-          className="self-center mr-3 rounded-full bg-transparent hover:bg-white/20 active:bg-white/20 border-gray-800/15"
+          className="self-center mr-3 rounded-full bg-transparent hover:bg-white/25 active:bg-white/40 border-gray-800/20"
         >
           {isDownloading ? (
-            <LoaderCircle className="animate-spin" size={16} />
+            <LoaderCircle className="animate-spin text-gray-800/50" size={16} />
           ) : (
-            <DownloadIcon size={16} />
+            <DownloadIcon size={16} className="text-gray-800/50" />
           )}
         </Button>
       </motion.button>
