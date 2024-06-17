@@ -1,7 +1,6 @@
 import os
 
 from dotenv import load_dotenv
-from elevenlabs import SoundGenerationSettingsResponseModel
 from elevenlabs.client import ElevenLabs
 
 load_dotenv()
@@ -12,12 +11,10 @@ elevenlabs = ElevenLabs(api_key=os.getenv("ELEVENLABS_API_KEY"))
 def generate_sound_effect(text: str, output_path: str):
     print("Generating sound effects...")
 
-    result = elevenlabs.text_to_sound_effect.convert(
+    result = elevenlabs.text_to_sound_effects.convert(
         text=text,
-        generation_settings=SoundGenerationSettingsResponseModel(
-            duration_seconds=10,  # Optional
-            prompt_influence=0.3,  # Optional
-        ),
+        duration_seconds=10,  # Optional
+        prompt_influence=0.3,  # Optional
     )
 
     with open(output_path, "wb") as f:
