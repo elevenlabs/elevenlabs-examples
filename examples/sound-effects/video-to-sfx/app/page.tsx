@@ -208,7 +208,7 @@ const Home = observer(() => {
       ></motion.div>
       <div className="absolute md:flex justify-between p-4 hidden w-full text-black">
         <a href="https://elevenlabs.io/docs/api-reference/how-to-use-text-to-sound-effects">
-          <div className="font-mono text-sm text-center text-gray-800/60 h-[1rem]">
+          <div className="font-mono text-sm mb-1 text-gray-900">
             <span className="underline pr-2">
               ElevenLabs Texts to Sounds Effects API
             </span>
@@ -218,7 +218,7 @@ const Home = observer(() => {
         </a>
         <a
           href="https://github.com/elevenlabs/elevenlabs-examples/tree/main/examples/sound-effects"
-          className="font-mono text-sm text-center text-gray-800/60 h-[1rem]"
+          className="font-mono text-sm mb-1 text-gray-900"
         >
           <span className="pr-2">This code is open source on GitHub</span>
           <Github className="inline-block" size={16} />
@@ -231,14 +231,14 @@ const Home = observer(() => {
         )}
       >
         <a
-          className="font-mono text-sm text-center text-gray-800/60 h-[1rem]"
+          className="font-mono text-sm mb-1 text-gray-900"
           href="https://elevenlabs.io/docs/api-reference/how-to-use-text-to-sound-effects"
         >
           <span className="underline pr-2">Texts to Sounds Effects API</span>
           <span className="pr-2">is now live</span>
         </a>
         <a
-          className="font-mono text-sm text-center text-gray-800/60 h-[1rem]"
+          className="font-mono text-sm mb-1 text-gray-900"
           href="https://github.com/elevenlabs/elevenlabs-examples/tree/main/examples/sound-effects"
         >
           <span className="pr-2">
