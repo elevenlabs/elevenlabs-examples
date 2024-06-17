@@ -7,7 +7,7 @@ How it works:
 - Extracts 4 frames from the video at 1 second intervals
 - Creates an SFX prompt by sending the frames and a prompt to GPT-4o
 - Uses the prompt to create a sound effect with the [ElevenLabs Text to Sounds Effects API](https://elevenlabs.io/docs/api-reference/how-to-use-text-to-sound-effects)
-- When you download it, loads ffmpeg.wasm to merge the video and sound effect into a single file for you to download
+- When you download it, uses ffmpeg.wasm to merge the video and sound effect into a single file for you to download
 - Hosted on Vercel at [https://video-to-sfx.vercel.app/](https://video-to-sfx.vercel.app/)
 
 ![Screenshot elevenlabs-video-to-sfx vercel app (Arc) 2024-06-16 at 23 32@2x](https://github.com/elevenlabs/elevenlabs-examples/assets/22766134/eaefd266-2bc1-4d51-9fe1-5316e5ee43c0)
