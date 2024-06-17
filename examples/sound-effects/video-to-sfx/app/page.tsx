@@ -23,7 +23,7 @@ const HoverOverlay = ({ className }: { className?: string }) => {
 };
 import { convertVideoToSFX } from "@/lib/videoToSFX";
 import { useMutation } from "@tanstack/react-query";
-import { DownloadIcon, LoaderCircle, LoaderPinwheel } from "lucide-react";
+import { DownloadIcon, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mergeAndDownload } from "@/lib/mergeAndDownload";
 
@@ -289,7 +289,16 @@ const Home = observer(() => {
                     onPause={() => orchestrator.stop()}
                     player={player}
                     active={orchestrator.activeIndex === index}
+<<<<<<< HEAD
                     onDownload={async () => {
+=======
+                  />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled={isDownloading[index]}
+                    onClick={async () => {
+>>>>>>> efdb800 (added download button)
                       const url = orchestrator.getAudioUrl(index);
                       if (!file || !url) {
                         window.alert("Error downloading");
