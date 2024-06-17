@@ -23,7 +23,13 @@ const HoverOverlay = ({ className }: { className?: string }) => {
 };
 import { convertVideoToSFX } from "@/lib/videoToSFX";
 import { useMutation } from "@tanstack/react-query";
-import { DownloadIcon, LoaderCircle } from "lucide-react";
+import {
+  ArrowRight,
+  DownloadIcon,
+  Github,
+  GithubIcon,
+  LoaderCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { mergeAndDownload } from "@/lib/mergeAndDownload";
 
@@ -83,7 +89,7 @@ const variants = {
   },
   content: {
     noFile: {
-      scale: 1.1,
+      scale: 1,
       y: -220,
       x: "-50%",
     },
@@ -183,7 +189,7 @@ const Home = observer(() => {
 
   return (
     <motion.main
-      className=""
+      className="w-full"
       initial="noFile"
       animate={previewUrl ? "hasFile" : "noFile"}
     >
@@ -200,8 +206,49 @@ const Home = observer(() => {
         variants={variants.overlay}
         className="fixed overlay bg-white/85 backdrop-blur-lg pointer-events-none"
       ></motion.div>
+      <div className="absolute md:flex justify-between p-4 hidden w-full text-black">
+        <a href="https://elevenlabs.io/docs/api-reference/how-to-use-text-to-sound-effects">
+          <div className="font-mono text-sm text-center text-gray-800/60 h-[1rem]">
+            <span className="underline pr-2">
+              ElevenLabs Texts to Sounds Effects API
+            </span>
+            <span className="pr-2">is now live</span>
+            <ArrowRight className="inline-block" size={16} />
+          </div>
+        </a>
+        <a
+          href="https://github.com/elevenlabs/elevenlabs-examples/tree/main/examples/sound-effects"
+          className="font-mono text-sm text-center text-gray-800/60 h-[1rem]"
+        >
+          <span className="pr-2">This code is open source on GitHub</span>
+          <Github className="inline-block" size={16} />
+        </a>
+      </div>
       <motion.div
-        className="absolute  w-full md:w-[620px] top-[50vh] left-1/2 mx-auto stack items-center gap-6 p-6 pt-0 pb-8 md:p-12 md:px-4 md:pb-16"
+        className={cn(
+          "flex flex-col md:hidden text-black p-4 gap-4",
+          previewUrl && "hidden"
+        )}
+      >
+        <a
+          className="font-mono text-sm text-center text-gray-800/60 h-[1rem]"
+          href="https://elevenlabs.io/docs/api-reference/how-to-use-text-to-sound-effects"
+        >
+          <span className="underline pr-2">Texts to Sounds Effects API</span>
+          <span className="pr-2">is now live</span>
+        </a>
+        <a
+          className="font-mono text-sm text-center text-gray-800/60 h-[1rem]"
+          href="https://github.com/elevenlabs/elevenlabs-examples/tree/main/examples/sound-effects"
+        >
+          <span className="pr-2">
+            This code is open source{" "}
+            <span className="underline">on GitHub</span>
+          </span>
+        </a>
+      </motion.div>
+      <motion.div
+        className="absolute w-full md:w-[620px] top-[50vh] left-1/2 mx-auto stack items-center gap-6 p-6 pt-0 pb-8 md:p-12 md:px-4 md:pb-16"
         variants={variants.content}
       >
         <motion.div
@@ -238,7 +285,7 @@ const Home = observer(() => {
                 className="w-16 h-16 mb-3 mix-blend-luminosity"
               />
               <div className="font-mono text-sm mb-1 text-gray-900">
-                Video to sound effects.
+                Video to sound effects
               </div>
               <div className="font-mono text-sm text-center text-gray-800/60 h-[1rem]">
                 <FunText text="Upload a video." />
