@@ -1,6 +1,7 @@
 "use client";
 import "@/app/globals.css";
 import { Inter as FontSans } from "next/font/google";
+import { GeistMono } from "geist/font/mono";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import posthog from "posthog-js";
 
@@ -26,7 +27,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     posthog.capture("$pageview");
   }, []);
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={cn(GeistMono.variable)}
+      style={{
+        // @ts-ignore
+        "--font-mono": "var(--font-geist-mono)",
+      }}
+    >
       <head />
       <QueryClientProvider client={queryClient}>
         <body
