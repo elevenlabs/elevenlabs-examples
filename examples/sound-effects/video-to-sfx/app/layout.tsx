@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     title: "Video to SFX Generator | ElevenLabs",
     description:
       "Generate a custom AI sound effect for your video by ElevenLabs",
-    images: [{ url: `${process.env.NEXT_PUBLIC_URL}/${metaImage.src}` }],
+    images: [{ url: `/meta-image.png` }],
   },
 };
 
