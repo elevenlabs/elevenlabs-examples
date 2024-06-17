@@ -27,12 +27,12 @@ const getFramesFromVideo = async (
     video.currentTime = time;
     setTimeout(() => {
       const ctx = canvas.getContext("2d");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      canvas.width = 150;
+      canvas.height = 100;
       if (!ctx) {
         throw new Error("canvas context is null");
       }
-      ctx.drawImage(video, 0, 0);
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       const imageDataUrl = canvas.toDataURL("image/png");
       resolve(imageDataUrl);
@@ -50,8 +50,6 @@ export const convertVideoToSFX = async (
     const onLoad = async () => {
       try {
         const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
 
         const frames: string[] = [];
         for (let i = 0; i < 4; i++) {

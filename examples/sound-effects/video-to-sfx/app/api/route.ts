@@ -33,11 +33,8 @@ const generateSoundEffect = async (
     }),
     body: JSON.stringify({
       text: prompt,
-      generation_settings: {
-        use_auto_duration: false,
-        duration_seconds: maxDuration,
-        prompt_influence: 0.3,
-      },
+      duration_seconds: maxDuration,
+      prompt_influence: 0.3,
     }),
   };
   const response = await fetch(
