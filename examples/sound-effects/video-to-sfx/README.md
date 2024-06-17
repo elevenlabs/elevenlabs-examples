@@ -1,4 +1,14 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Video to Sound Effects Demo
+
+This is a demo we built with the ElevenLabs Texts to Sounds Effects API. It allows you to upload a video and get a download link for the sound effects.
+
+How it works:
+
+- Extracts 4 frames from the video at 1 second intervals
+- Creates an SFX prompt by sending the frames and a prompt to GPT-4o
+- Uses the prompt to create a sound effect with the ElevenLabs Text to Sounds Effects API
+- When you download it, loads ffmpeg.wasm to merge the video and sound effect into a single file for you to download
+- Hosted on Vercel at [https://video-to-sfx.vercel.app/](https://video-to-sfx.vercel.app/)
 
 ## Getting Started
 
