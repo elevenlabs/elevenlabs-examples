@@ -25,22 +25,18 @@ const getFramesFromVideo = async (
 ) => {
   return new Promise(resolve => {
     video.currentTime = time;
-    const canPlayThrough = () => {
-      setTimeout(() => {
-        const ctx = canvas.getContext("2d");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        if (!ctx) {
-          throw new Error("canvas context is null");
-        }
-        ctx.drawImage(video, 0, 0);
+    setTimeout(() => {
+      const ctx = canvas.getContext("2d");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      if (!ctx) {
+        throw new Error("canvas context is null");
+      }
+      ctx.drawImage(video, 0, 0);
 
-        const imageDataUrl = canvas.toDataURL("image/png");
-        video.removeEventListener("canplay", canPlayThrough);
-        resolve(imageDataUrl);
-      }, 50);
-    };
-    video.addEventListener("canplay", canPlayThrough);
+      const imageDataUrl = canvas.toDataURL("image/png");
+      resolve(imageDataUrl);
+    }, 100);
   });
 };
 
@@ -49,7 +45,8 @@ export const convertVideoToSFX = async (
 ): Promise<VideoToSFXResponseBody> => {
   return new Promise((resolve, reject) => {
     const video = document.createElement("video");
-    video.src = previewUrl;
+    video.muted = true;
+    video.autoplay = true;
     const onLoad = async () => {
       try {
         const canvas = document.createElement("canvas");
@@ -57,7 +54,6 @@ export const convertVideoToSFX = async (
         canvas.height = video.videoHeight;
 
         const frames: string[] = [];
-
         for (let i = 0; i < 4; i++) {
           video.currentTime = i;
           const frame = await getFramesFromVideo(video, canvas, i);
@@ -75,5 +71,6 @@ export const convertVideoToSFX = async (
       }
     };
     video.addEventListener("loadeddata", onLoad);
+    video.src = previewUrl;
   });
 };

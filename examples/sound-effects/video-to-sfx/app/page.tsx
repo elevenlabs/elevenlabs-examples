@@ -11,7 +11,7 @@ import { Orchestrator } from "./state/orchestrator";
 import { AudioPlayer } from "./state/player";
 import { observer } from "mobx-react";
 import { cn } from "@/lib/utils";
-import { autorun, reaction } from "mobx";
+import { autorun, reaction, when } from "mobx";
 
 export const HoverOverlay = ({ className }: { className?: string }) => {
   return (
@@ -244,6 +244,7 @@ const Home = observer(() => {
               src={previewUrl}
               className="h-full w-full rounded-[inherit] object-cover"
               controls
+              playsInline
               onPlay={() => {
                 orchestrator?.play(orchestrator.activeIndex);
               }}
@@ -275,7 +276,9 @@ const Home = observer(() => {
                 <SoundEffect
                   key={index}
                   index={index}
-                  onPlay={() => orchestrator.play(index)}
+                  onPlay={() => {
+                    orchestrator.play(index);
+                  }}
                   onPause={() => orchestrator.stop()}
                   player={player}
                   active={orchestrator.activeIndex === index}

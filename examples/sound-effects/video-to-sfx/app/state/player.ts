@@ -78,13 +78,13 @@ function normalize(arr: Sample[], newMax = 1): Sample[] {
 export class AudioPlayer {
   _player: Tone.Player;
   waveformLoaded: boolean;
-  loaded: boolean;
+  audioLoaded: boolean;
   audio: HTMLAudioElement;
   progress: number = 0;
   playing: boolean;
 
   constructor(data: string) {
-    this.loaded = false;
+    this.audioLoaded = false;
     this.waveformLoaded = false;
     this.playing = false;
     this._player = new Tone.Player(
@@ -94,11 +94,11 @@ export class AudioPlayer {
       })
     ).toDestination();
     this.audio = new Audio(data);
-    this.audio.addEventListener("loadedmetadata", () => {
-      this.loaded = true;
+    this.audio.addEventListener("canplay", () => {
+      this.audioLoaded = true;
     });
     makeObservable(this, {
-      loaded: observable.ref,
+      audioLoaded: observable.ref,
       waveformLoaded: observable.ref,
       progress: observable.ref,
       playing: observable.ref,
@@ -106,10 +106,6 @@ export class AudioPlayer {
     this.audio.addEventListener(
       "timeupdate",
       action(() => {
-        console.log({
-          curr: this.audio.currentTime,
-          duration: this.audio.duration,
-        });
         this.progress = clamp(
           this.audio.currentTime / this.audio.duration,
           0,
