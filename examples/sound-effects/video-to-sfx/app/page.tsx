@@ -13,7 +13,7 @@ import { observer } from "mobx-react";
 import { cn } from "@/lib/utils";
 import { autorun, reaction } from "mobx";
 
-export const HoverOverlay = ({ className }: { className?: string }) => {
+const HoverOverlay = ({ className }: { className?: string }) => {
   return (
     <div
       className={cn(
@@ -25,6 +25,9 @@ export const HoverOverlay = ({ className }: { className?: string }) => {
 };
 import { convertVideoToSFX } from "@/lib/videoToSFX";
 import { useMutation } from "@tanstack/react-query";
+import { DownloadIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { mergeAndDownload } from "@/lib/mergeAndDownload";
 
 const LoadingIndicator = () => {
   const { ref, replay } = useScramble({
@@ -272,14 +275,31 @@ const Home = observer(() => {
             </motion.div>
             <motion.div className="stack gap-4 px-6 w-full">
               {orchestrator.sfxPlayers.map((player, index) => (
-                <SoundEffect
-                  key={index}
-                  index={index}
-                  onPlay={() => orchestrator.play(index)}
-                  onPause={() => orchestrator.stop()}
-                  player={player}
-                  active={orchestrator.activeIndex === index}
-                />
+                <div className="flex items-center">
+                  <SoundEffect
+                    key={"sound-effect" + index}
+                    index={index}
+                    onPlay={() => orchestrator.play(index)}
+                    onPause={() => orchestrator.stop()}
+                    player={player}
+                    active={orchestrator.activeIndex === index}
+                  />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => {
+                      const url = orchestrator.getAudioUrl(index);
+                      if (!file || !url) {
+                        window.alert("Error downloading");
+                        return;
+                      }
+                      mergeAndDownload(file, url);
+                    }}
+                    key={"download" + index}
+                  >
+                    <DownloadIcon size={16} />
+                  </Button>
+                </div>
               ))}
             </motion.div>
           </>
@@ -343,7 +363,7 @@ const SoundEffect = observer(
           scale: 1,
           transition: { ...springs.xxxslow(), delay: index * 0.1 },
         }}
-        className="group relative h-16 rounded-xl w-full focus-visible:ring-gray-800 focus-visible:ring-2 focus-visible:outline-none"
+        className="flex justify-between group relative h-16 rounded-xl w-full focus-visible:ring-gray-800 focus-visible:ring-2 focus-visible:outline-none"
         onClick={() => {
           if (player.playing) {
             onPause?.();
@@ -362,19 +382,21 @@ const SoundEffect = observer(
           }
         }}
       >
-        <HoverOverlay className={cn(active && "opacity-20 inset-0")} />
-        <div className="overlay inset-4">
-          <Waveform player={player} barBgColor="bg-gray-900/30" />
-          <Mask
-            className="overlay"
-            image={masks.linear({
-              direction: "to-right",
-              opacities: [1, 1, 0, 0],
-              positions: [0, player.progress - 0.001, player.progress, 1],
-            })}
-          >
-            <Waveform player={player} barBgColor="bg-gray-900/100" />
-          </Mask>
+        <div>
+          <HoverOverlay className={cn(active && "opacity-20 inset-0")} />
+          <div className="overlay inset-4">
+            <Waveform player={player} barBgColor="bg-gray-900/30" />
+            <Mask
+              className="overlay"
+              image={masks.linear({
+                direction: "to-right",
+                opacities: [1, 1, 0, 0],
+                positions: [0, player.progress - 0.001, player.progress, 1],
+              })}
+            >
+              <Waveform player={player} barBgColor="bg-gray-900/100" />
+            </Mask>
+          </div>
         </div>
       </motion.button>
     );

@@ -82,11 +82,13 @@ export class AudioPlayer {
   audio: HTMLAudioElement;
   progress: number = 0;
   playing: boolean;
+  data: string;
 
   constructor(data: string) {
     this.loaded = false;
     this.waveformLoaded = false;
     this.playing = false;
+    this.data = data;
     this._player = new Tone.Player(
       data,
       action(() => {
