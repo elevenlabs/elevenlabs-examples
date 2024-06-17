@@ -128,6 +128,7 @@ const Home = observer(() => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [orchestrator, setOrchestrator] = useState<Orchestrator | null>(null);
+  const canceledRef = useRef(false);
 
   const previewUrl = useMemo(
     () => (file ? URL.createObjectURL(file) : null),
@@ -140,6 +141,7 @@ const Home = observer(() => {
         setFile(null);
         orchestrator?.stop();
         setOrchestrator(null);
+        canceledRef.current = true;
       }
     };
     document.addEventListener("keydown", listener);
@@ -204,6 +206,7 @@ const Home = observer(() => {
               className="h-full w-full"
               onChange={async ({ files }) => {
                 setFile(files[0]);
+                canceledRef.current = false;
                 // const sfx = await convertVideoToSFX(
                 //   URL.createObjectURL(files[0])
                 // );
@@ -213,7 +216,7 @@ const Home = observer(() => {
                     window.alert(`Error: ${e}`);
                   },
                 });
-                if (file) {
+                if (!canceledRef.current) {
                   setOrchestrator(
                     new Orchestrator({
                       soundEffects: sfx.soundEffects,
