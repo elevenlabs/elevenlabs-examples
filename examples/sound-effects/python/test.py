@@ -1,6 +1,6 @@
 import os
 
-from main import generate_sound_effect
+from text_to_sound_effects import generate_sound_effect
 
 
 def test_generate_sound_effect():
