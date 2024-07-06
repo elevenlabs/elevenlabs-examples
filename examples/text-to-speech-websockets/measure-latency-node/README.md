@@ -1,0 +1,25 @@
+# ElevenLabs - Websockets Server - Node
+
+This example demonstrates how to measure the latency of a websocket connection to ElevenLabs' text-to-speech API
+
+## Usage
+
+### Using NPX
+
+The easiest way to run this example is to use npx by running the following command:
+
+```bash
+npx elevenlabs-latency ELEVENLABS_API_KEY
+```
+
+Optionally you can specify the model to use by adding the `-m` flag:
+
+```bash
+npx elevenlabs-latency ELEVENLABS_API_KEY -m eleven_turbo_v2
+```
+
+### From source
+
+1. Clone the repository and cd into this folder
+2. Run `npm install` to install the dependencies
+3. Run `npm run start ELEVENLABS_API_KEY` to run the test and optionally specify the model to use by adding the `-m` flag
