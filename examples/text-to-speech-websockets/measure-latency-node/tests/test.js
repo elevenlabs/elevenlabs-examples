@@ -1,4 +1,4 @@
-const { measureLatencies } = require('../dist/index'); // Adjust the import path as necessary
+const { measureLatencies } = require('../dist/index');
 
 jest.setTimeout(30000);
 
