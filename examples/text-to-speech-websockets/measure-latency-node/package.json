@@ -1,6 +1,6 @@
 {
   "name": "elevenlabs-latency",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
@@ -27,5 +27,9 @@
   },
   "keywords": [],
   "author": "ElevenLabs",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elevenlabs/elevenlabs-examples"
+  }
 }

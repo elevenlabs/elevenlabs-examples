@@ -1,6 +1,8 @@
 # ElevenLabs - Websockets Server - Node
 
-This example demonstrates how to measure the latency of a websocket connection to ElevenLabs' text-to-speech API
+Package to measure the latency of a websocket connection to ElevenLabs' text-to-speech API - specifically the time to first byte
+
+Hosted on npm at [https://www.npmjs.com/package/elevenlabs-latency](https://www.npmjs.com/package/elevenlabs-latency)
 
 ## Usage
 
