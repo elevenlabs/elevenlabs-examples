@@ -100,7 +100,7 @@ async function textToSpeechInputStreaming(textIterator: any, config: Config): Pr
       const endTime = new Date().getTime();
       const elapsedMilliseconds = endTime - startTime;
       if (typeof firstByteTime === 'undefined') {
-        throw new Error('First byte time is not set');
+        throw new Error('Unable to measure latencies, please check your network connection and API key');
       }
       resolve({
         firstByteTime,
