@@ -92,8 +92,6 @@ async function textToSpeechInputStreaming(textIterator: any, config: Config): Pr
         firstByteTime = elapsedMilliseconds;
         console.log(`First byte: ${elapsedMilliseconds} ms`);
         firstByte = false;
-      } else {
-        console.log(`Data: ${elapsedMilliseconds} ms`);
       }
     });
 
@@ -101,7 +99,6 @@ async function textToSpeechInputStreaming(textIterator: any, config: Config): Pr
     websocket.on('close', () => {
       const endTime = new Date().getTime();
       const elapsedMilliseconds = endTime - startTime;
-      console.log(`End: ${elapsedMilliseconds} ms`);
       if (typeof firstByteTime === 'undefined') {
         throw new Error('First byte time is not set');
       }
@@ -137,8 +134,7 @@ export async function measureLatencies(config: Config) {
     results.reduce((acc, curr) => acc + curr.firstByteTime, 0) / results.length;
   const averageElapsedTime =
     results.reduce((acc, curr) => acc + curr.elapsedTime, 0) / results.length;
-  console.log(`Average first byte time: ${averageFirstByteTime} ms`);
-  console.log(`Average elapsed time: ${averageElapsedTime} ms`);
+  console.log(`\nAverage first byte time: ${averageFirstByteTime} ms`);
 
   return results;
 }
@@ -173,6 +169,8 @@ async function main() {
     model: argv.model || 'eleven_turbo_v2',
     voiceId: '21m00Tcm4TlvDq8ikWAM',
   } satisfies Config;
+
+  console.log('Measuring latency with 10 requests...\n');
 
   await measureLatencies(config);
 }
