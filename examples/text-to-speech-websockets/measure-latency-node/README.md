@@ -24,4 +24,5 @@ npx elevenlabs-latency ELEVENLABS_API_KEY -m eleven_turbo_v2
 
 1. Clone the repository and cd into this folder
 2. Run `npm install` to install the dependencies
-3. Run `npm run start ELEVENLABS_API_KEY` to run the test and optionally specify the model to use by adding the `-m` flag
+3. Run `npm run build` to build the package to `dist` folder
+4. Run `npm run start ELEVENLABS_API_KEY` to run the test and optionally specify the model to use by adding the `-m` flag

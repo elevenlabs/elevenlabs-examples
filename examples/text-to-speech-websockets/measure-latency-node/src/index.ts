@@ -6,6 +6,7 @@ type Config = {
   apiKey: string;
   model: string;
   voiceId: string;
+  numOfTrials: number;
 };
 
 type Result = {
@@ -59,38 +60,37 @@ async function textToSpeechInputStreaming(textIterator: any, config: Config): Pr
     let firstByte = true;
     const uri = `wss://api.elevenlabs.io/v1/text-to-speech/${config.voiceId}/stream-input?model_id=${config.model}`;
     const websocket = new WebSocket(uri, {
-      headers: { Authorization: `Bearer ${config.apiKey}` },
+      headers: { 'xi-api-key': ` ${config.apiKey}` },
     });
 
     // When connection is open, send the initial and subsequent text chunks.
     websocket.on('open', async () => {
-      await websocket.send(
-        JSON.stringify({
-          text: ' ',
-          voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.8,
-            use_speaker_boost: false,
-          },
-          generation_config: { chunk_length_schedule: [120, 160, 250, 290] },
-        }),
+        websocket.send(
+          JSON.stringify({
+            text: ' ',
+            voice_settings: {
+              stability: 0.5,
+              similarity_boost: 0.8,
+              use_speaker_boost: false,
+            },
+            generation_config: { chunk_length_schedule: [120, 160, 250, 290] }
+          }),
       );
 
       for await (let text of textIterator) {
-        await websocket.send(JSON.stringify({ text: text }));
+        websocket.send(JSON.stringify({ text: text }));
       }
 
-      await websocket.send(JSON.stringify({ text: '', flush: true }));
+      websocket.send(JSON.stringify({ text: '' }));
     });
 
     // Log received data and the time elapsed since the connection started.
-    websocket.on('message', function incoming(data) {
+    websocket.on('message', function incoming(event) {
       const endTime = new Date().getTime();
       const elapsedMilliseconds = endTime - startTime;
-
       if (firstByte) {
         firstByteTime = elapsedMilliseconds;
-        console.log(`First byte: ${elapsedMilliseconds} ms`);
+        console.log(`Time to first byte: ${elapsedMilliseconds} ms`);
         firstByte = false;
       }
     });
@@ -124,9 +124,10 @@ async function chatCompletion(text: string, config: Config): Promise<Result> {
 }
 
 export async function measureLatencies(config: Config) {
-  const text = `This is a test to see how the latency performs.`;
+  const text = "The twilight sun cast its warm golden hues upon the vast rolling fields, saturating the landscape with an ethereal glow. "
+
   const results: Result[] = [];
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i <config.numOfTrials; i++) {
     const result = await chatCompletion(text, config);
     results.push(result);
   }
@@ -168,9 +169,10 @@ async function main() {
     apiKey: argv.api_key || "",
     model: argv.model || 'eleven_turbo_v2',
     voiceId: '21m00Tcm4TlvDq8ikWAM',
+    numOfTrials: 5
   } satisfies Config;
 
-  console.log('Measuring latency with 10 requests...\n');
+  console.log(`Measuring latency with ${config.numOfTrials} requests...\n`);
 
   await measureLatencies(config);
 }
