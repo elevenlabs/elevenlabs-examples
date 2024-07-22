@@ -15,6 +15,7 @@ type Result = {
   elapsedTime: number;
 };
 
+// Write the audio encoded in base64 string into local file
 function writeToLocal(base64str: any, writeStream: fs.WriteStream) {
   const audioBuffer: Buffer = Buffer.from(base64str, 'base64')
   writeStream.write(audioBuffer, (err) => {
@@ -43,11 +44,10 @@ async function textToSpeechInputStreaming(text: string, config: Config): Promise
     } catch (err) {
       fs.mkdirSync(outputDir)
     }
-    const writeStream = fs.createWriteStream(outputDir + '/test.mp3', { flags: 'a' });
+    const writeStream = fs.createWriteStream(outputDir + '/test.mp3', { flags: 'w' });
 
     // When connection is open, send the initial and subsequent text chunks.
     websocket.on('open', async () => {
-        startTime = new Date().getTime() // Record start time once websocket connection is open
         websocket.send(
           JSON.stringify({
             text: ' ',
@@ -58,7 +58,9 @@ async function textToSpeechInputStreaming(text: string, config: Config): Promise
             },
             generation_config: { chunk_length_schedule: [120, 160, 250, 290] }
           }),
-      );
+        );
+
+        startTime = new Date().getTime()
 
         websocket.send(JSON.stringify({ text: text }));
 
@@ -151,13 +153,20 @@ async function main() {
       description: 'Model to use - defaults to eleven_turbo_v2',
       demandOption: false, // This makes the model optional
     },
+    voice: {
+      alias: 'm',
+      type: 'string',
+      description: 'Voice to use - defaults to Alice',
+      demandOption: false
+    }
   })
   .demandCommand(1, 'You need to provide the API key')
   .parseSync();
+
   const config = {
     apiKey: argv.api_key || "",
     model: argv.model || 'eleven_turbo_v2',
-    voiceId: 'Xb7hH8MSUJpSbSDYk0k2',  // Alice (premade voice finetuend for turbo v2)
+    voiceId: argv.voice || 'Xb7hH8MSUJpSbSDYk0k2',
     numOfTrials: 5
   } satisfies Config;
 
