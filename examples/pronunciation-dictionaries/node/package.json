@@ -1,0 +1,22 @@
+{
+    "name": "node",
+    "type": "module",
+    "scripts": {
+        "start": "tsx src/index.ts"
+    },
+    "dependencies": {
+        "dotenv": "^16.4.5",
+        "elevenlabs": "^0.4.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20.11.17",
+        "@types/node-fetch": "^2.6.11",
+        "tsx": "^4.7.3",
+        "typescript": "^5.4.2"
+    },
+    "keywords": [
+        "elevenlabs"
+    ],
+    "author": "ElevenLabs",
+    "license": "MIT"
+}
