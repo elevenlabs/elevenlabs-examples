@@ -14,12 +14,13 @@ const fontSans = FontSans({
 });
 
 export const metadata: Metadata = {
-  title: "ElevenLabs Video to SFX Generator",
-  description: "Generate a custom AI sound effect for your video",
+  title: "Video to Sound Effects Generator | ElevenLabs",
+  description: "Generate a custom AI sound effect for your video by ElevenLabs",
   openGraph: {
-    title: "ElevenLabs Video to SFX Generator",
-    description: "Generate a custom AI sound effect for your video",
-    images: [{ url: metaImage.src }],
+    title: "Video to Sound Effects Generator | ElevenLabs",
+    description:
+      "Generate a custom AI sound effect for your video by ElevenLabs",
+    images: [{ url: `/meta-image.png` }],
   },
 };
 

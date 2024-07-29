@@ -1,14 +1,20 @@
 # Video to Sound Effects Demo
 
-This is a demo we built with the ElevenLabs Texts to Sounds Effects API. It allows you to upload a video and get a download link for the sound effects.
+We built this demo to show the power of the ElevenLabs Texts to Sounds Effects API. You can upload any video and add AI-generated sound effects.
 
 How it works:
 
-- Extracts 4 frames from the video at 1 second intervals
-- Creates an SFX prompt by sending the frames and a prompt to GPT-4o
+- Extracts 4 frames from the video at 1 second intervals (all client side)
+- Sends the frames and a prompt to GPT-4o to create the custom Text to sound effects prompt
 - Uses the prompt to create a sound effect with the [ElevenLabs Text to Sounds Effects API](https://elevenlabs.io/docs/api-reference/how-to-use-text-to-sound-effects)
-- When you download it, loads ffmpeg.wasm to merge the video and sound effect into a single file for you to download
-- Hosted on Vercel at [https://video-to-sfx.vercel.app/](https://video-to-sfx.vercel.app/)
+- Combines the video and audio on the client side with ffmpeg.wasm for a single file to download
+- Hosted on Vercel at [videotosoundeffects.com](https://www.videotosoundeffects.com/)
+
+![Screenshot elevenlabs-video-to-sfx vercel app (Arc) 2024-06-16 at 23 32@2x](https://github.com/elevenlabs/elevenlabs-examples/assets/22766134/eaefd266-2bc1-4d51-9fe1-5316e5ee43c0)
+
+![Screenshot elevenlabs-video-to-sfx vercel app (Arc) 2024-06-16 at 23 33@2x](https://github.com/elevenlabs/elevenlabs-examples/assets/22766134/20fba872-e8d1-4f30-92af-fcb52bab45da)
+
+
 
 ## Getting Started
 

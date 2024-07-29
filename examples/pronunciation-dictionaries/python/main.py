@@ -17,7 +17,7 @@ if not ELEVENLABS_API_KEY:
 
 
 def print_rules(client: ElevenLabs, dictionary_id: str, version_id: str):
-    rules = client.pronunciation_dictionary.get_pls_file_with_a_pronunciation_dictionary_version_rules(
+    rules = client.pronunciation_dictionary.download(
         dictionary_id=dictionary_id,
         version_id=version_id,
     )
@@ -51,13 +51,13 @@ def main():
 
     audio_1 = client.generate(
         text="Without the dictionary: tomato",
-        voice="Rachel",
+        voice="Alice",
         model=model,
     )
 
     audio_2 = client.generate(
         text="With the dictionary: tomato",
-        voice="Rachel",
+        voice="Alice",
         model=model,
         pronunciation_dictionary_locators=[
             PronunciationDictionaryVersionLocator(
@@ -84,7 +84,7 @@ def main():
 
     audio_3 = client.generate(
         text="With the rule removed: tomato",
-        voice="Rachel",
+        voice="Alice",
         model=model,
         pronunciation_dictionary_locators=[
             PronunciationDictionaryVersionLocator(
@@ -126,7 +126,7 @@ def main():
 
     audio_4 = client.generate(
         text="With the rule added again: tomato",
-        voice="Rachel",
+        voice="Alice",
         model=model,
         pronunciation_dictionary_locators=[
             PronunciationDictionaryVersionLocator(
