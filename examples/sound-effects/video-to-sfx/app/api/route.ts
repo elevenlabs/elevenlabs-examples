@@ -46,7 +46,6 @@ const generateSoundEffect = async (
   );
 
   if (!response.ok) {
-    console.log(await response.json());
     throw new Error("Failed to generate sound effect");
   }
   const buffer = await response.arrayBuffer(); // Get an ArrayBuffer from the response
