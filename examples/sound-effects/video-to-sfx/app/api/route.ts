@@ -56,9 +56,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export const isCaptionSafeForWork = async (
-  caption: string
-): Promise<boolean> => {
+const isCaptionSafeForWork = async (caption: string): Promise<boolean> => {
   if (!process.env.OPENAI_API_KEY) {
     throw new Error("No API key");
   }
