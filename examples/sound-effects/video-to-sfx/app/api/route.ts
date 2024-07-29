@@ -56,9 +56,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export const isCaptionSafeForWork = async (
-  caption: string
-): Promise<boolean> => {
+const isCaptionSafeForWork = async (caption: string): Promise<boolean> => {
   if (!process.env.OPENAI_API_KEY) {
     throw new Error("No API key");
   }
@@ -172,6 +170,7 @@ export async function POST(request: Request) {
   let caption = "";
   try {
     caption = await generateCaptionForImage(frames);
+    console.log("caption", caption);
   } catch (error) {
     console.error(error);
     return new Response("Failed to generate caption", {
@@ -181,6 +180,7 @@ export async function POST(request: Request) {
   let isSafeForWork = false;
   try {
     isSafeForWork = await isCaptionSafeForWork(caption);
+    console.log("isSafeForWork", isSafeForWork);
   } catch (error) {
     console.error(error);
     return new Response("Failed to determine if prompt is safe for work", {
@@ -192,8 +192,6 @@ export async function POST(request: Request) {
       status: 500,
     });
   }
-  console.log("caption", caption);
-  console.log("isSafeForWork", isSafeForWork);
   try {
     const soundEffects: string[] = [];
     await Promise.all(
