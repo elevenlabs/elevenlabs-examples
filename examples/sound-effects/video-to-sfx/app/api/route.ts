@@ -60,6 +60,44 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+export const isCaptionSafeForWork = async (
+  caption: string
+): Promise<boolean> => {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error("No API key");
+  }
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [
+      {
+        role: "user",
+        content: `Determine if the following caption is safe for work (SFW):
+
+        Be very strict in what is considered appropriate and forbid anything that can be deemed as sexual, violent, or inappropriate, especially if it includes children or minors.
+        
+        Examples of innapropriate prompts include:
+
+        - "Toilet flushing sounds"
+        - "A young child sitting on the toilet"
+        - "Bathroom ambiance with a child reading aloud from a book while sitting on the toilet."
+        
+        Caption: "${caption}"
+        
+        Respond with only "true" if the caption is safe for work and "false" if it is not.`,
+      },
+    ],
+  });
+
+  const result = response?.choices?.[0]?.message?.content?.trim();
+
+  if (result !== "true" && result !== "false") {
+    throw new Error("Failed to determine if the caption is safe for work");
+  }
+
+  return result === "true";
+};
+
 const generateCaptionForImage = async (
   imagesBase64: string[]
 ): Promise<string> => {
@@ -144,8 +182,22 @@ export async function POST(request: Request) {
       status: 500,
     });
   }
+  let isSafeForWork = false;
+  try {
+    isSafeForWork = await isCaptionSafeForWork(caption);
+  } catch (error) {
+    console.error(error);
+    return new Response("Failed to determine if prompt is safe for work", {
+      status: 500,
+    });
+  }
+  if (!isSafeForWork) {
+    return new Response("Prompt is deemed inappropriate", {
+      status: 500,
+    });
+  }
   console.log("caption", caption);
-
+  console.log("isSafeForWork", isSafeForWork);
   try {
     const soundEffects: string[] = [];
     await Promise.all(
