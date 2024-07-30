@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 import WebSocket from 'ws';
 import * as fs from "node:fs";
 
-dotenv.config();
+dotenv.config({ path: '.env.example' });
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 
 const voiceId = 'Xb7hH8MSUJpSbSDYk0k2'
@@ -20,7 +20,7 @@ try {
 } catch (err) {
   fs.mkdirSync(outputDir)
 }
-const writeStream = fs.createWriteStream(outputDir + '/test.mp3', { flags: 'a' });
+const writeStream = fs.createWriteStream(outputDir + '/test.mp3', { flags: 'w' });
 
 const text = "The twilight sun cast its warm golden hues upon the vast rolling fields, saturating the landscape with an ethereal glow. "
 
@@ -60,9 +60,13 @@ websocket.on('message', function incoming(event) {
   if (data["audio"]) {
     writeToLocal(data["audio"], writeStream)
   }
+
+  if (data["error"]) {
+    console.error('Error:', data["error"]);
+  }
 });
 
 // Close the writeStream when the WebSocket connection closes.
-websocket.on('close', () => {
+websocket.on('close', (event) => {
   writeStream.end();
 });

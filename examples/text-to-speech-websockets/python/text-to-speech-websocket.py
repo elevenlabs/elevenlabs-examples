@@ -1,17 +1,22 @@
 import os
 from dotenv import load_dotenv
+import websockets
 
 import asyncio
-import websockets
 import json
 import base64
 
 
-load_dotenv()
+load_dotenv(".env.example")
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
+
+voice_id = 'pqHfZKP75CvOlQylNhV4' # Bill
+model_id = 'eleven_turbo_v2'
 
 
 async def write_to_local(audio_stream):
+    """Write the audio encoded in base64 string to a local mp3 file."""
+
     with open(f'./output/test.mp3', "wb") as f:
         async for chunk in audio_stream:
             if chunk:
@@ -49,20 +54,19 @@ async def text_to_speech_ws_streaming(voice_id, model_id):
             "xi_api_key": ELEVENLABS_API_KEY,
         }))
 
+        # Add listen task to submit the audio chunks to the write_to_local function
         listen_task = asyncio.create_task(write_to_local(listen(websocket)))
 
         text = "The twilight sun cast its warm golden hues upon the vast rolling fields, saturating the landscape with an ethereal glow. Silently, the meandering brook continued its ceaseless journey, whispering secrets only the trees seemed privy to."
 
-        await websocket.send(json.dumps({"text": text, "try_trigger_generation": True}))
+        await websocket.send(json.dumps({"text": text}))
 
+        # Send empty string to indicate the end of the text sequence which will close the websocket connection
         await websocket.send(json.dumps({"text": ""}))
-
 
         await listen_task
 
 
 # Main execution
 if __name__ == "__main__":
-    voice_id = 'kmSVBPu7loj4ayNinwWM'
-    model_id = 'eleven_turbo_v2'
     asyncio.run(text_to_speech_ws_streaming(voice_id, model_id))
