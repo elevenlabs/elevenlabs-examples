@@ -17,7 +17,7 @@ model_id = 'eleven_turbo_v2'
 async def write_to_local(audio_stream):
     """Write the audio encoded in base64 string to a local mp3 file."""
 
-    with open(f'./output/test.mp3', "wb") as f:
+    with open('./output/test.mp3', "wb") as f:
         async for chunk in audio_stream:
             if chunk:
                 f.write(chunk)
