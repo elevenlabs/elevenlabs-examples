@@ -32,7 +32,7 @@ async function textToSpeechInputStreaming(text: string, config: Config): Promise
     let startTime: number | undefined;
     let firstByte = true;
 
-    const uri = `wss://api.elevenlabs.io/v1/text-to-speech/${config.voiceId}/stream-input?model_id=${config.model}&optimize_streaming_latency=3`;
+    const uri = `wss://api.elevenlabs.io/v1/text-to-speech/${config.voiceId}/stream-input?model_id=${config.model}`;
     const websocket = new WebSocket(uri, {
       headers: { 'xi-api-key': ` ${config.apiKey}` },
     });
@@ -134,12 +134,7 @@ export async function measureLatencies(config: Config) {
 async function main() {
   const argv = yargs(process.argv.slice(2))
   .usage('Usage: $0 <api_key> [options]')
-  .command('$0 <api_key>', 'Run the latency measurement', (yargs) => {
-    yargs.positional('api_key', {
-      describe: 'API key',
-      type: 'string',
-    });
-  })
+  .command('$0 <api_key>', 'Run the latency measurement', (yargs) => {})
   .options({
     api_key: {
       alias: 'key',
@@ -153,10 +148,10 @@ async function main() {
       description: 'Model to use - defaults to eleven_turbo_v2',
       demandOption: false, // This makes the model optional
     },
-    voice: {
-      alias: 'm',
+    voiceId: {
+      alias: 'v',
       type: 'string',
-      description: 'Voice to use - defaults to Alice',
+      description: 'Voice to use - defaults to id of Alice',
       demandOption: false
     }
   })
@@ -166,10 +161,12 @@ async function main() {
   const config = {
     apiKey: argv.api_key || "",
     model: argv.model || 'eleven_turbo_v2',
-    voiceId: argv.voice || 'Xb7hH8MSUJpSbSDYk0k2',
+    voiceId: argv.voiceId || 'Xb7hH8MSUJpSbSDYk0k2',
     numOfTrials: 5
   } satisfies Config;
 
+  console.log('Using model:', config.model);
+  console.log('Using voice id:', config.voiceId);
   console.log(`Measuring latency with ${config.numOfTrials} requests...\n`);
 
   await measureLatencies(config);
