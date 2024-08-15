@@ -4,7 +4,7 @@ import { Button, Input } from '~/components/ui';
 import { AudioContextPlayer } from '~/lib/audio-context-player';
 import { io, type Socket } from 'socket.io-client';
 
-const url = 'ws://localhost:5000';
+const url = 'ws://localhost:4005';
 
 let socket: Socket;
 

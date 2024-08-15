@@ -14,7 +14,7 @@ const io = new Server(server, {
   },
 });
 
-const PORT: number = parseInt(process.env.PORT || '5000');
+const PORT: number = parseInt(process.env.PORT || '4005');
 
 if (!process.env.ELEVENLABS_API_KEY) {
   throw new Error('ELEVENLABS_API_KEY is required');
@@ -31,6 +31,7 @@ io.on('connection', (socket) => {
   const elevenlabsSocket = new WebSocket(url);
 
   elevenlabsSocket.onopen = () => {
+    console.log('Socket open');
     const initialMessage = {
       xi_api_key: process.env.ELEVENLABS_API_KEY,
       text: ' ',
@@ -54,10 +55,12 @@ io.on('connection', (socket) => {
     const response = JSON.parse(event.data);
 
     if (response.error) {
+      console.error(response.error);
       socket.emit('error', response);
     }
 
     if (response.audio) {
+      console.log('audio recieved');
       socket.emit('audio', response.audio);
     }
   };
