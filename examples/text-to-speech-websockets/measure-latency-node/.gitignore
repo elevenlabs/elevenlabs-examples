@@ -21,3 +21,6 @@ Thumbs.db
 # env
 .env*
 !.env.example
+
+# audio output
+output/

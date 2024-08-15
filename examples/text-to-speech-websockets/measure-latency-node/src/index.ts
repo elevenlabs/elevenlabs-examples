@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 import WebSocket from 'ws';
 import yargs from 'yargs';
+import * as fs from "node:fs";
 
 type Config = {
   apiKey: string;
   model: string;
   voiceId: string;
+  numOfTrials: number;
 };
 
 type Result = {
@@ -13,91 +15,86 @@ type Result = {
   elapsedTime: number;
 };
 
-// A function to split input text into manageable chunks based on punctuation and whitespace.
-function textChunker(textArray: any[]) {
-  const splitters = [
-    '.',
-    ',',
-    '?',
-    '!',
-    ';',
-    ':',
-    '—',
-    '-',
-    '(',
-    ')',
-    '[',
-    ']',
-    '}',
-    ' ',
-  ];
-  let buffer = '';
-
-  return (async function* () {
-    for (let text of textArray) {
-      if (splitters.includes(buffer.slice(-1))) {
-        yield buffer + ' ';
-        buffer = text;
-      } else if (splitters.includes(text[0])) {
-        yield buffer + text[0] + ' ';
-        buffer = text.substring(1);
-      } else {
-        buffer += text;
+// Write the audio encoded in base64 string into local file
+function writeToLocal(base64str: any, writeStream: fs.WriteStream) {
+  const audioBuffer: Buffer = Buffer.from(base64str, 'base64')
+  writeStream.write(audioBuffer, (err) => {
+      if (err) {
+          console.error('Error writing to file:', err);
       }
-    }
-    if (buffer) {
-      yield buffer + ' ';
-    }
-  })();
+  });
 }
 
 // This function initiates a WebSocket connection to stream text-to-speech requests.
-async function textToSpeechInputStreaming(textIterator: any, config: Config): Promise<Result> {
+async function textToSpeechInputStreaming(text: string, config: Config): Promise<Result> {
   return new Promise((resolve, reject) => {
     let firstByteTime: number | undefined;
-    const startTime = new Date().getTime();
+    let startTime: number | undefined;
     let firstByte = true;
+
     const uri = `wss://api.elevenlabs.io/v1/text-to-speech/${config.voiceId}/stream-input?model_id=${config.model}`;
     const websocket = new WebSocket(uri, {
-      headers: { Authorization: `Bearer ${config.apiKey}` },
+      headers: { 'xi-api-key': ` ${config.apiKey}` },
     });
+
+    // Create output folder for saving the audio into mp3
+    const outputDir = './output'
+    try {
+      fs.accessSync(outputDir, fs.constants.R_OK | fs.constants.W_OK);
+    } catch (err) {
+      fs.mkdirSync(outputDir)
+    }
+    const writeStream = fs.createWriteStream(outputDir + '/test.mp3', { flags: 'w' });
 
     // When connection is open, send the initial and subsequent text chunks.
     websocket.on('open', async () => {
-      await websocket.send(
-        JSON.stringify({
-          text: ' ',
-          voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.8,
-            use_speaker_boost: false,
-          },
-          generation_config: { chunk_length_schedule: [120, 160, 250, 290] },
-        }),
-      );
+        websocket.send(
+          JSON.stringify({
+            text: ' ',
+            voice_settings: {
+              stability: 0.5,
+              similarity_boost: 0.8,
+              use_speaker_boost: false,
+            },
+            generation_config: { chunk_length_schedule: [120, 160, 250, 290] }
+          }),
+        );
 
-      for await (let text of textIterator) {
-        await websocket.send(JSON.stringify({ text: text }));
-      }
+        startTime = new Date().getTime()
 
-      await websocket.send(JSON.stringify({ text: '', flush: true }));
+        websocket.send(JSON.stringify({ text: text }));
+
+        websocket.send(JSON.stringify({ text: '' }));
     });
 
     // Log received data and the time elapsed since the connection started.
-    websocket.on('message', function incoming(data) {
+    websocket.on('message', function incoming(event) {
+      if (typeof startTime === 'undefined') {
+        throw new Error('Start time is not recorded, please check whether websocket is open.');
+      }
       const endTime = new Date().getTime();
       const elapsedMilliseconds = endTime - startTime;
-
       if (firstByte) {
         firstByteTime = elapsedMilliseconds;
-        console.log(`First byte: ${elapsedMilliseconds} ms`);
+        console.log(`Time to first byte: ${elapsedMilliseconds} ms`);
         firstByte = false;
+      }
+
+      // Generate audio from received data
+      const data = JSON.parse(event.toString())
+      if (data["audio"]) {
+        writeToLocal(data["audio"], writeStream)
       }
     });
 
     // Log when the WebSocket connection closes and the total time elapsed.
     websocket.on('close', () => {
+      writeStream.end();
+
       const endTime = new Date().getTime();
+      if (typeof startTime === 'undefined') {
+        throw new Error('Start time is not recorded, please check whether websocket is open.');
+      }
       const elapsedMilliseconds = endTime - startTime;
       if (typeof firstByteTime === 'undefined') {
         throw new Error('Unable to measure latencies, please check your network connection and API key');
@@ -116,18 +113,13 @@ async function textToSpeechInputStreaming(textIterator: any, config: Config): Pr
   });
 }
 
-async function chatCompletion(text: string, config: Config): Promise<Result> {
-  const textIterator = textChunker(text.split(' '));
-
-  const result = await textToSpeechInputStreaming(textIterator, config);
-  return result;
-}
 
 export async function measureLatencies(config: Config) {
-  const text = `This is a test to see how the latency performs.`;
+  const text = "The twilight sun cast its warm golden hues upon the vast rolling fields, saturating the landscape with an ethereal glow. "
+
   const results: Result[] = [];
-  for (let i = 0; i < 10; i++) {
-    const result = await chatCompletion(text, config);
+  for (let i = 0; i <config.numOfTrials; i++) {
+    const result = await textToSpeechInputStreaming(text, config);
     results.push(result);
   }
   const averageFirstByteTime =
@@ -142,12 +134,7 @@ export async function measureLatencies(config: Config) {
 async function main() {
   const argv = yargs(process.argv.slice(2))
   .usage('Usage: $0 <api_key> [options]')
-  .command('$0 <api_key>', 'Run the latency measurement', (yargs) => {
-    yargs.positional('api_key', {
-      describe: 'API key',
-      type: 'string',
-    });
-  })
+  .command('$0 <api_key>', 'Run the latency measurement', (yargs) => {})
   .options({
     api_key: {
       alias: 'key',
@@ -161,16 +148,26 @@ async function main() {
       description: 'Model to use - defaults to eleven_turbo_v2',
       demandOption: false, // This makes the model optional
     },
+    voiceId: {
+      alias: 'v',
+      type: 'string',
+      description: 'Voice to use - defaults to id of Alice',
+      demandOption: false
+    }
   })
   .demandCommand(1, 'You need to provide the API key')
   .parseSync();
+
   const config = {
     apiKey: argv.api_key || "",
     model: argv.model || 'eleven_turbo_v2',
-    voiceId: '21m00Tcm4TlvDq8ikWAM',
+    voiceId: argv.voiceId || 'Xb7hH8MSUJpSbSDYk0k2',
+    numOfTrials: 5
   } satisfies Config;
 
-  console.log('Measuring latency with 10 requests...\n');
+  console.log('Using model:', config.model);
+  console.log('Using voice id:', config.voiceId);
+  console.log(`Measuring latency with ${config.numOfTrials} requests...\n`);
 
   await measureLatencies(config);
 }
