@@ -9,7 +9,7 @@ This collection of demos and projects showcases the ElevenLabs API and how you c
 - **TTS WebSocket Demo with Latency Measurement**: Explore real-time text-to-speech with performance metrics.
 
 ### Native Mac App (Open Source)
-A fully open-source native Mac application that brings ElevenLabs to your desktop. Explore the code, contribute, or use it as a foundation for your own applications.
+A fully open-source native Mac application that brings ElevenLabs to your desktop. Written by Claude 3.5 and Cursor.
 
 ### Sound Effects Generation
 Unleash your creativity with our sound effects generation demo. Create custom audio landscapes for your projects!
