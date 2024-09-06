@@ -31,6 +31,7 @@ async function textToSpeechInputStreaming(text: string, config: Config): Promise
     let firstByteTime: number | undefined;
     let startTime: number | undefined;
     let firstByte = true;
+    let lastSentTime: number | undefined;
 
     const uri = `wss://api.elevenlabs.io/v1/text-to-speech/${config.voiceId}/stream-input?model_id=${config.model}`;
     const websocket = new WebSocket(uri, {
@@ -63,8 +64,18 @@ async function textToSpeechInputStreaming(text: string, config: Config): Promise
         startTime = new Date().getTime()
 
         websocket.send(JSON.stringify({ text: text }));
+        lastSentTime = new Date().getTime();
 
-        websocket.send(JSON.stringify({ text: '' }));
+        // set repeated time out to keep the connection alive
+        setInterval(() => {
+          const elapsed_ = new Date().getTime();
+          if (typeof lastSentTime === 'undefined') {
+            throw new Error('Last sent time is not recorded.');
+          }
+
+          console.log(`Time since last sent: ${elapsed_ - lastSentTime} ms`);
+          websocket.send(JSON.stringify({ text: ' ' }));
+        }, 10000);
     });
 
     // Log received data and the time elapsed since the connection started.
@@ -162,7 +173,7 @@ async function main() {
     apiKey: argv.api_key || "",
     model: argv.model || 'eleven_turbo_v2',
     voiceId: argv.voiceId || 'Xb7hH8MSUJpSbSDYk0k2',
-    numOfTrials: 5
+    numOfTrials: 1
   } satisfies Config;
 
   console.log('Using model:', config.model);
