@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import WebSocket from 'ws';
-import yargs from 'yargs';
+import yargs, { demandOption } from 'yargs';
 import * as fs from "node:fs";
 
 type Config = {
@@ -8,6 +8,7 @@ type Config = {
   model: string;
   voiceId: string;
   numOfTrials: number;
+  baseUrl: string;
 };
 
 type Result = {
@@ -32,7 +33,7 @@ async function textToSpeechInputStreaming(text: string, config: Config): Promise
     let startTime: number | undefined;
     let firstByte = true;
 
-    const uri = `wss://api.elevenlabs.io/v1/text-to-speech/${config.voiceId}/stream-input?model_id=${config.model}`;
+    const uri = `wss://${config.baseUrl}/v1/text-to-speech/${config.voiceId}/stream-input?model_id=${config.model}`;
     const websocket = new WebSocket(uri, {
       headers: { 'xi-api-key': ` ${config.apiKey}` },
     });
@@ -153,6 +154,12 @@ async function main() {
       type: 'string',
       description: 'Voice to use - defaults to id of Alice',
       demandOption: false
+    },
+    baseUrl: {
+      alias: 'u',
+      type: 'string',
+      description: 'Base URL for the API - defaults to api.elevenlabs.io',
+      demandOption: false
     }
   })
   .demandCommand(1, 'You need to provide the API key')
@@ -162,11 +169,13 @@ async function main() {
     apiKey: argv.api_key || "",
     model: argv.model || 'eleven_turbo_v2',
     voiceId: argv.voiceId || 'Xb7hH8MSUJpSbSDYk0k2',
+    baseUrl: argv.baseUrl || 'api.elevenlabs.io',
     numOfTrials: 5
   } satisfies Config;
 
   console.log('Using model:', config.model);
   console.log('Using voice id:', config.voiceId);
+  console.log('Using base URL:', config.baseUrl);
   console.log(`Measuring latency with ${config.numOfTrials} requests...\n`);
 
   await measureLatencies(config);
