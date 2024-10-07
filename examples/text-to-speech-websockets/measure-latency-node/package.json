@@ -1,6 +1,6 @@
 {
   "name": "elevenlabs-latency",
-  "version": "0.0.3",
+  "version": "0.0.6",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
