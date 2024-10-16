@@ -4,7 +4,7 @@ import ExpressWs from 'express-ws';
 import VoiceResponse from 'twilio/lib/twiml/VoiceResponse';
 import { ElevenLabsClient } from 'elevenlabs';
 import { type WebSocket } from 'ws';
-import { type Readable } from 'stream';
+import { Readable } from 'stream';
 
 const app = ExpressWs(express()).app;
 const PORT: number = parseInt(process.env.PORT || '5000');
@@ -41,7 +41,8 @@ function startApp() {
           text,
         });
 
-        const audioArrayBuffer = await streamToArrayBuffer(response);
+        const readableStream = Readable.from(response);
+        const audioArrayBuffer = await streamToArrayBuffer(readableStream);
 
         ws.send(
           JSON.stringify({

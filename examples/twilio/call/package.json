@@ -11,7 +11,7 @@
     "ngrok": "ngrok http 5000"
   },
   "dependencies": {
-    "elevenlabs": "^0.2.2",
+    "elevenlabs": "^0.16.1",
     "express": "^4.18.3",
     "express-ws": "^5.0.2",
     "twilio": "^5.0.1"
