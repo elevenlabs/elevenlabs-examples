@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -22,6 +22,8 @@
     "react-dom": "19.0.0-rc-65a56d0e-20241020",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
+    "twitter-api-v2": "^1.18.0",
+    "use-scramble": "^2.2.15",
     "zod": "^3.23.8"
   },
   "devDependencies": {
