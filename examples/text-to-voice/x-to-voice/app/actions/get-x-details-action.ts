@@ -16,6 +16,8 @@ export const getXDetailsAction = actionClient
         process.env.TWITTER_BEARER_TOKEN || ""
       );
       const readOnlyClient = twitterClient.readOnly;
+      // wait for 4 seoncds]
+      await new Promise(resolve => setTimeout(resolve, 4000));
       const response = await readOnlyClient.v2.userByUsername(handle, {
         "user.fields": [
           "description",
