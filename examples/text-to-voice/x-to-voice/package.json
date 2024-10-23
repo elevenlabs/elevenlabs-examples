@@ -14,6 +14,8 @@
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slider": "^1.2.1",
     "@radix-ui/react-slot": "^1.1.0",
+    "@upstash/ratelimit": "^2.0.4",
+    "@upstash/redis": "^1.34.3",
     "apify-client": "^2.9.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -21,6 +23,7 @@
     "next": "15.0.0",
     "next-safe-action": "^7.8.1",
     "next-themes": "^0.3.0",
+    "openai": "^4.68.3",
     "qrcode.react": "^4.1.0",
     "react": "19.0.0-rc-65a56d0e-20241020",
     "react-dom": "19.0.0-rc-65a56d0e-20241020",
@@ -32,6 +35,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@t3-oss/env-nextjs": "^0.11.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

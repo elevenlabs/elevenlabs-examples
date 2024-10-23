@@ -1,6 +1,6 @@
 "use client";
 
-import { getXDetailsAction } from "@/app/actions/get-x-details-action";
+import { synthesizeHumanAction } from "@/app/actions/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,8 +12,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { useAction } from "next-safe-action/hooks";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useScramble } from "use-scramble";
+import { toast } from "sonner";
 
 const ScrambleText = ({
   text,
@@ -40,15 +41,21 @@ const ScrambleText = ({
 
 export function VoiceGenForm() {
   const [handle, setHandle] = useState("");
-  const { execute, status, result } = useAction(getXDetailsAction);
+  const { execute, status, result } = useAction(synthesizeHumanAction);
 
   const handleGenerateVoice = async () => {
     try {
       await execute({ handle: handle });
     } catch (error) {
-      console.error("Error fetching X details:", error);
+      toast.error("An unexpected error occurred.");
     }
   };
+
+  useEffect(() => {
+    if (result.serverError) {
+      toast.error(result.serverError);
+    }
+  }, [result]);
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
@@ -76,6 +83,7 @@ export function VoiceGenForm() {
                   placeholder="@username"
                   value={handle}
                   onChange={e => setHandle(e.target.value)}
+                  disabled={status === "executing"}
                   className="pl-10"
                 />
               </div>
