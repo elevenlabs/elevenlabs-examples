@@ -1,12 +1,8 @@
 "use server";
 
 import { actionClient } from "@/app/actions/safe-action";
-import { ApifyClient } from "apify-client";
 import { z } from "zod";
-
-const client = new ApifyClient({
-  token: process.env.APIFY_API_KEY,
-});
+import { TwitterApi } from "twitter-api-v2";
 
 const getXDetailsSchema = z.object({
   handle: z.string(),
@@ -15,25 +11,23 @@ const getXDetailsSchema = z.object({
 export const getXDetailsAction = actionClient
   .schema(getXDetailsSchema)
   .action(async ({ parsedInput: { handle } }) => {
-    const input = {
-      handles: [handle],
-      tweetsDesired: 100,
-      proxyConfig: {
-        useApifyProxy: true,
-      },
-    };
-
     try {
-      const run = await client.actor("quacker/twitter-scraper").call(input);
-      console.log("Results from dataset");
-      console.log(
-        `💾 Check your data here: https://console.apify.com/storage/datasets/${run.defaultDatasetId}`
+      const twitterClient = new TwitterApi(
+        process.env.TWITTER_BEARER_TOKEN || ""
       );
-      const { items } = await client.dataset(run.defaultDatasetId).listItems();
-      items.forEach(item => {
-        console.dir(item);
+      const readOnlyClient = twitterClient.readOnly;
+      const response = await readOnlyClient.v2.userByUsername(handle, {
+        "user.fields": [
+          "description",
+          "location",
+          "profile_image_url",
+          "public_metrics",
+        ],
       });
+
+      console.log(response);
     } catch (error) {
+      console.error("Error fetching user details:", error);
       throw new Error(error instanceof Error ? error.message : "Unknown error");
     }
   });

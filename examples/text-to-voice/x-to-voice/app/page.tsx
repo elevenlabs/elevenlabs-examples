@@ -1,4 +1,4 @@
-import { VoiceGenForm } from "@/components/voice-gen-form"
+import { VoiceGenForm } from "@/components/voice-generator"
 
 export default function Home() {
   return (
