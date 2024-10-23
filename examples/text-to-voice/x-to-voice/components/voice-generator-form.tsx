@@ -1,21 +1,27 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
+import { getXDetailsAction } from "@/app/actions/get-x-details-action";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import Image from "next/image"
-import { useState } from "react"
-import { getXDetailsAction } from "@/app/actions/get-x-details-action"
-import { useAction } from "next-safe-action/hooks"
-import { useScramble } from "use-scramble"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { useAction } from "next-safe-action/hooks";
+import Image from "next/image";
+import { useState } from "react";
+import { useScramble } from "use-scramble";
 
-const ScrambleText = ({ text, loop = false }: { text: string; loop?: boolean }) => {
+const ScrambleText = ({
+  text,
+  loop = false,
+}: {
+  text: string;
+  loop?: boolean;
+}) => {
   const { ref, replay } = useScramble({
     text: text,
     tick: 3,
@@ -33,16 +39,16 @@ const ScrambleText = ({ text, loop = false }: { text: string; loop?: boolean }) 
 };
 
 export function VoiceGenForm() {
-  const [handle, setHandle] = useState("")
-  const { execute, status, result } = useAction(getXDetailsAction)
+  const [handle, setHandle] = useState("");
+  const { execute, status, result } = useAction(getXDetailsAction);
 
   const handleGenerateVoice = async () => {
     try {
-      await execute({ handle: handle })
+      await execute({ handle: handle });
     } catch (error) {
-      console.error("Error fetching X details:", error)
+      console.error("Error fetching X details:", error);
     }
-  }
+  };
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
@@ -50,7 +56,8 @@ export function VoiceGenForm() {
         <CardHeader>
           <CardTitle className="text-2xl">Sonic Persona Analyzer</CardTitle>
           <CardDescription>
-            Transmit your X profile for vocal specimen analysis and sonic creation by ElevenLabs
+            Transmit your X profile for vocal specimen analysis and sonic
+            creation by ElevenLabs
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -68,13 +75,16 @@ export function VoiceGenForm() {
                   id="twitter-handle"
                   placeholder="@username"
                   value={handle}
-                  onChange={(e) => setHandle(e.target.value)}
+                  onChange={e => setHandle(e.target.value)}
                   className="pl-10"
                 />
               </div>
             </div>
-            <Button onClick={handleGenerateVoice} disabled={handle.length <= 1 || status === 'executing'}>
-              {status === 'executing' ? (
+            <Button
+              onClick={handleGenerateVoice}
+              disabled={handle.length <= 1 || status === "executing"}
+            >
+              {status === "executing" ? (
                 <ScrambleText text="Analyzing Specimen..." loop={true} />
               ) : (
                 <ScrambleText text="Analyze Specimen" loop={false} />
@@ -87,5 +97,5 @@ export function VoiceGenForm() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
