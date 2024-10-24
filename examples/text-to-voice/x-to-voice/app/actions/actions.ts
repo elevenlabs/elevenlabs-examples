@@ -23,7 +23,7 @@ const synthesizeRetrieveHumanSchema = z.object({
 export const synthesizeHumanAction = actionClient
   .schema(synthesizeRetrieveHumanSchema)
   .action(async ({ parsedInput: { handle: inputHandle }, ctx: { ip } }) => {
-    const handle = inputHandle.toLowerCase();
+    const handle = normalizeHandle(inputHandle);
     // check to ensure the profile hasn't already been synthesized
     const existingGeneration = await kv.get(`ttv_x:${handle}`);
     if (existingGeneration) {
@@ -208,7 +208,8 @@ export const synthesizeHumanAction = actionClient
 export const retrieveHumanSpecimenAction = actionClient
   .schema(synthesizeRetrieveHumanSchema)
   .action(async ({ parsedInput: { handle: inputHandle } }) => {
-    const handle = inputHandle.toLowerCase();
+    const handle = normalizeHandle(inputHandle);
+    console.log(handle);
     try {
       const humanSpecimen = await kv.get(`ttv_x:${handle}`);
       if (!humanSpecimen) {
@@ -241,3 +242,34 @@ async function uploadBase64ToBlob(base64Data: string, filename: string) {
 
   return url;
 }
+
+// helper function to normalize handles
+const normalizeHandle = (input: string): string => {
+  // Remove any whitespace
+  let handle = input.trim();
+
+  // Handle URLs
+  const urlPatterns = [
+    /^(?:https?:\/\/)?(?:www\.)?(?:twitter\.com|x\.com)\/([^\/\?]+)/i,
+    /^(?:https?:\/\/)?(?:www\.)?t\.co\/([^\/\?]+)/i,
+  ];
+
+  for (const pattern of urlPatterns) {
+    const match = handle.match(pattern);
+    if (match && match[1]) {
+      handle = match[1];
+      break;
+    }
+  }
+
+  // Remove @ if present
+  handle = handle.replace(/^@/, "");
+
+  // Convert to lowercase
+  handle = handle.toLowerCase();
+
+  // Remove any remaining special characters and whitespace
+  handle = handle.replace(/[^\w]/g, "");
+
+  return handle;
+};

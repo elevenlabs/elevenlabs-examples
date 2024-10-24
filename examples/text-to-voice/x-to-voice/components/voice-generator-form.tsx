@@ -59,12 +59,23 @@ export function VoiceGenForm() {
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
-      <Card className="shadow-lg bg-[#FEFEF2]">
+      <Card className="bg-white/80 backdrop-blur-[16px] shadow-2xl border-none">
         <CardHeader>
-          <CardTitle className="text-2xl">Sonic Persona Analyzer</CardTitle>
+          <CardTitle className="text-2xl">
+            What does your X profile sound like?
+          </CardTitle>
           <CardDescription>
-            Transmit your X profile for vocal specimen analysis and sonic
-            creation by ElevenLabs
+            Analyze your X profile to generate a unique voice using
+            ElevenLabs&apos; new{" "}
+            <a
+              href="https://elevenlabs.io/docs/voices/voice-lab/voice-design"
+              rel="noopener noreferrer"
+              target="_blank"
+              className="font-medium text-primary underline underline-offset-4"
+            >
+              text to voice
+            </a>{" "}
+            feature
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -80,7 +91,7 @@ export function VoiceGenForm() {
                 />
                 <Input
                   id="twitter-handle"
-                  placeholder="@username"
+                  placeholder="username i.e. johndoe"
                   value={handle}
                   onChange={e => setHandle(e.target.value)}
                   disabled={status === "executing"}
@@ -93,9 +104,9 @@ export function VoiceGenForm() {
               disabled={handle.length <= 1 || status === "executing"}
             >
               {status === "executing" ? (
-                <ScrambleText text="Analyzing Specimen..." loop={true} />
+                <ScrambleText text="Analyzing..." loop={true} />
               ) : (
-                <ScrambleText text="Analyze Specimen" loop={false} />
+                <ScrambleText text="Analyze" loop={false} />
               )}
             </Button>
             <code className="text-xs">
