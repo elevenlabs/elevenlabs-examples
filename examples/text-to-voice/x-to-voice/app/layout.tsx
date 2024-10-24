@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { Analytics } from "@vercel/analytics/react";
+import { BackgroundWave } from "@/components/background-wave";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -32,12 +34,10 @@ export default function RootLayout({
       >
         <div className="flex flex-col min-h-screen w-full items-center justify-center px-4">
           {children}
-          <div
-            className="absolute inset-0 bg-contain bg-no-repeat bg-bottom opacity-30 z-[-1]"
-            style={{ backgroundImage: "url('/background.png')" }}
-          />
+          <BackgroundWave />
         </div>
         <Toaster />
+        <Analytics />
       </body>
     </html>
   );

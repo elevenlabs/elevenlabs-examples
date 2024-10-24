@@ -102,11 +102,11 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
-      <Card className="shadow-lg bg-[#FEFEF2] m-2">
+      <Card className="bg-white/80 backdrop-blur-[16px] shadow-2xl border-none m-2">
         <CardContent className="p-8">
           <div className="flex justify-between items-start mb-8">
             <div>
-              <p className="text-xs pb-1">Specimen Report</p>
+              <p className="text-xs pb-1">ElevenLabs Report</p>
               {/* replace with font-light */}
               <h1 className="md:text-4xl text-sm font-mono text-gray-900 mb-2">
                 #{human.userName}
@@ -114,7 +114,7 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
 
               <p className="text-sm text-gray-500 flex items-center">
                 <MapPin className="w-4 h-4 mr-1" />
-                {human.origin}
+                {!human.origin || human.origin === "" ? "Earth" : human.origin}
               </p>
             </div>
             <div className="flex gap-2">
@@ -143,11 +143,12 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
           <Separator className="my-6" />
           <div className="mb-8">
             <h2 className="text-xs uppercase tracking-wide text-gray-500 mb-3">
-              Essence Description
+              Description
             </h2>
-            <p className="text-sm text-gray-700 leading-relaxed italic">
-              {`"${human.humorousDescription}"`}
-            </p>
+
+            <blockquote className="border-l-2 pl-3 text-sm text-gray-700 leading-relaxed italic">
+              {human.humorousDescription}
+            </blockquote>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <div>
@@ -169,12 +170,12 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
             </div>
             <div>
               <h2 className="text-xs uppercase tracking-wide text-gray-500 mb-3">
-                Specimen Metrics
+                Metrics
               </h2>
               <div className="space-y-6">
                 {metrics.map((metric, index) => (
                   <div key={index} className="space-y-1">
-                    <Label className="text-xs text-gray-500 flex items-center mb-1">
+                    <Label className="text-xs text-gray-600 flex items-center mb-1 font-bold">
                       {metric.icon} {metric.label}
                     </Label>
                     <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -193,13 +194,13 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
           </div>
           <div className="mb-8">
             <h2 className="text-xs uppercase tracking-wide text-gray-500 mb-3">
-              Vocal Essence
+              Voice Description
             </h2>
-            <div>
-              <p className="text-sm text-gray-700 leading-relaxed italic">
-                {human.textToVoicePrompt}
-              </p>
-            </div>
+            <blockquote className="border-l-2 pl-3 text-sm text-gray-700 leading-relaxed italic">
+              {human.textToVoicePrompt}
+            </blockquote>
+          </div>
+          <div className="mb-8">
             <div className="space-y-2">
               {human.voicePreviews.map((previewUrl, index) => (
                 <div
@@ -236,7 +237,7 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
           <div className="flex justify-between items-center mb-8">
             <div>
               <h2 className="text-xs uppercase tracking-wide text-gray-500 mb-1">
-                Specimen Analysed
+                Date Analyzed
               </h2>
               <p className="text-sm text-gray-700">{human.createdAt}</p>
             </div>
@@ -249,7 +250,7 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
             </Button>
           </Link>
           <p className="mt-4 text-xs text-gray-400 text-center">
-            Human specimen subject to temporal decay. Terms of existence apply.
+            Human voice subject to temporal decay. Terms of existence apply.
           </p>
         </CardContent>
       </Card>
