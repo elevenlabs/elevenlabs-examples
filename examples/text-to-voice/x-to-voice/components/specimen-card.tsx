@@ -17,10 +17,12 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
+  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
   const human = {
     // facts
     userName: humanSpecimen?.user?.userName ?? "Something went wrong",
@@ -34,7 +36,25 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
     voiceFerocity: humanSpecimen?.analysis?.voiceFerocity ?? 50,
     voiceSarcasm: humanSpecimen?.analysis?.voiceSarcasm ?? 50,
     voiceSassFactor: humanSpecimen?.analysis?.voiceSassFactor ?? 50,
-    // TODO: add generated voice in response
+    // elevenlabs-gen
+    voicePreviews: humanSpecimen?.voicePreviews ?? [], //this is an array of URLS for example https://c3gi8hkknvghgbjw.public.blob.vercel-storage.com/audio/7xADYsXepoZV1s1Nb1zw-Wz44iHLJfqk9FlSVvHJIsw8PL2QrxI.mp3
+  };
+
+  const handlePlayPause = (index: number, audioElement: HTMLAudioElement) => {
+    if (playingIndex === index) {
+      audioElement.pause();
+      setPlayingIndex(null);
+    } else {
+      // Stop any currently playing audio
+      if (playingIndex !== null) {
+        const prevAudio = document.querySelector(
+          `#audio-${playingIndex}`
+        ) as HTMLAudioElement;
+        prevAudio?.pause();
+      }
+      audioElement.play();
+      setPlayingIndex(index);
+    }
   };
 
   const metrics = [
@@ -82,14 +102,16 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
-      <Card className="shadow-lg bg-[#FEFEF2]">
+      <Card className="shadow-lg bg-[#FEFEF2] m-2">
         <CardContent className="p-8">
           <div className="flex justify-between items-start mb-8">
             <div>
+              <p className="text-xs pb-1">Specimen Report</p>
               {/* replace with font-light */}
-              <h1 className="text-4xl font-mono text-gray-900 mb-2">
-                Specimen: #{human.userName}
+              <h1 className="md:text-4xl text-sm font-mono text-gray-900 mb-2">
+                #{human.userName}
               </h1>
+
               <p className="text-sm text-gray-500 flex items-center">
                 <MapPin className="w-4 h-4 mr-1" />
                 {human.origin}
@@ -179,25 +201,34 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
               </p>
             </div>
             <div className="space-y-2">
-              {[1, 2, 3].map(num => (
+              {human.voicePreviews.map((previewUrl, index) => (
                 <div
-                  key={num}
+                  key={index}
                   className="flex items-center text-sm text-gray-700 border border-gray-200 rounded p-2"
                 >
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-gray-500 hover:text-gray-700 p-0 mr-2"
+                    className="text-gray-500 hover:text-gray-700 mr-2"
+                    onClick={() => {
+                      const audio = document.querySelector(
+                        `#audio-${index}`
+                      ) as HTMLAudioElement;
+                      handlePlayPause(index, audio);
+                    }}
                   >
-                    {true ? (
+                    {playingIndex === index ? (
                       <PauseCircle className="w-4 h-4" />
                     ) : (
                       <PlayCircle className="w-4 h-4" />
                     )}
                   </Button>
-                  <span>Harmonic Sample {num}</span>
-                  <audio src={`/audio/sample${num}.mp3`} />
-                  <div className="ml-auto text-xs text-gray-400">00:30</div>
+                  <span>Harmonic Sample {index + 1}</span>
+                  <audio
+                    id={`audio-${index}`}
+                    src={previewUrl}
+                    onEnded={() => setPlayingIndex(null)}
+                  />
                 </div>
               ))}
             </div>
