@@ -58,7 +58,6 @@ export const synthesizeHumanAction = actionClient
         .listItems();
 
       console.info(`[TTV-X] Retrieved ${items.length} tweets for ${handle}`);
-      console.log(items[0]);
       if (items.length === 0 || items[0]?.noResults || items[0]?.error) {
         throw new Error("User not found/has no tweets");
       }
@@ -174,7 +173,6 @@ export const synthesizeHumanAction = actionClient
         console.error("[TTV-X] ElevenLabs API error:", voiceRes);
         throw new Error(`Failed to generate voice previews, please try again.`);
       }
-      console.log(voiceRes);
 
       // Upload all previews in parallel
       const [voicePreview1URL, voicePreview2URL, voicePreview3URL] =
