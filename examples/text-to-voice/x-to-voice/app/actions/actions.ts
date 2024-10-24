@@ -29,11 +29,11 @@ export const synthesizeHumanAction = actionClient
   .schema(synthesizeRetrieveHumanSchema)
   .action(async ({ parsedInput: { handle }, ctx: { ip } }) => {
     // 1. check if the key already exists in Redis (user hasn't already been generated)
-    const existingGeneration = await redis.get(`ttv_x:${handle}`);
-    if (existingGeneration) {
-      // x handle has already been synthesized, redirect.
-      redirect(`/${handle}`);
-    }
+    // const existingGeneration = await redis.get(`ttv_x:${handle}`);
+    // if (existingGeneration) {
+    //   // x handle has already been synthesized, redirect.
+    //   redirect(`/${handle}`);
+    // }
 
     // 2. check rate limit
     const { success } = await ratelimit.limit(ip);
@@ -183,8 +183,8 @@ export const synthesizeHumanAction = actionClient
         );
       }
 
-      const voicePreviews = await voiceResponse.json();
-      const voicePreview = voicePreviews.previews[0];
+      // const voicePreviews = await voiceResponse.json();
+      // const voicePreview = voicePreviews.previews[0];
 
       // // Rename the previews for easier reference
       // const voices = voicePreviews.previews.reduce(
@@ -206,18 +206,12 @@ export const synthesizeHumanAction = actionClient
       const storedData = {
         userData,
         analysis,
-        voicePreview,
+        // voicePreview,
         timestamp: new Date().toISOString(),
       };
 
-      // Add debug logging
-      console.log(
-        "[TTV-X] About to store data:",
-        JSON.stringify(storedData, null, 2)
-      );
-
       try {
-        await redis.set(`ttv_x:${handle}`, JSON.stringify(storedData));
+        await redis.set(`ttv_x:${handle}`, storedData);
         console.log(`[TTV-X] Successfully stored data for ${handle} in Redis`);
       } catch (storageError) {
         console.error("[TTV-X] Error storing data:", storageError);
@@ -233,28 +227,15 @@ export const synthesizeHumanAction = actionClient
 
 export const retrieveHumanSpecimenAction = actionClient
   .schema(synthesizeRetrieveHumanSchema)
-  .action(async ({ parsedInput: { handle }, ctx: { ip } }) => {
+  .action(async ({ parsedInput: { handle } }) => {
     try {
-      // 1. Check if the user exists in Redis
-      const existingGeneration = await redis.get(`ttv_x:${handle}`);
-
-      if (!existingGeneration) {
-        notFound();
+      const human = await redis.get(`ttv_x:${handle}`);
+      if (!human) {
+        return { success: false };
       }
-
-      try {
-        // 2. Parse and validate the stored data
-        const parsedData = JSON.parse(existingGeneration as string);
-        console.log(parsedData);
-        return { user: parsedData };
-      } catch (parseError) {
-        console.error("[TTV-X] JSON Parse Error:", parseError);
-        console.error("[TTV-X] Attempted to parse:", existingGeneration);
-        throw new Error(`Invalid data format in storage: ${parseError}`);
-      }
+      return { success: true, human };
     } catch (error) {
       console.error(`[TTV-X] Error retrieving user ${handle}:`, error);
-      // Improve error message
       if (error instanceof Error) {
         throw new Error(`Failed to retrieve user data: ${error.message}`);
       }

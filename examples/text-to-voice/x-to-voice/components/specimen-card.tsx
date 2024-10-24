@@ -19,18 +19,23 @@ import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { useRef, useState } from "react";
 
-export function SpecimenCard() {
-  const [humanData] = useState({
-    handle: "Louis",
-    bio: `Specimen is likely an interesting character`,
+interface Props {
+  human: any;
+}
+export function SpecimenCard({ human }: Props) {
+  console.log(human);
+
+  const humanData = {
+    handle: human?.userData?.userName,
+    bio: human?.analysis?.humorousDescription,
     origin: "London",
-    characteristics: ["Adaptable", "Resilient", "Enigmatic", "Volatile"],
+    characteristics: human?.analysis?.characteristics,
     age: "25-30",
     manufactureDate: "1900s",
     voiceFerocity: 70,
     sarcasmQuotient: 55,
     sassFactor: 80,
-  });
+  };
 
   const metrics = [
     {
@@ -102,6 +107,8 @@ export function SpecimenCard() {
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
       <Card className="shadow-lg bg-[#FEFEF2]">
+        <pre>{JSON.stringify(human)}</pre>
+
         <CardContent className="p-8">
           <div className="flex justify-between items-start mb-8">
             <div>
