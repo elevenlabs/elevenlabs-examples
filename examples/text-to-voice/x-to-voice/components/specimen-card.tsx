@@ -22,17 +22,17 @@ import { toast } from "sonner";
 export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
   const human = {
     // facts
-    userName: humanSpecimen.userData.userName ?? "Something went wrong",
-    origin: humanSpecimen.userData.location ?? "Earth",
-    createdAt: humanSpecimen.timestamp,
+    userName: humanSpecimen?.user?.userName ?? "Something went wrong",
+    origin: humanSpecimen?.user?.location ?? "Earth",
+    createdAt: humanSpecimen?.timestamp,
     // openai-gen
-    characteristics: humanSpecimen.analysis.characteristics ?? [],
-    humorousDescription: humanSpecimen.analysis.humorousDescription ?? "",
-    textToVoicePrompt: humanSpecimen.analysis.textToVoicePrompt ?? "",
-    age: humanSpecimen.analysis.age ?? "",
-    voiceFerocity: humanSpecimen.analysis.voiceFerocity ?? 50,
-    voiceSarcasm: humanSpecimen.analysis.voiceSarcasm ?? 50,
-    voiceSassFactor: humanSpecimen.analysis.voiceSassFactor ?? 50,
+    characteristics: humanSpecimen?.analysis?.characteristics ?? [],
+    humorousDescription: humanSpecimen?.analysis?.humorousDescription ?? "",
+    textToVoicePrompt: humanSpecimen?.analysis?.textToVoicePrompt ?? "",
+    age: humanSpecimen?.analysis?.age ?? "",
+    voiceFerocity: humanSpecimen?.analysis?.voiceFerocity ?? 50,
+    voiceSarcasm: humanSpecimen?.analysis?.voiceSarcasm ?? 50,
+    voiceSassFactor: humanSpecimen?.analysis?.voiceSassFactor ?? 50,
     // TODO: add generated voice in response
   };
 
@@ -87,7 +87,7 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
             <div>
               {/* replace with font-light */}
               <h1 className="text-4xl font-mono text-gray-900 mb-2">
-                Speciment: #{human.userName}
+                Specimen: #{human.userName}
               </h1>
               <p className="text-sm text-gray-500 flex items-center">
                 <MapPin className="w-4 h-4 mr-1" />

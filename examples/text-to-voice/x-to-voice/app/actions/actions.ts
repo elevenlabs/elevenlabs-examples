@@ -56,15 +56,16 @@ export const synthesizeHumanAction = actionClient
         .listItems();
 
       console.info(`[TTV-X] Retrieved ${items.length} tweets for ${handle}`);
-      if (items.length === 0) {
-        throw new Error("No tweets found for this user");
+      console.log(items[0]);
+      if (items.length === 0 || items[0]?.noResults || items[0]?.error) {
+        throw new Error("User not found/has no tweets");
       }
 
       const userProfile = items[0].author as any;
       console.info(`[TTV-X] User profile data:`, {
-        name: userProfile.name,
-        userName: userProfile.userName,
-        followers: userProfile.followers,
+        name: userProfile?.name || "unknown",
+        userName: userProfile?.userName || "unknown",
+        followers: userProfile?.followers || 0,
       });
 
       const user = {
@@ -141,45 +142,45 @@ export const synthesizeHumanAction = actionClient
         throw new Error("Error analyzing user, please try again.");
       }
 
-      // generate voice previews from ElevenLabs
-      console.info(`[TTV-X] Generating voice previews for ${handle}`);
-      const requestBody = {
-        voice_description: analysis.textToVoicePrompt,
-        text: analysis.textToGenerate,
-      };
-      console.info(
-        "[TTV-X] Request body:",
-        JSON.stringify(requestBody, null, 2)
-      );
+      // // generate voice previews from ElevenLabs
+      // console.info(`[TTV-X] Generating voice previews for ${handle}`);
+      // const requestBody = {
+      //   voice_description: analysis.textToVoicePrompt,
+      //   text: analysis.textToGenerate,
+      // };
+      // console.info(
+      //   "[TTV-X] Request body:",
+      //   JSON.stringify(requestBody, null, 2)
+      // );
 
-      const voiceResponse = await fetch(
-        "https://api.elevenlabs.io/v1/text-to-voice/create-previews",
-        {
-          method: "POST",
-          headers: {
-            "xi-api-key": env.ELEVENLABS_API_KEY,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(requestBody),
-        }
-      );
+      // const voiceResponse = await fetch(
+      //   "https://api.elevenlabs.io/v1/text-to-voice/create-previews",
+      //   {
+      //     method: "POST",
+      //     headers: {
+      //       "xi-api-key": env.ELEVENLABS_API_KEY,
+      //       "Content-Type": "application/json",
+      //     },
+      //     body: JSON.stringify(requestBody),
+      //   }
+      // );
 
-      if (!voiceResponse.ok) {
-        const errorData = await voiceResponse.json();
-        console.error("[TTV-X] ElevenLabs API error:", errorData);
-        throw new Error(
-          `Failed to generate voice previews: ${JSON.stringify(errorData)}`
-        );
-      }
+      // if (!voiceResponse.ok) {
+      //   const errorData = await voiceResponse.json();
+      //   console.error("[TTV-X] ElevenLabs API error:", errorData);
+      //   throw new Error(
+      //     `Failed to generate voice previews: ${JSON.stringify(errorData)}`
+      //   );
+      // }
 
-      const voiceResponseJson = await voiceResponse.json();
-      const voices = voiceResponseJson.previews.reduce(
-        (acc: Record<string, any>, preview: any, index: number) => {
-          acc[`voice${index + 1}`] = preview;
-          return acc;
-        },
-        {}
-      );
+      // const voiceResponseJson = await voiceResponse.json();
+      // const voices = voiceResponseJson.previews.reduce(
+      //   (acc: Record<string, any>, preview: any, index: number) => {
+      //     acc[`voice${index + 1}`] = preview;
+      //     return acc;
+      //   },
+      //   {}
+      // );
 
       // figure out a way to store voices in Blob storage (maybe even convert to blob?) Vercel has a built-in thing for this.
       const humanSpecimen = {
@@ -187,13 +188,12 @@ export const synthesizeHumanAction = actionClient
         analysis,
         timestamp: new Date().toISOString(),
       };
-
       await kv.set(`ttv_x:${handle}`, humanSpecimen);
-      redirect(`/${handle}`);
     } catch (error) {
       console.error(`[TTV-X] Error processing user ${handle}:`, error);
       throw new Error(error instanceof Error ? error.message : "Unknown error");
     }
+    redirect(`/${handle}`);
   });
 
 export const retrieveHumanSpecimenAction = actionClient
