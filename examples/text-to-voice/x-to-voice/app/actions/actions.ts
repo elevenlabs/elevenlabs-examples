@@ -9,16 +9,10 @@ import { ApifyClient } from "apify-client";
 import { zodResponseFormat } from "openai/helpers/zod";
 import OpenAI from "openai";
 import { env } from "@/env.mjs";
-import { notFound } from "next/navigation";
 
-const redis = new Redis({
+const kv = new Redis({
   url: env.KV_REST_API_URL,
   token: env.KV_REST_API_TOKEN,
-});
-
-const ratelimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(20, "60 s"), // 2 generations from the same IP every 60 seconds
 });
 
 const synthesizeRetrieveHumanSchema = z.object({
@@ -28,27 +22,27 @@ const synthesizeRetrieveHumanSchema = z.object({
 export const synthesizeHumanAction = actionClient
   .schema(synthesizeRetrieveHumanSchema)
   .action(async ({ parsedInput: { handle }, ctx: { ip } }) => {
-    // 1. check if the key already exists in Redis (user hasn't already been generated)
-    // const existingGeneration = await redis.get(`ttv_x:${handle}`);
-    // if (existingGeneration) {
-    //   // x handle has already been synthesized, redirect.
-    //   redirect(`/${handle}`);
-    // }
+    // check to ensure the profile hasn't already been synthesized
+    const existingGeneration = await kv.get(`ttv_x:${handle}`);
+    if (existingGeneration) {
+      redirect(`/${handle}`);
+    }
 
-    // 2. check rate limit
+    // rate-limit (2 generations from the same IP every 60 seconds )
+    const ratelimit = new Ratelimit({
+      redis: kv,
+      limiter: Ratelimit.slidingWindow(2, "60 s"),
+    });
     const { success } = await ratelimit.limit(ip);
     if (!success) {
       throw new Error("Rate limit exceeded. Please try again later.");
     }
 
     try {
-      // 3. scrape the user's profile
       console.info(`[TTV-X] Starting extraction for handle: ${handle}`);
       const apifyClient = new ApifyClient({
         token: process.env.APIFY_API_KEY,
       });
-
-      // extract tweets from user
       const run = await apifyClient.actor("apidojo/tweet-scraper").call({
         twitterHandles: [handle],
         maxItems: 5,
@@ -57,14 +51,11 @@ export const synthesizeHumanAction = actionClient
       console.info(
         `[TTV-X] Apify run created with ID: ${run.defaultDatasetId}`
       );
-
-      // extract tweets from user
       const { items } = await apifyClient
         .dataset(run.defaultDatasetId)
         .listItems();
 
       console.info(`[TTV-X] Retrieved ${items.length} tweets for ${handle}`);
-
       if (items.length === 0) {
         throw new Error("No tweets found for this user");
       }
@@ -76,7 +67,7 @@ export const synthesizeHumanAction = actionClient
         followers: userProfile.followers,
       });
 
-      const userData = {
+      const user = {
         name: userProfile.name,
         userName: userProfile.userName,
         profilePicture: userProfile.profilePicture,
@@ -100,7 +91,7 @@ export const synthesizeHumanAction = actionClient
         age: z.string(),
         characteristics: z.array(z.string()),
         voiceFerocity: z.number(),
-        voice_Sarcasm: z.number(),
+        voiceSarcasm: z.number(),
         voiceSassFactor: z.number(),
         textToVoicePrompt: z.string(),
         textToGenerate: z.string(),
@@ -120,23 +111,21 @@ export const synthesizeHumanAction = actionClient
                       - **Age Stratum**: Estimated age range.
                       - **Characteristics**: A list of personality traits or attributes.
                       - **Specimen Metrics**:
-                        - **Voice Ferocity (0-10)**: How aggressive or assertive the user's voice might be.
-                        - **Sarcasm Quotient (0-10)**: Likelihood of snark or irony in vocal patterns.
-                        - **Sass Factor (0-10)**: The user's flair for delivering sass.
+                        - **Voice Ferocity (0-100)**: How aggressive or assertive the user's voice might be.
+                        - **Sarcasm Quotient (0-100)**: Likelihood of snark or irony in vocal patterns.
+                        - **Sass Factor (0-100)**: The user's flair for delivering sass.
                       - **Genesis Date**: The era or decade the user seems to belong to.
                       - **TextToVoicePrompt**: A detailed and neutral description for recreating the user's voice, focusing on tone, pitch, pace, location and other vocal qualities. Never mention their name here.
                       - **TextToGenerate**: Some demo text, to test out the new voice, as if the user was reading it themselves. Must be somewhat relevant to context and humurous. Must be between 101 & 700 characters (keep it on the shorter end, around 120 characters)
                       
                       Here is the user's data:
                       
-                      Name: ${userData.name}
-                      Location: ${userData.location}
-                      Bio: ${userData.description}
-                      Followers: ${userData.followers}
-                      Following: ${userData.following}
-                      Recent tweets: ${userData.tweets
-                        .map(t => t.text)
-                        .join("\n")}
+                      Name: ${user.name}
+                      Location: ${user.location}
+                      Bio: ${user.description}
+                      Followers: ${user.followers}
+                      Following: ${user.following}
+                      Recent tweets: ${user.tweets.map(t => t.text).join("\n")}
           `,
           },
         ],
@@ -152,7 +141,7 @@ export const synthesizeHumanAction = actionClient
         throw new Error("Error analyzing user, please try again.");
       }
 
-      // Generate voice previews from ElevenLabs
+      // generate voice previews from ElevenLabs
       console.info(`[TTV-X] Generating voice previews for ${handle}`);
       const requestBody = {
         voice_description: analysis.textToVoicePrompt,
@@ -183,41 +172,23 @@ export const synthesizeHumanAction = actionClient
         );
       }
 
-      // const voicePreviews = await voiceResponse.json();
-      // const voicePreview = voicePreviews.previews[0];
+      const voiceResponseJson = await voiceResponse.json();
+      const voices = voiceResponseJson.previews.reduce(
+        (acc: Record<string, any>, preview: any, index: number) => {
+          acc[`voice${index + 1}`] = preview;
+          return acc;
+        },
+        {}
+      );
 
-      // // Rename the previews for easier reference
-      // const voices = voicePreviews.previews.reduce(
-      //   (
-      //     acc: Record<string, VoicePreview>,
-      //     preview: VoicePreview,
-      //     index: number
-      //   ) => {
-      //     if (index === 0) {
-      //       console.log(preview);
-      //     }
-
-      //     acc[`voice${index + 1}`] = preview;
-      //     return acc;
-      //   },
-      //   {}
-      // );
-
-      const storedData = {
-        userData,
+      // figure out a way to store voices in Blob storage (maybe even convert to blob?) Vercel has a built-in thing for this.
+      const humanSpecimen = {
+        user,
         analysis,
-        // voicePreview,
         timestamp: new Date().toISOString(),
       };
 
-      try {
-        await redis.set(`ttv_x:${handle}`, storedData);
-        console.log(`[TTV-X] Successfully stored data for ${handle} in Redis`);
-      } catch (storageError) {
-        console.error("[TTV-X] Error storing data:", storageError);
-        throw new Error(`Failed to store user data: ${storageError}`);
-      }
-
+      await kv.set(`ttv_x:${handle}`, humanSpecimen);
       redirect(`/${handle}`);
     } catch (error) {
       console.error(`[TTV-X] Error processing user ${handle}:`, error);
@@ -229,13 +200,12 @@ export const retrieveHumanSpecimenAction = actionClient
   .schema(synthesizeRetrieveHumanSchema)
   .action(async ({ parsedInput: { handle } }) => {
     try {
-      const human = await redis.get(`ttv_x:${handle}`);
-      if (!human) {
+      const humanSpecimen = await kv.get(`ttv_x:${handle}`);
+      if (!humanSpecimen) {
         return { success: false };
       }
-      return { success: true, human };
+      return { success: true, humanSpecimen };
     } catch (error) {
-      console.error(`[TTV-X] Error retrieving user ${handle}:`, error);
       if (error instanceof Error) {
         throw new Error(`Failed to retrieve user data: ${error.message}`);
       }

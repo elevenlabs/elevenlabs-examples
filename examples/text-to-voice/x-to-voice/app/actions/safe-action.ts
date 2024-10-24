@@ -13,6 +13,7 @@ export const actionClient = createSafeActionClient({
     return DEFAULT_SERVER_ERROR_MESSAGE;
   },
 }).use(async ({ next }) => {
-  const ip = (await headers()).get("x-forwarded-for") ?? "127.0.0.1"; // add the user's ip address to context
+  // forward the user's ip address to context (for rate limiting)
+  const ip = (await headers()).get("x-forwarded-for") ?? "127.0.0.1";
   return next({ ctx: { ip } });
 });

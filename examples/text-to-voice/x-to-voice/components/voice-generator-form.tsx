@@ -46,8 +46,8 @@ export function VoiceGenForm() {
   const handleGenerateVoice = async () => {
     try {
       await execute({ handle: handle });
-    } catch (error) {
-      toast.error("An unexpected error occurred.");
+    } catch (err) {
+      toast.error(`An unexpected error occurred: ${err}`);
     }
   };
 
