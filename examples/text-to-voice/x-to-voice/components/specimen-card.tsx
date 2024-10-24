@@ -11,7 +11,7 @@ import {
   MessageSquareQuote,
   PauseCircle,
   PlayCircle,
-  Share2,
+  RotateCw,
   Sparkles,
 } from "lucide-react";
 import Image from "next/image";
@@ -245,8 +245,8 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
           </div>
           <Link href="/">
             <Button className="w-full">
-              <Share2 className="w-4 h-4 mr-2" />
-              Transmit Your Data for Vocal Synthesis
+              <RotateCw className="w-4 h-4 mr-2" />
+              Generate a new profile voice
             </Button>
           </Link>
           <p className="mt-4 text-xs text-gray-400 text-center">
