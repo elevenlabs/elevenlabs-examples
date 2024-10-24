@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { ApifyClient } from "apify-client";
 import { zodResponseFormat } from "openai/helpers/zod";
 import OpenAI from "openai";
+import { put } from "@vercel/blob";
 import { env } from "@/env.mjs";
 
 const kv = new Redis({
@@ -21,7 +22,8 @@ const synthesizeRetrieveHumanSchema = z.object({
 
 export const synthesizeHumanAction = actionClient
   .schema(synthesizeRetrieveHumanSchema)
-  .action(async ({ parsedInput: { handle }, ctx: { ip } }) => {
+  .action(async ({ parsedInput: { handle: inputHandle }, ctx: { ip } }) => {
+    const handle = inputHandle.toLowerCase();
     // check to ensure the profile hasn't already been synthesized
     const existingGeneration = await kv.get(`ttv_x:${handle}`);
     if (existingGeneration) {
@@ -111,13 +113,13 @@ export const synthesizeHumanAction = actionClient
             content: `Analyze this X (Twitter) user profile and their recent tweets. Provide a humorous perspective on their online persona, but create a detailed 'textToVoicePrompt' for voice recreation that is descriptive and free of any humorous or robotic elements. Include the following information:
                       - **Essence Description**: A short, witty summary of the user.
                       - **Age Stratum**: Estimated age range.
-                      - **Characteristics**: A list of personality traits or attributes.
+                      - **Characteristics**: A list of personality traits or attributes they must be funny.
                       - **Specimen Metrics**:
                         - **Voice Ferocity (0-100)**: How aggressive or assertive the user's voice might be.
                         - **Sarcasm Quotient (0-100)**: Likelihood of snark or irony in vocal patterns.
                         - **Sass Factor (0-100)**: The user's flair for delivering sass.
                       - **Genesis Date**: The era or decade the user seems to belong to.
-                      - **TextToVoicePrompt**: A detailed and neutral description for recreating the user's voice, focusing on tone, pitch, pace, location and other vocal qualities. Never mention their name here.
+                      - **TextToVoicePrompt**: A detailed and neutral description for recreating the user's voice, focusing on tone, pitch, pace, location and other vocal qualities. Exaggerate the tone based on their x profile. Never mention their name here, especially if they are famous.
                       - **TextToGenerate**: Some demo text, to test out the new voice, as if the user was reading it themselves. Must be somewhat relevant to context and humurous. Must be between 101 & 700 characters (keep it on the shorter end, around 120 characters)
                       
                       Here is the user's data:
@@ -143,51 +145,59 @@ export const synthesizeHumanAction = actionClient
         throw new Error("Error analyzing user, please try again.");
       }
 
-      // // generate voice previews from ElevenLabs
-      // console.info(`[TTV-X] Generating voice previews for ${handle}`);
-      // const requestBody = {
-      //   voice_description: analysis.textToVoicePrompt,
-      //   text: analysis.textToGenerate,
-      // };
-      // console.info(
-      //   "[TTV-X] Request body:",
-      //   JSON.stringify(requestBody, null, 2)
-      // );
+      // generate voice previews from ElevenLabs
+      console.info(`[TTV-X] Generating voice previews for ${handle}`);
+      const requestBody = {
+        voice_description: analysis.textToVoicePrompt,
+        text: analysis.textToGenerate,
+      };
+      console.info(
+        "[TTV-X] Request body:",
+        JSON.stringify(requestBody, null, 2)
+      );
 
-      // const voiceResponse = await fetch(
-      //   "https://api.elevenlabs.io/v1/text-to-voice/create-previews",
-      //   {
-      //     method: "POST",
-      //     headers: {
-      //       "xi-api-key": env.ELEVENLABS_API_KEY,
-      //       "Content-Type": "application/json",
-      //     },
-      //     body: JSON.stringify(requestBody),
-      //   }
-      // );
+      const voiceResponse = await fetch(
+        "https://api.elevenlabs.io/v1/text-to-voice/create-previews",
+        {
+          method: "POST",
+          headers: {
+            "xi-api-key": env.ELEVENLABS_API_KEY,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
 
-      // if (!voiceResponse.ok) {
-      //   const errorData = await voiceResponse.json();
-      //   console.error("[TTV-X] ElevenLabs API error:", errorData);
-      //   throw new Error(
-      //     `Failed to generate voice previews: ${JSON.stringify(errorData)}`
-      //   );
-      // }
+      const voiceRes = await voiceResponse.json();
 
-      // const voiceResponseJson = await voiceResponse.json();
-      // const voices = voiceResponseJson.previews.reduce(
-      //   (acc: Record<string, any>, preview: any, index: number) => {
-      //     acc[`voice${index + 1}`] = preview;
-      //     return acc;
-      //   },
-      //   {}
-      // );
+      if (!voiceRes.previews) {
+        console.error("[TTV-X] ElevenLabs API error:", voiceRes);
+        throw new Error(`Failed to generate voice previews, please try again.`);
+      }
+      console.log(voiceRes);
 
-      // figure out a way to store voices in Blob storage (maybe even convert to blob?) Vercel has a built-in thing for this.
+      // Upload all previews in parallel
+      const [voicePreview1URL, voicePreview2URL, voicePreview3URL] =
+        await Promise.all([
+          uploadBase64ToBlob(
+            voiceRes.previews[0].audio_base_64,
+            `audio/${voiceRes.previews[0].generated_voice_id}.mp3`
+          ),
+          uploadBase64ToBlob(
+            voiceRes.previews[1].audio_base_64,
+            `audio/${voiceRes.previews[1].generated_voice_id}.mp3`
+          ),
+          uploadBase64ToBlob(
+            voiceRes.previews[2].audio_base_64,
+            `audio/${voiceRes.previews[2].generated_voice_id}.mp3`
+          ),
+        ]);
+
       const humanSpecimen = {
         user,
         analysis,
         timestamp: new Date().toISOString(),
+        voicePreviews: [voicePreview1URL, voicePreview2URL, voicePreview3URL],
       };
       await kv.set(`ttv_x:${handle}`, humanSpecimen);
     } catch (error) {
@@ -199,7 +209,8 @@ export const synthesizeHumanAction = actionClient
 
 export const retrieveHumanSpecimenAction = actionClient
   .schema(synthesizeRetrieveHumanSchema)
-  .action(async ({ parsedInput: { handle } }) => {
+  .action(async ({ parsedInput: { handle: inputHandle } }) => {
+    const handle = inputHandle.toLowerCase();
     try {
       const humanSpecimen = await kv.get(`ttv_x:${handle}`);
       if (!humanSpecimen) {
@@ -213,3 +224,22 @@ export const retrieveHumanSpecimenAction = actionClient
       throw new Error("Failed to retrieve user data: Unknown error");
     }
   });
+
+async function uploadBase64ToBlob(base64Data: string, filename: string) {
+  // Remove the base64 prefix if present (if it's in the format 'data:audio/mpeg;base64,...')
+  const base64WithoutPrefix = base64Data.replace(
+    /^data:audio\/mpeg;base64,/,
+    ""
+  );
+
+  // convert base64 string to Buffer
+  const buffer = Buffer.from(base64WithoutPrefix, "base64");
+
+  // upload the buffer to Vercel Blob storage
+  const { url } = await put(filename, buffer, {
+    access: "public",
+    contentType: "audio/mpeg",
+  });
+
+  return url;
+}
