@@ -19,6 +19,7 @@ import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
   const human = {
     // facts

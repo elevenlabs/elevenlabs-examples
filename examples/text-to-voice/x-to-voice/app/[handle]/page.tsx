@@ -3,7 +3,7 @@
 import { SpecimenCard } from "@/components/specimen-card";
 import { retrieveHumanSpecimenAction } from "../actions/actions";
 
-export default async function Page({ params }: { params: { handle: string } }) {
+export default async function Page({ params }) {
   const paramaters = await params;
 
   const response = await retrieveHumanSpecimenAction({

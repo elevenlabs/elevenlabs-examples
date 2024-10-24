@@ -61,6 +61,7 @@ export const synthesizeHumanAction = actionClient
         throw new Error("User not found/has no tweets");
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const userProfile = items[0].author as any;
       console.info(`[TTV-X] User profile data:`, {
         name: userProfile?.name || "unknown",
