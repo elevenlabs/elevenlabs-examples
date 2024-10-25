@@ -118,7 +118,7 @@ export const synthesizeHumanAction = actionClient
                         - **Sarcasm Quotient (0-100)**: Likelihood of snark or irony in vocal patterns.
                         - **Sass Factor (0-100)**: The user's flair for delivering sass.
                       - **Genesis Date**: The era or decade the user seems to belong to.
-                      - **TextToVoicePrompt**: A detailed and neutral description for recreating the user's voice, focusing on tone, pitch, pace, location and other vocal qualities. Exaggerate the tone based on their x profile. Never mention their name here, especially if they are famous.
+                      - **TextToVoicePrompt**: A detailed and neutral description for recreating the user's voice, focusing on tone, pitch, pace, location, gender (important) and other vocal qualities. Exaggerate the tone based on their x profile. Never mention their name here, especially if they are famous.
                       - **TextToGenerate**: Some demo text, to test out the new voice, as if the user was reading it themselves. Must be somewhat relevant to context and humurous. Must be between 101 & 700 characters (keep it on the shorter end, around 120 characters)
                       
                       Here is the user's data:

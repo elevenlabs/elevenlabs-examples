@@ -28,6 +28,9 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
     userName: humanSpecimen?.user?.userName ?? "Something went wrong",
     origin: humanSpecimen?.user?.location ?? "Earth",
     createdAt: humanSpecimen?.timestamp,
+    profilePicture:
+      humanSpecimen?.user?.profilePicture.replace(/_normal(?=\.\w+$)/, "") ??
+      "",
     // openai-gen
     characteristics: humanSpecimen?.analysis?.characteristics ?? [],
     humorousDescription: humanSpecimen?.analysis?.humorousDescription ?? "",
@@ -105,17 +108,28 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
       <Card className="bg-white/80 backdrop-blur-[16px] shadow-2xl border-none m-2">
         <CardContent className="p-8">
           <div className="flex justify-between items-start mb-8">
-            <div>
-              <p className="text-xs pb-1">ElevenLabs Report</p>
-              {/* replace with font-light */}
-              <h1 className="md:text-4xl text-sm font-mono text-gray-900 mb-2">
-                #{human.userName}
-              </h1>
+            <div className="flex gap-3">
+              <Image
+                alt="profile picture"
+                className="rounded-full w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28"
+                src={human.profilePicture}
+                width={120}
+                height={120}
+              />
+              <div>
+                <p className="text-xs pb-1">ElevenLabs Report</p>
+                {/* replace with font-light */}
+                <h1 className="md:text-3xl text-sm font-mono text-gray-900 mb-2">
+                  #{human.userName}
+                </h1>
 
-              <p className="text-sm text-gray-500 flex items-center">
-                <MapPin className="w-4 h-4 mr-1" />
-                {!human.origin || human.origin === "" ? "Earth" : human.origin}
-              </p>
+                <p className="text-sm text-gray-500 flex items-center">
+                  <MapPin className="w-4 h-4 mr-1" />
+                  {!human.origin || human?.origin.length <= 1
+                    ? "Earth"
+                    : human.origin}
+                </p>
+              </div>
             </div>
             <div className="flex gap-2">
               <Button

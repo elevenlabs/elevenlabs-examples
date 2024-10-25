@@ -17,6 +17,8 @@ export const env = createEnv({
     KV_REST_API_READ_ONLY_TOKEN: z.string(),
     KV_REST_API_TOKEN: z.string(),
     KV_REST_API_URL: z.string(),
+    // not used yet
+    HEDRA_API_KEY: z.string().optional()
   },
   client: {},
   runtimeEnv: {
@@ -27,6 +29,7 @@ export const env = createEnv({
     KV_REST_API_READ_ONLY_TOKEN: process.env.KV_REST_API_READ_ONLY_TOKEN,
     KV_REST_API_TOKEN: process.env.KV_REST_API_TOKEN,
     KV_REST_API_URL: process.env.KV_REST_API_URL,
+    HEDRA_API_KEY: process.env.HEDRA_API_KEY
   },
   skipValidation: !!process.env.CI || !!process.env.SKIP_ENV_VALIDATION,
 });
