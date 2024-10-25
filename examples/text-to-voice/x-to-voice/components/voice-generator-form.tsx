@@ -1,7 +1,7 @@
 "use client";
 
 import { synthesizeHumanAction } from "@/app/actions/actions";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -15,6 +15,9 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useScramble } from "use-scramble";
 import { toast } from "sonner";
+import { ScrollArea, ScrollBar } from "./ui/scroll-area";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 const ScrambleText = ({
   text,
@@ -109,6 +112,7 @@ export function VoiceGenForm() {
                 <ScrambleText text="Analyze" loop={false} />
               )}
             </Button>
+            <QuickLinks />
             <code className="text-xs">
               by submitting this form you agree to our terms
             </code>
@@ -118,3 +122,54 @@ export function VoiceGenForm() {
     </div>
   );
 }
+
+const QuickLinks = () => {
+  const celebrities = [
+    {
+      handle: "KimKardashian",
+      name: "Kim Kardashian",
+      description: "Reality TV Star",
+    },
+    {
+      handle: "elonmusk",
+      name: "Elon Musk",
+      description: "Tech Entrepreneur",
+    },
+    {
+      handle: "taylorswift13",
+      name: "Taylor Swift",
+      description: "Music Artist",
+    },
+    {
+      handle: "POTUS",
+      name: "Joe Biden",
+      description: "Political Figure",
+    },
+  ];
+
+  return (
+    <div className="mt-4">
+      <p className="text-sm text-gray-500 mb-2">Try these examples:</p>
+      <ScrollArea className="w-full whitespace-nowrap rounded-md">
+        <div className="flex w-20 space-x-4 p-4">
+          {celebrities.map(celeb => (
+            <Link
+              key={celeb.handle}
+              href={`/${celeb.handle}`}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "flex-none w-[150px] flex flex-col items-start p-3 h-auto"
+              )}
+            >
+              <span className="font-medium">@{celeb.handle}</span>
+              <span className="text-xs text-gray-500 truncate w-full">
+                {celeb.description}
+              </span>
+            </Link>
+          ))}
+        </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+    </div>
+  );
+};
