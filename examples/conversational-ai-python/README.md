@@ -4,18 +4,21 @@
 
 1. Clone this repo
 1. `cd elevenlabs-examples/examples/conversational-ai-python`
-1. Install the dependencies
+1. Install the dependencies with either `poetry` or `pip`:
 
    ```bash
    poetry install
-   # Or if you don't want to use poetry
+   # Or:
    pip install -e .
    ```
 
 1. Set up environment variables. You must set the agent ID. The API key is required if the agent is not public ("Enable authentication" in the agent settings).
 
     ```bash
+    # Required:
     export AGENT_ID=agentid
+    
+    # Optional, for auth-enabled agents:
     export ELEVENLABS_API_KEY=sk_yourkey
     ```
 
@@ -23,7 +26,7 @@
 
    ```bash
    poetry run demo
-   # Or if you don't want to use poetry
+   # Or:
    python3 -m convai.demo
    ```
 
