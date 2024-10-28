@@ -120,7 +120,7 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
                 <p className="text-xs pb-1">ElevenLabs Report</p>
                 {/* replace with font-light */}
                 <h1 className="md:text-3xl text-sm font-mono text-gray-900 mb-2">
-                  #{human.userName}
+                  @{human.userName}
                 </h1>
 
                 <p className="text-sm text-gray-500 flex items-center">
