@@ -107,9 +107,6 @@ export function VoiceGenForm() {
               )}
             </Button>
             <QuickLinks />
-            <code className="text-xs">
-              by submitting this form you agree to our terms
-            </code>
           </div>
         </CardContent>
       </Card>
