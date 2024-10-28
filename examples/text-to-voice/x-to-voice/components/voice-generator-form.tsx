@@ -126,24 +126,16 @@ export function VoiceGenForm() {
 const QuickLinks = () => {
   const celebrities = [
     {
-      handle: "KimKardashian",
-      name: "Kim Kardashian",
-      description: "Reality TV Star",
+      handle: "matistanis",
+      name: "Mati Staniszewski",
     },
     {
-      handle: "elonmusk",
-      name: "Elon Musk",
-      description: "Tech Entrepreneur",
+      handle: "LukeHarries_",
+      name: "Luke Harries",
     },
     {
-      handle: "taylorswift13",
-      name: "Taylor Swift",
-      description: "Music Artist",
-    },
-    {
-      handle: "POTUS",
-      name: "Joe Biden",
-      description: "Political Figure",
+      handle: "ammaar",
+      name: "Ammaar Reshi",
     },
   ];
 
@@ -163,7 +155,7 @@ const QuickLinks = () => {
             >
               <span className="font-medium">@{celeb.handle}</span>
               <span className="text-xs text-gray-500 truncate w-full">
-                {celeb.description}
+                {celeb.name}
               </span>
             </Link>
           ))}
