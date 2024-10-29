@@ -1,17 +1,35 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { DownloadIcon, PauseIcon, PlayIcon } from "lucide-react";
+import { DownloadIcon, PauseIcon, PlayIcon, Volume2Icon, VolumeOffIcon } from "lucide-react";
 import { ScrambleText } from "@/components/voice-generator-form";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { clearTimeout } from "timers";
 
 export function AvatarPlayer({ jobId }: {
   jobId: string,
 }) {
   const videoRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(true); // Track if the video is playing
+  const [data, setData] = useState<{videoUrl: string}>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
-  const [isPlaying, setIsPlaying] = useState(false); // Track if the video is playing
+  const toggleMuted = () => {
+    if (!videoRef.current) {
+      return;
+    }
+    if (!isMuted) {
+      videoRef.current.muted = true
+      setIsMuted(true)
+    } else {
+      videoRef.current.muted = false
+      videoRef.current.volume = 0.5
+      setIsMuted(false)
+    }
+  };
 
   const toggleVideo = () => {
     if (!videoRef.current) {
@@ -26,31 +44,32 @@ export function AvatarPlayer({ jobId }: {
     }
   };
 
-  const [data, setData] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  let intervalId: NodeJS.Timeout | undefined = undefined;
+
+  async function fetchCharacter() {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/character/${jobId}`);
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const data = await response.json();
+      console.log(data);
+      setData({ videoUrl: data.videoUrl });
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error pinging server:", error);
+      intervalId = setTimeout(fetchCharacter, 1000)
+    }
+  }
 
   useEffect(() => {
-    const intervalId = setInterval(async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch(`/api/character/${jobId}`);
-        if (!response.ok) throw new Error("Failed to fetch data");
-        const result = await response.json();
-        setData(result);
-        setIsLoading(false);
-        clearInterval(intervalId);
-      } catch (error) {
-        console.error("Error pinging server:", error);
-      }
-    }, 1000);
-    return () => clearInterval(intervalId); // Clear interval on component unmount
+    void fetchCharacter()
+    return () => clearTimeout(intervalId); // Clear interval on component unmount
   }, [jobId]);
 
   return (
     <div className={"flex flex-col border rounded-lg divide-y"}>
       <div className={"relative"}>
-        <div className={"flex h-[120px] w-[120px] rounded-t-lg overflow-hidden group cursor-pointer"}>
+        <div className={"flex h-[240px] w-[240px] rounded-t-lg overflow-hidden group cursor-pointer"}>
           <div
             className={cn("absolute inset-0 w-full h-full flex flex-col justify-center items-center text-gray-700 text-xs z-10", (isVideoLoaded) && "opacity-0")}>
             <ScrambleText text={"Generating"} loop></ScrambleText>
@@ -60,9 +79,12 @@ export function AvatarPlayer({ jobId }: {
           {data?.videoUrl && !isLoading && (
             <video
               ref={videoRef}
-              width={120}
-              height={120}
+              width={240}
+              height={240}
+              autoPlay
+              muted
               playsInline
+              loop
               onLoadedData={() => setIsVideoLoaded(true)}
               className={cn("opacity-0", isVideoLoaded && "opacity-100")}
               onEnded={() => setIsPlaying(false)}
@@ -75,10 +97,19 @@ export function AvatarPlayer({ jobId }: {
       <div className={"flex flex-row divide-x rounded-0"}>
         <div className={"flex flex-grow"}>
           <Button variant={"ghost"} className={"flex-grow"} size={"sm"} disabled={!isVideoLoaded} onClick={toggleVideo}>
-            { !isPlaying ? (
+            {!isPlaying ? (
               <PlayIcon className={"text-black"} radius={10} />
-            ): (
+            ) : (
               <PauseIcon className={"text-black"} radius={10} />
+            )}
+          </Button>
+        </div>
+        <div className={"flex flex-grow"}>
+          <Button variant={"ghost"} className={"flex-grow"} size={"sm"} disabled={!isVideoLoaded} onClick={toggleMuted}>
+            {!isMuted ? (
+              <Volume2Icon className={"text-black"} radius={10} />
+            ) : (
+              <VolumeOffIcon className={"text-black"} radius={10} />
             )}
           </Button>
         </div>
