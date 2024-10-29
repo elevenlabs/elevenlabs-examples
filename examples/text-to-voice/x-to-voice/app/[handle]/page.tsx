@@ -44,7 +44,6 @@ export async function generateMetadata({ params }): Promise<Metadata> {
 
   const { videoUrl, avatarImageUrl } = jobStatus || {};
 
-
   const metadata: Metadata = {
     openGraph: {
       title: title,

@@ -39,7 +39,27 @@ const uploadAudio = async (buffer: Buffer) => {
   return audioData as { url: string };
 };
 
-async function generateVideo(requestBody: { voiceUrl: string; avatarImageInput: { prompt: string}; audioSource: string }) {
+const uploadImage = async (imageUrl: string) => {
+  const imageResponse = await fetch(imageUrl);
+  console.log();
+  const imageBlob = await imageResponse.blob();
+  const formData = new FormData();
+  formData.append('file', imageBlob, 'image.jpg');
+  const audioResponse = await fetch(
+    "https://mercury.dev.dream-ai.com/api/v1/portrait",
+    {
+      method: "POST",
+      headers: {
+        "X-API-KEY": env.HEDRA_API_KEY,
+      },
+      body: formData,
+    },
+  );
+  const audioData = await audioResponse.json();
+  return audioData as { url: string };
+};
+
+async function createVideo(requestBody: { voiceUrl: string; avatarImage?: string; audioSource: string }) {
   const statusResponse = await fetch(
     "https://mercury.dev.dream-ai.com/api/v1/characters",
     {
@@ -69,12 +89,15 @@ export async function getJobStatus(jobId: string) {
   return status;
 }
 
-const createCharacter = async ({ avatarImageInput, voiceBuffer }: { avatarImageInput: string, voiceBuffer: Buffer }) => {
-  const audioData = await uploadAudio(voiceBuffer);
+const createCharacter = async ({ voiceBuffer, profilePicture }: { voiceBuffer: Buffer, profilePicture: string }) => {
+  const [audioData, imageData] = await Promise.all([
+    await uploadAudio(voiceBuffer),
+    await uploadImage(profilePicture)
+  ]);
   const voiceUrl = audioData["url"];
-
-  const requestBody = { "avatarImageInput": { prompt: avatarImageInput }, "audioSource": "audio", voiceUrl };
-  const statusData = await generateVideo(requestBody);
+  const avatarImage = imageData["url"];
+  const requestBody = { "audioSource": "audio", voiceUrl, avatarImage, };
+  const statusData = await createVideo(requestBody);
   return statusData['jobId'];
 };
 
@@ -130,7 +153,7 @@ export const synthesizeHumanAction = actionClient
       const user = userSchema.parse({
         name: userProfile.name,
         userName: userProfile.userName,
-        profilePicture: userProfile.profilePicture,
+        profilePicture: userProfile.profilePicture.replace(/_normal(?=\.\w+$)/, ""),
         description: userProfile.description,
         location: userProfile.location,
         followers: userProfile.followers,
@@ -143,6 +166,7 @@ export const synthesizeHumanAction = actionClient
           isReply: tweet.isReply,
         })),
       });
+
       console.info(`[TTV-X] Starting OpenAI analysis for ${handle}`);
       const openai = new OpenAI({ apiKey: env.OPEN_AI_API_KEY });
       const completion = await openai.beta.chat.completions.parse({
@@ -240,7 +264,11 @@ export const synthesizeHumanAction = actionClient
             `audio/${voiceRes.previews[2].generated_voice_id}.mp3`,
           ),
         ]);
-      const jobId = await createCharacter({ voiceBuffer: audioBuffer1, avatarImageInput: user.description })
+
+      const jobId = await createCharacter({
+        voiceBuffer: audioBuffer1,
+        profilePicture: user.profilePicture
+      })
 
       const humanSpecimen = humanSpecimenSchema.parse({
         user,
