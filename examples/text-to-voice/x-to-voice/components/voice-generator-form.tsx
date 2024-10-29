@@ -1,6 +1,6 @@
 "use client";
 
-import { synthesizeHumanAction } from "@/app/actions/actions";
+import { synthesizeHumanAction } from "@/app/(default)/actions/actions";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -67,7 +67,7 @@ export function VoiceGenForm() {
               target="_blank"
               className="font-medium text-primary underline underline-offset-4"
             >
-              text to voice
+              voice design
             </a>{" "}
             feature
           </CardDescription>

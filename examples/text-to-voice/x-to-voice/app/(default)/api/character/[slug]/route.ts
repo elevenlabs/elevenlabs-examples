@@ -1,4 +1,4 @@
-import { getJobStatus } from "@/app/actions/actions";
+import { getJobStatus } from "@/app/(default)/actions/actions";
 
 export async function GET(
   request: Request,

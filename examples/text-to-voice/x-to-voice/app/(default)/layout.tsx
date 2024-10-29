@@ -1,7 +1,7 @@
 import { ElevenLabsLogo, GithubLogo } from "@/components/logos";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import "./globals.css";
+import "../globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/react";
 import { BackgroundWave } from "@/components/background-wave";
@@ -22,15 +22,11 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Text to Voice || ElevenLabs",
-  description: "Introducing our new Text to Voice API",
+  title: "X to Voice | ElevenLabs",
+  description: "Analyze your X profile to generate a unique voice using ElevenLabs' new Voice Design feature",
 };
 
-export default function RootLayout({
-                                     children,
-                                   }: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
     <body
@@ -38,7 +34,8 @@ export default function RootLayout({
     >
     <nav className={"sm:fixed w-full top-0 left-0 flex items-center justify-between py-4 px-8"}>
       <div className={"flex"}>
-        <Link href={"/"} prefetch={true}><ElevenLabsLogo className={"h-[15px] w-auto hover:text-gray-500"} /></Link>
+        <Link href={"/"} prefetch={true}><ElevenLabsLogo
+          className={"h-[15px] w-auto hover:text-gray-500"} /></Link>
       </div>
       <div className={"flex gap-4"}>
         <Link
@@ -51,7 +48,7 @@ export default function RootLayout({
             size={"xs"}
             className="rounded-full z-50 text-sm text-gray-800"
           >
-              Sign up
+            Sign up
           </Button>
         </Link>
         <Link

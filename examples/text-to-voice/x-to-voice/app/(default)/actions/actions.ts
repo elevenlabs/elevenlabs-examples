@@ -1,6 +1,6 @@
 "use server";
 
-import { actionClient } from "@/app/actions/safe-action";
+import { actionClient } from "@/app/(default)/actions/safe-action";
 import { z } from "zod";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
