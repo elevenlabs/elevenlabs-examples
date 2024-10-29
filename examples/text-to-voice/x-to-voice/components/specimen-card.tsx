@@ -96,11 +96,11 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
               <h2 className="text-xs uppercase tracking-wide text-gray-500 mb-1">
                 Date Analyzed
               </h2>
-              <p className="text-sm text-gray-700">{human.createdAt}</p>
+              <p className="text-sm text-gray-700">{new Date(human.createdAt).toLocaleString()}</p>
             </div>
-            <QRCodeSVG value={`https://x.com/${human.userName}`} size={80} />
+            <QRCodeSVG value={`https://x.com/${human.userName}`} className={"h-10 w-10 sm:h-20 sm:w-20"} />
           </div>
-          <Link href="/">
+          <Link href="/" className={"w-full sm:w-auto"}>
             <Button className="w-full" variant={"outline"}>
               <ArrowLeftIcon className="w-4 h-4 mr-2" />
               Generate a new profile voice
