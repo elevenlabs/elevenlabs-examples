@@ -6,9 +6,8 @@ import { Link2 } from "lucide-react";
 import { toast } from "sonner";
 
 export function ShareOnXButton({ shareText }: { shareText: string }) {
-  const url = window.location.href;
-
   function share() {
+    const url = window.location.href;
     window.open(
       `https://x.com/intent/tweet?text=${encodeURIComponent(
         shareText,
@@ -34,12 +33,12 @@ export function ShareOnXButton({ shareText }: { shareText: string }) {
 }
 
 export function CopyShareLink() {
-  const url = window.location.href;
   function copyLink() {
-
+    const url = window.location.href;
     navigator.clipboard.writeText(url);
     toast.info("Link copied to clipboard 📋");
   }
+
   return (
     <Button
       variant="ghost"
