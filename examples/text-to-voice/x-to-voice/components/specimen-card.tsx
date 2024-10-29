@@ -69,7 +69,7 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
             <div className="flex gap-3">
               {videoJobId ? (
                 <AvatarPlayer jobId={videoJobId} />
-              ):(
+              ) : (
                 <Image
                   alt="profile picture"
                   className="rounded-full w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28"
@@ -91,6 +91,12 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
                     ? "Earth"
                     : human.origin}
                 </p>
+                <div className="mt-4">
+                  <blockquote className="border-l-2 pl-3 text-sm text-gray-700 leading-relaxed italic">
+                    {human.humorousDescription}
+                  </blockquote>
+                </div>
+
               </div>
             </div>
             <div className="flex gap-2">
@@ -101,15 +107,7 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
             </div>
           </div>
           <Separator className="my-6" />
-          <div className="mb-8">
-            <h2 className="text-xs uppercase tracking-wide text-gray-500 mb-3">
-              Description
-            </h2>
 
-            <blockquote className="border-l-2 pl-3 text-sm text-gray-700 leading-relaxed italic">
-              {human.humorousDescription}
-            </blockquote>
-          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <div>
               <h2 className="text-xs uppercase tracking-wide text-gray-500 mb-3">
