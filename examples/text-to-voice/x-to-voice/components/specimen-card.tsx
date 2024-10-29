@@ -51,7 +51,13 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
               )}
               <div className={'sm:flex flex-col flex-grow justify-center items-center hidden'}>
                 <h1 className="md:text-3xl text-2xl font-mono text-gray-900 mb-2">
-                  @{human.userName}
+                  <Link
+                    href={`https://x.com/${human.userName}`}
+                    rel="noopener noreferrer"
+                    target={"_blank"}
+                  >
+                    @{human.userName}
+                  </Link>
                 </h1>
 
                 <div className="flex gap-2 items-center justify-center">

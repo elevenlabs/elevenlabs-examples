@@ -128,6 +128,11 @@ const QuickLinks = () => {
       handle: "LukeHarries_",
       name: "Luke Harries",
     },
+    {
+      profilePicture: "/jonatan.jpg",
+      handle: "jonatanvmartens",
+      name: "Jonatan von Martens",
+    },
   ];
 
   return (
