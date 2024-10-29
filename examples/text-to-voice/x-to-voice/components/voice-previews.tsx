@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { PauseCircle, PlayCircle } from "lucide-react";
+import { DownloadIcon, PauseCircle, PlayCircle } from "lucide-react";
 import { useState } from "react";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -55,6 +55,17 @@ export function VoicePreviews({ voicePreviews }: { voicePreviews: any }) {
               src={previewUrl}
               onEnded={() => setPlayingIndex(null)}
             />
+            <a
+              href={previewUrl}
+              download={`harmonix-sample-${index + 1}.mp4`}
+              target="_blank"
+              className={"ml-auto"}
+            >
+              <Button variant="ghost" size="sm">
+                <DownloadIcon className="w-4 h-4"></DownloadIcon>
+              </Button>
+            </a>
+
           </div>
         ),
       )}
