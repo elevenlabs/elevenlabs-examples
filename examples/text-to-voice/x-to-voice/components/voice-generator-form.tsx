@@ -148,6 +148,7 @@ const QuickLinks = () => {
                 buttonVariants({ variant: "outline" }),
                 "flex-none min-w-[160px] flex p-3 h-auto",
               )}
+              prefetch={true}
             >
               <Image priority width={34} height={34} src={celeb.profilePicture} className={"rounded-full"}
                      alt={`${celeb.name} profile picture`} />

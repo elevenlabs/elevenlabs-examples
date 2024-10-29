@@ -38,7 +38,7 @@ export default function RootLayout({
     >
     <nav className={"sm:fixed w-full top-0 left-0 flex items-center justify-between py-4 px-8"}>
       <div className={"flex"}>
-        <Link href={"/"}><ElevenLabsLogo className={"h-[15px] w-auto hover:text-gray-500"} /></Link>
+        <Link href={"/"} prefetch={true}><ElevenLabsLogo className={"h-[15px] w-auto hover:text-gray-500"} /></Link>
       </div>
       <div className={"flex gap-4"}>
         <Link

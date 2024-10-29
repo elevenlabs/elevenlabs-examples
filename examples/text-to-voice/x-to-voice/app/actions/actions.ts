@@ -84,9 +84,9 @@ export const synthesizeHumanAction = actionClient
     const handle = normalizeHandle(inputHandle);
     // check to ensure the profile hasn't already been synthesized
     const existingGeneration = await kv.get(`ttv_x:${handle}`);
-    // if (existingGeneration) {
-    //   redirect(`/${handle}`);
-    // }
+    if (existingGeneration) {
+      redirect(`/${handle}`);
+    }
 
     // rate-limit (2 generations from the same IP every 60 seconds )
     const ratelimit = new Ratelimit({
@@ -99,7 +99,6 @@ export const synthesizeHumanAction = actionClient
     }
 
     try {
-      console.time("apify");
       console.info(`[TTV-X] Starting extraction for handle: ${handle}`);
       const apifyClient = new ApifyClient({
         token: process.env.APIFY_API_KEY,
@@ -108,7 +107,6 @@ export const synthesizeHumanAction = actionClient
         twitterHandles: [handle],
         maxItems: 5,
       });
-      console.timeEnd("apify");
       console.info(
         `[TTV-X] Apify run created with ID: ${run.defaultDatasetId}`,
       );
@@ -145,7 +143,6 @@ export const synthesizeHumanAction = actionClient
           isReply: tweet.isReply,
         })),
       });
-      console.time("openai");
       console.info(`[TTV-X] Starting OpenAI analysis for ${handle}`);
       const openai = new OpenAI({ apiKey: env.OPEN_AI_API_KEY });
       const completion = await openai.beta.chat.completions.parse({
@@ -183,7 +180,6 @@ export const synthesizeHumanAction = actionClient
         ],
         response_format: zodResponseFormat(analysisSchema, "analysis"),
       });
-      console.timeEnd("openai")
 
       const analysis = completion.choices[0].message.parsed;
       console.info(
@@ -204,7 +200,6 @@ export const synthesizeHumanAction = actionClient
         "[TTV-X] Request body:",
         JSON.stringify(requestBody, null, 2),
       );
-      console.time("11");
       const voiceResponse = await fetch(
         "https://api.elevenlabs.io/v1/text-to-voice/create-previews",
         {
@@ -218,7 +213,6 @@ export const synthesizeHumanAction = actionClient
       );
 
       const voiceRes = await voiceResponse.json();
-      console.timeEnd("11");
       if (!voiceRes.previews) {
         console.error("[TTV-X] ElevenLabs API error:", voiceRes);
         throw new Error(`Failed to generate voice previews, please try again.`);
@@ -246,7 +240,6 @@ export const synthesizeHumanAction = actionClient
             `audio/${voiceRes.previews[2].generated_voice_id}.mp3`,
           ),
         ]);
-      console.time("hydro");
       const jobId = await createCharacter({ voiceBuffer: audioBuffer1, avatarImageInput: user.description })
 
       const humanSpecimen = humanSpecimenSchema.parse({
@@ -256,7 +249,6 @@ export const synthesizeHumanAction = actionClient
         voicePreviews: [voicePreview1URL, voicePreview2URL, voicePreview3URL],
         videoJobs: [jobId],
       });
-      console.timeEnd("hydro");
       await kv.set(`ttv_x:${handle}`, humanSpecimen);
     } catch (error) {
       console.error(`[TTV-X] Error processing user ${handle}:`, error);
