@@ -13,6 +13,7 @@ import { HumanSpecimen } from "@/app/types";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpecimen }) {
+
   const human = {
     // facts
     userName: humanSpecimen.user?.userName ?? "Something went wrong",

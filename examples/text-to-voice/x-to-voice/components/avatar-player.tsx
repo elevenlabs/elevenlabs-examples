@@ -45,6 +45,14 @@ export function AvatarPlayer({ jobId }: {
     }
   };
 
+  const onCharacterClick = () => {
+    if (isPlaying) {
+      toggleMuted()
+    } else {
+      toggleVideo()
+    }
+  }
+
   let intervalId: number | undefined = undefined;
 
   async function fetchCharacter() {
@@ -70,14 +78,13 @@ export function AvatarPlayer({ jobId }: {
 
   return (
     <div className={"flex flex-col border rounded-lg divide-y"}>
-      <div className={"relative overflow-hidden"}>
+      <div className={"relative overflow-hidden group cursor-pointer"} onClick={onCharacterClick}>
         <div className={"flex h-[240px] w-[240px] rounded-t-lg overflow-hidden"}>
           <div
             className={cn("absolute inset-0 w-full h-full flex flex-col justify-center items-center text-gray-700 text-xs z-10", (isVideoLoaded) && "opacity-0")}>
             <ScrambleText text={"Generating"} loop></ScrambleText>
             <ScrambleText text={"Avatar"} loop></ScrambleText>
           </div>
-
           {videoUrl && !isLoading && (
             <video
               ref={videoRef}
