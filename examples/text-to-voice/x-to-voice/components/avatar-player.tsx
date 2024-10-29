@@ -5,6 +5,8 @@ import { DownloadIcon, PauseIcon, PlayIcon, Volume2Icon, VolumeOffIcon } from "l
 import { ScrambleText } from "@/components/voice-generator-form";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { HedraLogo } from "@/components/logos";
+import Link from "next/link";
 
 export function AvatarPlayer({ jobId }: {
   jobId: string,
@@ -68,7 +70,7 @@ export function AvatarPlayer({ jobId }: {
 
   return (
     <div className={"flex flex-col border rounded-lg divide-y"}>
-      <div className={"relative"}>
+      <div className={"relative overflow-hidden"}>
         <div className={"flex h-[240px] w-[240px] rounded-t-lg overflow-hidden"}>
           <div
             className={cn("absolute inset-0 w-full h-full flex flex-col justify-center items-center text-gray-700 text-xs z-10", (isVideoLoaded) && "opacity-0")}>
@@ -93,10 +95,21 @@ export function AvatarPlayer({ jobId }: {
             </video>
           )}
         </div>
+        {isVideoLoaded && (
+          <div className={"absolute bottom-2 right-2"}>
+            <div className={"relative"}>
+              <div className={"absolute inset-0 w-full h-full bg-black blur-lg z-0"}></div>
+              <Link href={"https://www.hedra.com/"}>
+                <HedraLogo className={"h-4 w-4 z-10 relative"}></HedraLogo>
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
       <div className={"flex flex-row divide-x rounded-0"}>
         <div className={"flex flex-grow"}>
-          <Button variant={"ghost"} className={"flex-grow"} size={"sm"} disabled={!isVideoLoaded} onClick={toggleVideo}>
+          <Button variant={"ghost"} className={"flex-grow"} size={"sm"} disabled={!isVideoLoaded}
+                  onClick={toggleVideo}>
             {!isPlaying ? (
               <PlayIcon className={"text-black"} radius={10} />
             ) : (
