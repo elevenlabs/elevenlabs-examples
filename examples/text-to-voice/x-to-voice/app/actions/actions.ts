@@ -10,6 +10,7 @@ import { zodResponseFormat } from "openai/helpers/zod";
 import OpenAI from "openai";
 import { put } from "@vercel/blob";
 import { env } from "@/env.mjs";
+import { analysisSchema, humanSpecimenSchema, userSchema } from "@/app/types";
 
 const kv = new Redis({
   url: env.KV_REST_API_URL,
@@ -129,7 +130,7 @@ export const synthesizeHumanAction = actionClient
         followers: userProfile?.followers || 0,
       });
 
-      const user = {
+      const user = userSchema.parse({
         name: userProfile.name,
         userName: userProfile.userName,
         profilePicture: userProfile.profilePicture,
@@ -144,20 +145,10 @@ export const synthesizeHumanAction = actionClient
           isQuote: tweet.isQuote,
           isReply: tweet.isReply,
         })),
-      };
+      });
 
       console.info(`[TTV-X] Starting OpenAI analysis for ${handle}`);
       const openai = new OpenAI({ apiKey: env.OPEN_AI_API_KEY });
-      const HumanAnalysis = z.object({
-        humorousDescription: z.string(),
-        age: z.string(),
-        characteristics: z.array(z.string()),
-        voiceFerocity: z.number(),
-        voiceSarcasm: z.number(),
-        voiceSassFactor: z.number(),
-        textToVoicePrompt: z.string(),
-        textToGenerate: z.string(),
-      });
       const completion = await openai.beta.chat.completions.parse({
         model: "gpt-4o-2024-08-06",
         messages: [
@@ -191,7 +182,7 @@ export const synthesizeHumanAction = actionClient
           `,
           },
         ],
-        response_format: zodResponseFormat(HumanAnalysis, "analysis"),
+        response_format: zodResponseFormat(analysisSchema, "analysis"),
       });
 
       const analysis = completion.choices[0].message.parsed;
@@ -258,13 +249,13 @@ export const synthesizeHumanAction = actionClient
 
       const videoUrl = await getVideo({ voiceBuffer: audioBuffer1, avatarImageInput: user.description })
 
-      const humanSpecimen = {
+      const humanSpecimen = humanSpecimenSchema.parse({
         user,
         analysis,
         timestamp: new Date().toISOString(),
         voicePreviews: [voicePreview1URL, voicePreview2URL, voicePreview3URL],
         videoJobs: [videoUrl],
-      };
+      });
 
       await kv.set(`ttv_x:${handle}`, humanSpecimen);
     } catch (error) {

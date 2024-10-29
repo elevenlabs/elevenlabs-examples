@@ -14,22 +14,22 @@ import Image from "next/image";
 export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
   const human = {
     // facts
-    userName: humanSpecimen?.user?.userName ?? "Something went wrong",
-    origin: humanSpecimen?.user?.location ?? "Earth",
-    createdAt: humanSpecimen?.timestamp,
+    userName: humanSpecimen.user?.userName ?? "Something went wrong",
+    origin: humanSpecimen.user?.location ?? "Earth",
+    createdAt: humanSpecimen.timestamp,
     profilePicture:
-      humanSpecimen?.user?.profilePicture.replace(/_normal(?=\.\w+$)/, "") ??
+      humanSpecimen.user?.profilePicture.replace(/_normal(?=\.\w+$)/, "") ??
       "",
     // openai-gen
-    characteristics: humanSpecimen?.analysis?.characteristics ?? [],
-    humorousDescription: humanSpecimen?.analysis?.humorousDescription ?? "",
-    textToVoicePrompt: humanSpecimen?.analysis?.textToVoicePrompt ?? "",
-    age: humanSpecimen?.analysis?.age ?? "",
-    voiceFerocity: humanSpecimen?.analysis?.voiceFerocity ?? 50,
-    voiceSarcasm: humanSpecimen?.analysis?.voiceSarcasm ?? 50,
-    voiceSassFactor: humanSpecimen?.analysis?.voiceSassFactor ?? 50,
+    characteristics: humanSpecimen.analysis.characteristics ?? [],
+    humorousDescription: humanSpecimen.analysis.humorousDescription ?? "",
+    textToVoicePrompt: humanSpecimen.analysis.textToVoicePrompt ?? "",
+    age: humanSpecimen.analysis.age ?? "",
+    voiceFerocity: humanSpecimen.analysis.voiceFerocity ?? 50,
+    voiceSarcasm: humanSpecimen.analysis.voiceSarcasm ?? 50,
+    voiceSassFactor: humanSpecimen.analysis.voiceSassFactor ?? 50,
     // elevenlabs-gen
-    voicePreviews: humanSpecimen?.voicePreviews ?? [], //this is an array of URLS for example https://c3gi8hkknvghgbjw.public.blob.vercel-storage.com/audio/7xADYsXepoZV1s1Nb1zw-Wz44iHLJfqk9FlSVvHJIsw8PL2QrxI.mp3
+    voicePreviews: humanSpecimen.voicePreviews ?? [], //this is an array of URLS for example https://c3gi8hkknvghgbjw.public.blob.vercel-storage.com/audio/7xADYsXepoZV1s1Nb1zw-Wz44iHLJfqk9FlSVvHJIsw8PL2QrxI.mp3
     // Hedra video
     videoUrl: humanSpecimen.videoUrl,
     avatarImageUrl: humanSpecimen.avatarImageUrl,
