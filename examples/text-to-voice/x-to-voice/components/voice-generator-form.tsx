@@ -134,7 +134,7 @@ const QuickLinks = () => {
     <div className="mt-4">
       <p className="text-sm text-gray-500 mb-2">Try these examples:</p>
       <ScrollArea className="w-full whitespace-nowrap rounded-md">
-        <div className="flex w-20 space-x-4 p-4">
+        <div className="flex w-20 space-x-4 pt-2">
           {celebrities.map(celeb => (
             <Link
               key={celeb.handle}
