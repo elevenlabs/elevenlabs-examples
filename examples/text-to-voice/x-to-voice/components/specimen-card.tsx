@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Flame, MapPin, MessageSquareQuote, RotateCw, Sparkles } from "lucide-react";
+import { MapPin, RotateCw } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
@@ -20,40 +19,11 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
       humanSpecimen?.user?.profilePicture.replace(/_normal(?=\.\w+$)/, "") ??
       "",
     // openai-gen
-    characteristics: humanSpecimen?.analysis?.characteristics ?? [],
     humorousDescription: humanSpecimen?.analysis?.humorousDescription ?? "",
     textToVoicePrompt: humanSpecimen?.analysis?.textToVoicePrompt ?? "",
-    age: humanSpecimen?.analysis?.age ?? "",
-    voiceFerocity: humanSpecimen?.analysis?.voiceFerocity ?? 50,
-    voiceSarcasm: humanSpecimen?.analysis?.voiceSarcasm ?? 50,
-    voiceSassFactor: humanSpecimen?.analysis?.voiceSassFactor ?? 50,
     // elevenlabs-gen
     voicePreviews: humanSpecimen?.voicePreviews ?? [], //this is an array of URLS for example https://c3gi8hkknvghgbjw.public.blob.vercel-storage.com/audio/7xADYsXepoZV1s1Nb1zw-Wz44iHLJfqk9FlSVvHJIsw8PL2QrxI.mp3
   };
-
-  const metrics = [
-    {
-      label: "Voice Ferocity",
-      value: human.voiceFerocity,
-      description:
-        "Measures how aggressive or assertive the specimen's voice is, ranging from calm to primal.",
-      icon: <Flame className="w-3 h-3 mr-1" />,
-    },
-    {
-      label: "Sarcasm Quotient",
-      value: human.voiceSarcasm,
-      description:
-        "Detects the likelihood of snark or irony within vocal patterns.",
-      icon: <MessageSquareQuote className="w-3 h-3 mr-1" />,
-    },
-    {
-      label: "Sass Factor",
-      value: human.voiceSassFactor,
-      description:
-        "Quantifies the specimen's natural flair for delivering sass.",
-      icon: <Sparkles className="w-3 h-3 mr-1" />,
-    },
-  ];
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
@@ -99,48 +69,6 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
             <blockquote className="border-l-2 pl-3 text-sm text-gray-700 leading-relaxed italic">
               {human.humorousDescription}
             </blockquote>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-            <div>
-              <h2 className="text-xs uppercase tracking-wide text-gray-500 mb-3">
-                Characteristics
-              </h2>
-              <ul className="text-sm text-gray-700 space-y-2">
-                <li className="flex items-center">
-                  <span className="mr-2">▲</span>
-                  Age Stratum: {human.age}
-                </li>
-                {human.characteristics.map((char, index) => (
-                  <li key={index} className="flex items-center">
-                    <span className="mr-2">▲</span>
-                    {char}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h2 className="text-xs uppercase tracking-wide text-gray-500 mb-3">
-                Metrics
-              </h2>
-              <div className="space-y-6">
-                {metrics.map((metric, index) => (
-                  <div key={index} className="space-y-1">
-                    <Label className="text-xs text-gray-600 flex items-center mb-1 font-bold">
-                      {metric.icon} {metric.label}
-                    </Label>
-                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-black transition-all duration-500"
-                        style={{ width: `${metric.value}%` }}
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500 italic">
-                      {metric.description}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
           <div className="mb-8">
             <h2 className="text-xs uppercase tracking-wide text-gray-500 mb-3">
