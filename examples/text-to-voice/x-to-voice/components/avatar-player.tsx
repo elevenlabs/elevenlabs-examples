@@ -69,7 +69,7 @@ export function AvatarPlayer({ jobId }: {
   return (
     <div className={"flex flex-col border rounded-lg divide-y"}>
       <div className={"relative"}>
-        <div className={"flex h-[240px] w-[240px] rounded-t-lg overflow-hidden group cursor-pointer"}>
+        <div className={"flex h-[240px] w-[240px] rounded-t-lg overflow-hidden"}>
           <div
             className={cn("absolute inset-0 w-full h-full flex flex-col justify-center items-center text-gray-700 text-xs z-10", (isVideoLoaded) && "opacity-0")}>
             <ScrambleText text={"Generating"} loop></ScrambleText>

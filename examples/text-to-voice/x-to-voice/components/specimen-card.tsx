@@ -10,7 +10,6 @@ import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { AvatarPlayer } from "@/components/avatar-player";
 import { HumanSpecimen } from "@/app/types";
-import Image from "next/image";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpecimen }) {
@@ -34,7 +33,7 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
     voicePreviews: humanSpecimen.voicePreviews ?? [], //this is an array of URLS for example https://c3gi8hkknvghgbjw.public.blob.vercel-storage.com/audio/7xADYsXepoZV1s1Nb1zw-Wz44iHLJfqk9FlSVvHJIsw8PL2QrxI.mp3
   };
 
-  const videoJobId = humanSpecimen.videoUrls?.[0]
+  const videoJobId = humanSpecimen.videoJobs?.[0]
 
   return (
     <div className="w-full max-w-[850px] mx-auto space-y-6">
@@ -45,18 +44,10 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
           </h1>
           <div className="flex justify-between items-start mb-8 w-full">
             <div className="flex gap-3 w-full">
-              {videoJobId ? (
+              {videoJobId && (
                 <div className={"my-auto mx-auto sm:mx-0"}>
                   <AvatarPlayer jobId={videoJobId} />
                 </div>
-              ) : (
-                <Image
-                  alt="profile picture"
-                  className="rounded-full w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28"
-                  src={human.profilePicture}
-                  width={240}
-                  height={240}
-                />
               )}
               <div className={'sm:flex flex-col flex-grow justify-center items-center hidden'}>
                 <h1 className="md:text-3xl text-2xl font-mono text-gray-900 mb-2">

@@ -69,7 +69,7 @@ export async function getJobStatus(jobId: string) {
   return status;
 }
 
-const getVideo = async ({ avatarImageInput, voiceBuffer }: { avatarImageInput: string, voiceBuffer: Buffer }) => {
+const createCharacter = async ({ avatarImageInput, voiceBuffer }: { avatarImageInput: string, voiceBuffer: Buffer }) => {
   const audioData = await uploadAudio(voiceBuffer);
   const voiceUrl = audioData["url"];
 
@@ -78,17 +78,15 @@ const getVideo = async ({ avatarImageInput, voiceBuffer }: { avatarImageInput: s
   return statusData['jobId'];
 };
 
-
-
 export const synthesizeHumanAction = actionClient
   .schema(synthesizeRetrieveHumanSchema)
   .action(async ({ parsedInput: { handle: inputHandle }, ctx: { ip } }) => {
     const handle = normalizeHandle(inputHandle);
     // check to ensure the profile hasn't already been synthesized
     const existingGeneration = await kv.get(`ttv_x:${handle}`);
-    if (existingGeneration) {
-      redirect(`/${handle}`);
-    }
+    // if (existingGeneration) {
+    //   redirect(`/${handle}`);
+    // }
 
     // rate-limit (2 generations from the same IP every 60 seconds )
     const ratelimit = new Ratelimit({
@@ -247,14 +245,14 @@ export const synthesizeHumanAction = actionClient
           ),
         ]);
 
-      const videoUrl = await getVideo({ voiceBuffer: audioBuffer1, avatarImageInput: user.description })
+      const jobId = await createCharacter({ voiceBuffer: audioBuffer1, avatarImageInput: user.description })
 
       const humanSpecimen = humanSpecimenSchema.parse({
         user,
         analysis,
         timestamp: new Date().toISOString(),
         voicePreviews: [voicePreview1URL, voicePreview2URL, voicePreview3URL],
-        videoJobs: [videoUrl],
+        videoJobs: [jobId],
       });
 
       await kv.set(`ttv_x:${handle}`, humanSpecimen);

@@ -34,7 +34,7 @@ export const humanSpecimenSchema = z.object({
   analysis: analysisSchema,
   user: userSchema,
   timestamp: z.string(),
-  videoUrls: z.array(z.string()).optional(),
+  videoJobs: z.array(z.string()).optional(),
   voicePreviews: z.array(z.string()).optional(),
 })
 
