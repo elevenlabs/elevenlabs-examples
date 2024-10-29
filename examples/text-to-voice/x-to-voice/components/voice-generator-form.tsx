@@ -2,13 +2,7 @@
 
 import { synthesizeHumanAction } from "@/app/actions/actions";
 import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAction } from "next-safe-action/hooks";
 import Image from "next/image";
@@ -20,9 +14,9 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 const ScrambleText = ({
-  text,
-  loop = false,
-}: {
+                        text,
+                        loop = false,
+                      }: {
   text: string;
   loop?: boolean;
 }) => {
@@ -113,9 +107,6 @@ export function VoiceGenForm() {
               )}
             </Button>
             <QuickLinks />
-            <code className="text-xs">
-              by submitting this form you agree to our terms
-            </code>
           </div>
         </CardContent>
       </Card>
@@ -126,24 +117,19 @@ export function VoiceGenForm() {
 const QuickLinks = () => {
   const celebrities = [
     {
-      handle: "KimKardashian",
-      name: "Kim Kardashian",
-      description: "Reality TV Star",
+      profilePicture: "/mati.jpg",
+      handle: "matistanis",
+      name: "Mati Staniszewski",
     },
     {
-      handle: "elonmusk",
-      name: "Elon Musk",
-      description: "Tech Entrepreneur",
+      profilePicture: "/ammaar.jpg",
+      handle: "ammaar",
+      name: "Ammaar Reshi",
     },
     {
-      handle: "taylorswift13",
-      name: "Taylor Swift",
-      description: "Music Artist",
-    },
-    {
-      handle: "POTUS",
-      name: "Joe Biden",
-      description: "Political Figure",
+      profilePicture: "/luke.jpg",
+      handle: "LukeHarries_",
+      name: "Luke Harries",
     },
   ];
 
@@ -158,13 +144,18 @@ const QuickLinks = () => {
               href={`/${celeb.handle}`}
               className={cn(
                 buttonVariants({ variant: "outline" }),
-                "flex-none w-[150px] flex flex-col items-start p-3 h-auto"
+                "flex-none min-w-[160px] flex p-3 h-auto",
               )}
             >
-              <span className="font-medium">@{celeb.handle}</span>
-              <span className="text-xs text-gray-500 truncate w-full">
-                {celeb.description}
-              </span>
+              <Image priority width={34} height={34} src={celeb.profilePicture} className={"rounded-full"}
+                     alt={`${celeb.name} profile picture`} />
+              <div className={"flex flex-col items-start text-xs"}>
+
+                <span className="font-medium">@{celeb.handle}</span>
+                <span className="text-gray-500 truncate w-full">
+                  {celeb.name}
+                </span>
+              </div>
             </Link>
           ))}
         </div>
