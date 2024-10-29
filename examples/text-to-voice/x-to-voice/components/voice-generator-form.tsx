@@ -13,10 +13,7 @@ import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-const ScrambleText = ({
-                        text,
-                        loop = false,
-                      }: {
+export const ScrambleText = ({ text, loop = false }: {
   text: string;
   loop?: boolean;
 }) => {
@@ -131,13 +128,18 @@ const QuickLinks = () => {
       handle: "LukeHarries_",
       name: "Luke Harries",
     },
+    {
+      profilePicture: "/jonatan.jpg",
+      handle: "jonatanvmartens",
+      name: "Jonatan von Martens",
+    },
   ];
 
   return (
     <div className="mt-4">
       <p className="text-sm text-gray-500 mb-2">Try these examples:</p>
       <ScrollArea className="w-full whitespace-nowrap rounded-md">
-        <div className="flex w-20 space-x-4 p-4">
+        <div className="flex w-20 space-x-4 pt-2">
           {celebrities.map(celeb => (
             <Link
               key={celeb.handle}
@@ -146,6 +148,7 @@ const QuickLinks = () => {
                 buttonVariants({ variant: "outline" }),
                 "flex-none min-w-[160px] flex p-3 h-auto",
               )}
+              prefetch={true}
             >
               <Image priority width={34} height={34} src={celeb.profilePicture} className={"rounded-full"}
                      alt={`${celeb.name} profile picture`} />

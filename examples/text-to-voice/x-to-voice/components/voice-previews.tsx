@@ -49,7 +49,7 @@ export function VoicePreviews({ voicePreviews }: { voicePreviews: any }) {
                 <PlayCircle className="w-4 h-4" />
               )}
             </Button>
-            <span>Harmonic Sample {index + 1}</span>
+            <span>Voice sample {index + 1}</span>
             <audio
               id={`audio-${index}`}
               src={previewUrl}
@@ -57,7 +57,7 @@ export function VoicePreviews({ voicePreviews }: { voicePreviews: any }) {
             />
             <a
               href={previewUrl}
-              download={`harmonix-sample-${index + 1}.mp4`}
+              download={`voice-sample-${index + 1}.mp4`}
               target="_blank"
               className={"ml-auto"}
             >

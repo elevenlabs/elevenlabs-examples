@@ -1,9 +1,18 @@
 "use client";
 
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Link2 } from "lucide-react";
 import { toast } from "sonner";
+
+function XIcon({ className }: { className: string }) {
+  return (
+    <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-label="X.com"
+         className={className} fill="currentColor"><title>X</title>
+      <path
+        d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"></path>
+    </svg>
+  );
+}
 
 export function ShareOnXButton({ shareText }: { shareText: string }) {
   function share() {
@@ -17,17 +26,9 @@ export function ShareOnXButton({ shareText }: { shareText: string }) {
 
   return (
     <Button
-      variant="ghost"
-      size="icon"
       onClick={() => share()}
     >
-      <Image
-        src="/x.png"
-        alt="X (formerly Twitter) logo"
-        width={20}
-        height={20}
-        className="w-4 h-4"
-      />
+      <XIcon className="w-4 h-4" /> Share
     </Button>
   );
 }
@@ -41,11 +42,11 @@ export function CopyShareLink() {
 
   return (
     <Button
-      variant="ghost"
-      size="icon"
+      variant={"outline"}
       onClick={() => copyLink()}
     >
       <Link2 className="w-4 h-4" />
+      Copy
     </Button>
   );
 }

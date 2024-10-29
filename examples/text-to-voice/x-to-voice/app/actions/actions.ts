@@ -10,6 +10,7 @@ import { zodResponseFormat } from "openai/helpers/zod";
 import OpenAI from "openai";
 import { put } from "@vercel/blob";
 import { env } from "@/env.mjs";
+import { analysisSchema, humanSpecimenSchema, userSchema } from "@/app/types";
 
 const kv = new Redis({
   url: env.KV_REST_API_URL,
@@ -19,6 +20,63 @@ const kv = new Redis({
 const synthesizeRetrieveHumanSchema = z.object({
   handle: z.string(),
 });
+
+const uploadAudio = async (buffer: Buffer) => {
+  const fileBlob = new Blob([buffer], { type: 'audio/mpeg' });
+  const formData = new FormData();
+  formData.append('file', fileBlob, 'audio.mp3');
+  const audioResponse = await fetch(
+    "https://mercury.dev.dream-ai.com/api/v1/audio",
+    {
+      method: "POST",
+      headers: {
+        "X-API-KEY": env.HEDRA_API_KEY,
+      },
+      body: formData,
+    },
+  );
+  const audioData = await audioResponse.json();
+  return audioData as { url: string };
+};
+
+async function generateVideo(requestBody: { voiceUrl: string; avatarImageInput: { prompt: string}; audioSource: string }) {
+  const statusResponse = await fetch(
+    "https://mercury.dev.dream-ai.com/api/v1/characters",
+    {
+      method: "POST",
+      headers: {
+        "X-API-KEY": env.HEDRA_API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody),
+    },
+  );
+  const status = await statusResponse.json();
+  return status;
+}
+
+export async function getJobStatus(jobId: string) {
+  const statusResponse = await fetch(
+    `https://mercury.dev.dream-ai.com/api/v1/projects/${jobId}`,
+    {
+      method: "GET",
+      headers: {
+        "X-API-KEY": env.HEDRA_API_KEY,
+      },
+    },
+  );
+  const status = await statusResponse.json();
+  return status;
+}
+
+const createCharacter = async ({ avatarImageInput, voiceBuffer }: { avatarImageInput: string, voiceBuffer: Buffer }) => {
+  const audioData = await uploadAudio(voiceBuffer);
+  const voiceUrl = audioData["url"];
+
+  const requestBody = { "avatarImageInput": { prompt: avatarImageInput }, "audioSource": "audio", voiceUrl };
+  const statusData = await generateVideo(requestBody);
+  return statusData['jobId'];
+};
 
 export const synthesizeHumanAction = actionClient
   .schema(synthesizeRetrieveHumanSchema)
@@ -49,9 +107,8 @@ export const synthesizeHumanAction = actionClient
         twitterHandles: [handle],
         maxItems: 5,
       });
-
       console.info(
-        `[TTV-X] Apify run created with ID: ${run.defaultDatasetId}`
+        `[TTV-X] Apify run created with ID: ${run.defaultDatasetId}`,
       );
       const { items } = await apifyClient
         .dataset(run.defaultDatasetId)
@@ -70,7 +127,7 @@ export const synthesizeHumanAction = actionClient
         followers: userProfile?.followers || 0,
       });
 
-      const user = {
+      const user = userSchema.parse({
         name: userProfile.name,
         userName: userProfile.userName,
         profilePicture: userProfile.profilePicture,
@@ -85,20 +142,9 @@ export const synthesizeHumanAction = actionClient
           isQuote: tweet.isQuote,
           isReply: tweet.isReply,
         })),
-      };
-
+      });
       console.info(`[TTV-X] Starting OpenAI analysis for ${handle}`);
       const openai = new OpenAI({ apiKey: env.OPEN_AI_API_KEY });
-      const HumanAnalysis = z.object({
-        humorousDescription: z.string(),
-        age: z.string(),
-        characteristics: z.array(z.string()),
-        voiceFerocity: z.number(),
-        voiceSarcasm: z.number(),
-        voiceSassFactor: z.number(),
-        textToVoicePrompt: z.string(),
-        textToGenerate: z.string(),
-      });
       const completion = await openai.beta.chat.completions.parse({
         model: "gpt-4o-2024-08-06",
         messages: [
@@ -132,12 +178,12 @@ export const synthesizeHumanAction = actionClient
           `,
           },
         ],
-        response_format: zodResponseFormat(HumanAnalysis, "analysis"),
+        response_format: zodResponseFormat(analysisSchema, "analysis"),
       });
 
       const analysis = completion.choices[0].message.parsed;
       console.info(
-        `[TTV-X] Human analysis complete: ${JSON.stringify(analysis)}`
+        `[TTV-X] Human analysis complete: ${JSON.stringify(analysis)}`,
       );
 
       if (!analysis) {
@@ -152,9 +198,8 @@ export const synthesizeHumanAction = actionClient
       };
       console.info(
         "[TTV-X] Request body:",
-        JSON.stringify(requestBody, null, 2)
+        JSON.stringify(requestBody, null, 2),
       );
-
       const voiceResponse = await fetch(
         "https://api.elevenlabs.io/v1/text-to-voice/create-previews",
         {
@@ -164,39 +209,46 @@ export const synthesizeHumanAction = actionClient
             "Content-Type": "application/json",
           },
           body: JSON.stringify(requestBody),
-        }
+        },
       );
 
       const voiceRes = await voiceResponse.json();
-
       if (!voiceRes.previews) {
         console.error("[TTV-X] ElevenLabs API error:", voiceRes);
         throw new Error(`Failed to generate voice previews, please try again.`);
       }
 
+      const [audioBuffer1, audioBuffer2, audioBuffer3] = [
+        base64ToBuffer(voiceRes.previews[0].audio_base_64),
+        base64ToBuffer(voiceRes.previews[1].audio_base_64),
+        base64ToBuffer(voiceRes.previews[2].audio_base_64),
+      ];
+
       // Upload all previews in parallel
       const [voicePreview1URL, voicePreview2URL, voicePreview3URL] =
         await Promise.all([
           uploadBase64ToBlob(
-            voiceRes.previews[0].audio_base_64,
-            `audio/${voiceRes.previews[0].generated_voice_id}.mp3`
+            audioBuffer1,
+            `audio/${voiceRes.previews[0].generated_voice_id}.mp3`,
           ),
           uploadBase64ToBlob(
-            voiceRes.previews[1].audio_base_64,
-            `audio/${voiceRes.previews[1].generated_voice_id}.mp3`
+            audioBuffer2,
+            `audio/${voiceRes.previews[1].generated_voice_id}.mp3`,
           ),
           uploadBase64ToBlob(
-            voiceRes.previews[2].audio_base_64,
-            `audio/${voiceRes.previews[2].generated_voice_id}.mp3`
+            audioBuffer3,
+            `audio/${voiceRes.previews[2].generated_voice_id}.mp3`,
           ),
         ]);
+      const jobId = await createCharacter({ voiceBuffer: audioBuffer1, avatarImageInput: user.description })
 
-      const humanSpecimen = {
+      const humanSpecimen = humanSpecimenSchema.parse({
         user,
         analysis,
         timestamp: new Date().toISOString(),
         voicePreviews: [voicePreview1URL, voicePreview2URL, voicePreview3URL],
-      };
+        videoJobs: [jobId],
+      });
       await kv.set(`ttv_x:${handle}`, humanSpecimen);
     } catch (error) {
       console.error(`[TTV-X] Error processing user ${handle}:`, error);
@@ -224,16 +276,19 @@ export const retrieveHumanSpecimenAction = actionClient
     }
   });
 
-async function uploadBase64ToBlob(base64Data: string, filename: string) {
+function base64ToBuffer(base64Data: string) {
   // Remove the base64 prefix if present (if it's in the format 'data:audio/mpeg;base64,...')
   const base64WithoutPrefix = base64Data.replace(
     /^data:audio\/mpeg;base64,/,
-    ""
+    "",
   );
 
   // convert base64 string to Buffer
   const buffer = Buffer.from(base64WithoutPrefix, "base64");
+  return buffer;
+}
 
+async function uploadBase64ToBlob(buffer: Buffer, filename: string) {
   // upload the buffer to Vercel Blob storage
   const { url } = await put(filename, buffer, {
     access: "public",
