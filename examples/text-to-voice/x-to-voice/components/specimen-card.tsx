@@ -1,28 +1,16 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import {
-  Flame,
-  Link2,
-  MapPin,
-  MessageSquareQuote,
-  PauseCircle,
-  PlayCircle,
-  RotateCw,
-  Sparkles,
-} from "lucide-react";
+import { Flame, MapPin, MessageSquareQuote, RotateCw, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
-import { useState } from "react";
-import { toast } from "sonner";
+import { VoicePreviews } from "@/components/voice-previews";
+import { CopyShareLink, ShareOnXButton } from "@/components/share-button";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
-  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
   const human = {
     // facts
     userName: humanSpecimen?.user?.userName ?? "Something went wrong",
@@ -41,23 +29,6 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
     voiceSassFactor: humanSpecimen?.analysis?.voiceSassFactor ?? 50,
     // elevenlabs-gen
     voicePreviews: humanSpecimen?.voicePreviews ?? [], //this is an array of URLS for example https://c3gi8hkknvghgbjw.public.blob.vercel-storage.com/audio/7xADYsXepoZV1s1Nb1zw-Wz44iHLJfqk9FlSVvHJIsw8PL2QrxI.mp3
-  };
-
-  const handlePlayPause = (index: number, audioElement: HTMLAudioElement) => {
-    if (playingIndex === index) {
-      audioElement.pause();
-      setPlayingIndex(null);
-    } else {
-      // Stop any currently playing audio
-      if (playingIndex !== null) {
-        const prevAudio = document.querySelector(
-          `#audio-${playingIndex}`
-        ) as HTMLAudioElement;
-        prevAudio?.pause();
-      }
-      audioElement.play();
-      setPlayingIndex(index);
-    }
   };
 
   const metrics = [
@@ -83,25 +54,6 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
       icon: <Sparkles className="w-3 h-3 mr-1" />,
     },
   ];
-
-  const handleShare = (platform: "x" | "copy") => {
-    const url = window.location.href;
-    const text = `This is what I would sound like based on my X posts: #${human.userName} #elevenlabs`;
-
-    switch (platform) {
-      case "x":
-        window.open(
-          `https://x.com/intent/tweet?text=${encodeURIComponent(
-            text
-          )}&url=${encodeURIComponent(url)}`
-        );
-        break;
-      case "copy":
-        navigator.clipboard.writeText(url);
-        toast.info("Link copied to clipboard 📋");
-        break;
-    }
-  };
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
@@ -132,26 +84,10 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleShare("x")}
-              >
-                <Image
-                  src="/x.png"
-                  alt="X (formerly Twitter) logo"
-                  width={20}
-                  height={20}
-                  className="w-4 h-4"
-                />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleShare("copy")}
-              >
-                <Link2 className="w-4 h-4" />
-              </Button>
+              <ShareOnXButton
+                shareText={`This is what I would sound like based on my X posts: #${human.userName} #elevenlabs`}
+              />
+              <CopyShareLink />
             </div>
           </div>
           <Separator className="my-6" />
@@ -215,38 +151,7 @@ export function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
             </blockquote>
           </div>
           <div className="mb-8">
-            <div className="space-y-2">
-              {human.voicePreviews.map((previewUrl, index) => (
-                <div
-                  key={index}
-                  className="flex items-center text-sm text-gray-700 border border-gray-200 rounded p-2"
-                >
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-gray-500 hover:text-gray-700 mr-2"
-                    onClick={() => {
-                      const audio = document.querySelector(
-                        `#audio-${index}`
-                      ) as HTMLAudioElement;
-                      handlePlayPause(index, audio);
-                    }}
-                  >
-                    {playingIndex === index ? (
-                      <PauseCircle className="w-4 h-4" />
-                    ) : (
-                      <PlayCircle className="w-4 h-4" />
-                    )}
-                  </Button>
-                  <span>Harmonic Sample {index + 1}</span>
-                  <audio
-                    id={`audio-${index}`}
-                    src={previewUrl}
-                    onEnded={() => setPlayingIndex(null)}
-                  />
-                </div>
-              ))}
-            </div>
+            <VoicePreviews voicePreviews={human.voicePreviews} />
           </div>
           <div className="flex justify-between items-center mb-8">
             <div>
