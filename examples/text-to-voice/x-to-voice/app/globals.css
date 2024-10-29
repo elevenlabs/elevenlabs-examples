@@ -70,3 +70,23 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.fade-out {
+  animation: fadeOut 0.5s ease-in-out forwards; /* Adjust time as needed */
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.fade-in {
+  animation-delay: 0.3s;
+  animation: fadeIn 0.2s ease-in-out forwards; /* Adjust time as needed */
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+

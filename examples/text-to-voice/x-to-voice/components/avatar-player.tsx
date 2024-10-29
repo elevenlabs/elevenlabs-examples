@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PlayIcon } from "lucide-react";
-import Image from "next/image";
+import { ScrambleText } from "@/components/voice-generator-form";
+import { cn } from "@/lib/utils";
 
-export function AvatarPlayer({ poster, videoUrl }: {
-  poster?: string;
-  videoUrl?: string,
+export function AvatarPlayer({ jobId }: {
+  jobId: string,
 }) {
   const videoRef = useRef(null);
 
@@ -22,37 +22,57 @@ export function AvatarPlayer({ poster, videoUrl }: {
     }
   };
 
+  const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+
+  useEffect(() => {
+    const intervalId = setInterval(async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/character/${jobId}`);
+        if (!response.ok) throw new Error("Failed to fetch data");
+        const result = await response.json();
+        setData(result);
+        setIsLoading(false);
+        clearInterval(intervalId);
+      } catch (error) {
+        console.error("Error pinging server:", error);
+      }
+    }, 1000);
+    return () => clearInterval(intervalId); // Clear interval on component unmount
+  }, [jobId]);
+
   return (
     <div className={"relative"}>
       <div
-        className={"flex rounded-full overflow-hidden group cursor-pointer"}
-        style={{ minHeight: "120px", minWidth: "120px" }}
+        className={"flex h-[120px] w-[120px] border rounded-full overflow-hidden group cursor-pointer"}
         onClick={toggleVideo}
       >
-        {!isPlaying && (
+        <div
+          className={cn("absolute inset-0 w-full h-full flex flex-col justify-center items-center text-gray-700 text-xs z-10", (isVideoLoaded) && "opacity-0")}>
+          <ScrambleText text={"Generating"} loop></ScrambleText>
+          <ScrambleText text={"Avatar"} loop></ScrambleText>
+        </div>
+        {!isPlaying && !isLoading && data?.videoUrl && isVideoLoaded && (
           <button className={"flex absolute inset-0 items-center justify-center"}>
-            <PlayIcon className={"text-white white z-20 group-hover:opacity-70 opacity-0"} fill={"white"}
-                      radius={10} />
+            <PlayIcon className={"text-white white z-20 fade-in"} fill={"white"} radius={10} />
           </button>
         )}
-        <video
-          ref={videoRef}
-          width={120}
-          height={120}
-          playsInline
-          onEnded={() => setIsPlaying(false)}
-        >
-          <source src={videoUrl} type="video/mp4" />
-        </video>
+        {data?.videoUrl && !isLoading && (
+          <video
+            ref={videoRef}
+            width={120}
+            height={120}
+            playsInline
+            onLoadedData={() => setIsVideoLoaded(true)}
+            className={cn("opacity-0", isVideoLoaded && "opacity-100")}
+            onEnded={() => setIsPlaying(false)}
+          >
+            <source src={data.videoUrl} type="video/mp4" />
+          </video>
+        )}
       </div>
-      <Image
-        alt="profile picture"
-        priority
-        className={"absolute inset-0 rounded-full z-10"}
-        src={poster}
-        width={120}
-        height={120}
-      />
     </div>
   );
 }

@@ -1,3 +1,5 @@
+"use server";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -8,10 +10,11 @@ import { Flame, MapPin, MessageSquareQuote, RotateCw, Sparkles } from "lucide-re
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { AvatarPlayer } from "@/components/avatar-player";
+import { HumanSpecimen } from "@/app/types";
 import Image from "next/image";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
+export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpecimen }) {
   const human = {
     // facts
     userName: humanSpecimen.user?.userName ?? "Something went wrong",
@@ -30,9 +33,6 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
     voiceSassFactor: humanSpecimen.analysis.voiceSassFactor ?? 50,
     // elevenlabs-gen
     voicePreviews: humanSpecimen.voicePreviews ?? [], //this is an array of URLS for example https://c3gi8hkknvghgbjw.public.blob.vercel-storage.com/audio/7xADYsXepoZV1s1Nb1zw-Wz44iHLJfqk9FlSVvHJIsw8PL2QrxI.mp3
-    // Hedra video
-    videoUrl: humanSpecimen.videoUrl,
-    avatarImageUrl: humanSpecimen.avatarImageUrl,
   };
 
   const metrics = [
@@ -59,15 +59,17 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: any }) {
     },
   ];
 
+  const videoJobId = humanSpecimen.videoUrls?.[0]
+
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
       <Card className="bg-white/80 backdrop-blur-[16px] shadow-2xl border-none m-2">
         <CardContent className="p-8">
           <div className="flex justify-between items-start mb-8">
             <div className="flex gap-3">
-              {human.avatarImageUrl ? (
-                <AvatarPlayer videoUrl={human.videoUrl} poster={human.avatarImageUrl} />
-              ) : (
+              {videoJobId ? (
+                <AvatarPlayer jobId={videoJobId} />
+              ):(
                 <Image
                   alt="profile picture"
                   className="rounded-full w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28"

@@ -13,10 +13,7 @@ import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-const ScrambleText = ({
-                        text,
-                        loop = false,
-                      }: {
+export const ScrambleText = ({ text, loop = false }: {
   text: string;
   loop?: boolean;
 }) => {
