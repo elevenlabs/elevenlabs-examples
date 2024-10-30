@@ -6,6 +6,7 @@ import { humanSpecimenSchema } from "@/app/types";
 import { Metadata } from "next";
 import { env } from "@/env.mjs";
 import { notFound } from "next/navigation";
+import { FooterNav } from "@/components/footer-nav";
 
 export async function getData(handle: string) {
   const response = await retrieveHumanSpecimenAction({
@@ -25,11 +26,16 @@ export default async function Page({ params }) {
   const humanSpecimen = await getData(handle);
 
   if (!humanSpecimen) {
-    return notFound()
+    return notFound();
   }
 
   return (
-    <SpecimenCard humanSpecimen={humanSpecimen} />
+    <>
+      <SpecimenCard humanSpecimen={humanSpecimen} />
+      <footer>
+        <FooterNav className={"sm:fixed bottom-0 left-0 mt-10 sm:mt-0"}></FooterNav>
+      </footer>
+    </>
   );
 }
 

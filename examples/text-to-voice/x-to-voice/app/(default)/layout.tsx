@@ -7,6 +7,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { BackgroundWave } from "@/components/background-wave";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { FooterNav } from "@/components/footer-nav";
 
 export const maxDuration = 60; // Applies to the actions
 
@@ -28,9 +29,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={"h-full w-full"}>
     <body
-      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} antialiased w-full h-full flex flex-col`}
     >
     <nav className={"sm:fixed w-full top-0 left-0 flex items-center justify-between py-4 px-8"}>
       <div className={"flex"}>
@@ -63,13 +64,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </div>
     </nav>
 
-    <div className="flex flex-col min-h-screen w-full items-center justify-center sm:px-4">
+    <div className="flex flex-col flex-grow w-full items-center justify-center sm:px-4">
       {children}
       <BackgroundWave />
     </div>
     <Toaster />
     <Analytics />
     </body>
+
     </html>
   );
 }
