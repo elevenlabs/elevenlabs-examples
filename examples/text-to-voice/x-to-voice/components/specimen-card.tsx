@@ -49,14 +49,14 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
               @{human.userName}
             </Link>
           </h1>
-          <div className="flex justify-between items-start mb-8 w-full">
-            <div className="flex gap-3 w-full">
+          <div className="flex justify-between items-start w-full py-4">
+            <div className="flex sm:gap-16 md:gap-28 w-full">
               {videoJobId && (
-                <div className={"my-auto mx-auto sm:mx-0"}>
+                <div className={"flex flex-grow my-auto justify-center sm:justify-end"}>
                   <AvatarPlayer jobId={videoJobId} />
                 </div>
               )}
-              <div className={"sm:flex flex-col flex-grow justify-center items-center hidden"}>
+              <div className={"sm:flex flex-col flex-grow justify-center items-start hidden"}>
                 <h1 className="md:text-3xl text-2xl font-mono text-gray-900 mb-2">
                   <Link
                     href={`https://x.com/${human.userName}`}
