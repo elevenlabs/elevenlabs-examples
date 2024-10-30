@@ -69,7 +69,7 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
                   </h1>
                   <div className="flex gap-2 items-center justify-center">
                     <ShareOnXButton
-                      shareText={`This is what I would sound like based on my X posts: #${human.userName} #elevenlabs`}
+                      shareText={`This is what I would sound like based on my X posts using the @elevenlabsio Voice Designer`}
                     />
                     <CopyShareLink />
                   </div>
@@ -80,7 +80,7 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
           </div>
           <div className="flex gap-2 items-center justify-center sm:hidden">
             <ShareOnXButton
-              shareText={`This is what I would sound like based on my X posts: #${human.userName} #elevenlabs`}
+              shareText={`This is what I would sound like based on my X posts using the @elevenlabsio Voice Designer`}
             />
             <CopyShareLink />
           </div>
