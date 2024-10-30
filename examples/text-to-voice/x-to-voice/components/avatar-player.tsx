@@ -29,6 +29,7 @@ export function AvatarPlayer({ jobId }: {
   const [isLoading, setIsLoading] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [isVideoClicked, setIsVideoClicked] = useState(false);
 
   const toggleMuted = () => {
     if (!videoRef.current) {
@@ -42,6 +43,7 @@ export function AvatarPlayer({ jobId }: {
       videoRef.current.volume = 0.5;
       setIsMuted(false);
     }
+    setIsVideoClicked(true)
   };
 
   const toggleVideo = () => {
@@ -55,14 +57,24 @@ export function AvatarPlayer({ jobId }: {
       videoRef.current.pause();
       setIsPlaying(false);
     }
+    setIsVideoClicked(true)
+  };
+
+  const restartVideo = () => {
+    if (!videoRef.current) {
+      return;
+    }
+    videoRef.current.currentTime = 0
   };
 
   const onCharacterClick = () => {
     if (isPlaying) {
       toggleMuted();
+      restartVideo();
     } else {
       toggleVideo();
     }
+    setIsVideoClicked(true)
   };
 
   let intervalId: number | undefined = undefined;
@@ -97,6 +109,16 @@ export function AvatarPlayer({ jobId }: {
             <ScrambleTextLazy1 text={"Generating"} loop />
             <ScrambleTextLazy2 text={"Avatar"} loop></ScrambleTextLazy2>
           </div>
+          {isVideoLoaded && !isVideoClicked && (
+            <div className={"absolute inset-0 w-full h-full flex justify-center items-center"}>
+              <div
+                className={cn("absolute inset-0 w-full h-full flex flex-col justify-center items-center text-gray-700 text-xs z-10 bg-black opacity-15")}>
+              </div>
+              <PlayIcon strokeWidth={4} className={"w-7 h-7 relative opacity-80"} fill={"white"} color={"white"}></PlayIcon>
+            </div>
+
+          )}
+
           {videoUrl && !isLoading && (
             <video
               ref={videoRef}
