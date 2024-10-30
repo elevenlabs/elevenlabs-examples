@@ -30,7 +30,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={"h-full w-full"}>
     <body
-      className={`${geistSans.variable} ${geistMono.variable} antialiased w-full h-full flex flex-col`}
+      className={`${geistSans.variable} ${geistMono.variable} antialiased w-full h-full flex flex-col sm:pt-20`}
     >
     <nav className={"sm:fixed w-full top-0 left-0 flex items-center justify-between py-4 px-8"}>
       <div className={"flex"}>
