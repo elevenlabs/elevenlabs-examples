@@ -280,7 +280,7 @@ export const synthesizeHumanAction = actionClient
       await kv.set(`ttv_x:${handle}`, humanSpecimen);
     } catch (error) {
       console.error(`[TTV-X] Error processing user ${handle}:`, error);
-      throw new Error(error instanceof Error ? error.message : "Unknown error");
+      throw new Error("Something went wrong! Please try again later.");
     }
     redirect(`/${handle}`);
   });
