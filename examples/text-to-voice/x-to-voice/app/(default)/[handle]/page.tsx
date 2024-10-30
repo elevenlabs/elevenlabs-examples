@@ -33,7 +33,7 @@ export default async function Page({ params }) {
     <>
       <SpecimenCard humanSpecimen={humanSpecimen} />
       <footer>
-        <FooterNav className={"sm:fixed bottom-0 left-0 mt-10 sm:mt-0"}></FooterNav>
+        <FooterNav className={"mt-10"}></FooterNav>
       </footer>
     </>
   );
