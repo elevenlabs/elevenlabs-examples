@@ -94,7 +94,7 @@ export function AvatarPlayer({ jobId }: {
               muted
               playsInline
               loop
-              onLoadedData={() => setIsVideoLoaded(true)}
+              onCanPlayThrough={() => setIsVideoLoaded(true)}
               className={cn("opacity-0", isVideoLoaded && "opacity-100")}
               onEnded={() => setIsPlaying(false)}
             >
