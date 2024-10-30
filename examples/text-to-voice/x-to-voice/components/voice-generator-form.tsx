@@ -43,7 +43,7 @@ export function VoiceGenForm() {
             Analyze your X profile to generate a unique voice using
             ElevenLabs&apos; new{" "}
             <a
-              href="https://elevenlabs.io/docs/voices/voice-lab/voice-design"
+              href="https://elevenlabs.io/docs/api-reference/ttv-create-previews"
               rel="noopener noreferrer"
               target="_blank"
               className="font-medium text-primary underline underline-offset-4"
