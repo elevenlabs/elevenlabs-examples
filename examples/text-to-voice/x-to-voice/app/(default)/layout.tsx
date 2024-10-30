@@ -7,7 +7,6 @@ import { Analytics } from "@vercel/analytics/react";
 import { BackgroundWave } from "@/components/background-wave";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { FooterNav } from "@/components/footer-nav";
 
 export const maxDuration = 60; // Applies to the actions
 
