@@ -2,11 +2,23 @@
 
 import { useEffect, useRef, useState } from "react";
 import { DownloadIcon, PauseIcon, PlayIcon, Volume2Icon, VolumeOffIcon } from "lucide-react";
-import { ScrambleText } from "@/components/voice-generator-form";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { HedraLogo } from "@/components/logos";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+// This hack lets us show a placeholder text before React has loaded
+// the components. Optimization for slow 3G network connections.
+const ScrambleTextLazy1 = dynamic(() => import("./scramble-text"), {
+  ssr: false,
+  loading: () => <span>Generating</span>,
+});
+
+const ScrambleTextLazy2 = dynamic(() => import("./scramble-text"), {
+  ssr: false,
+  loading: () => <span>Avatar</span>,
+});
 
 export function AvatarPlayer({ jobId }: {
   jobId: string,
@@ -47,11 +59,11 @@ export function AvatarPlayer({ jobId }: {
 
   const onCharacterClick = () => {
     if (isPlaying) {
-      toggleMuted()
+      toggleMuted();
     } else {
-      toggleVideo()
+      toggleVideo();
     }
-  }
+  };
 
   let intervalId: number | undefined = undefined;
 
@@ -82,8 +94,8 @@ export function AvatarPlayer({ jobId }: {
         <div className={"flex h-[240px] w-[240px] rounded-t-lg overflow-hidden"}>
           <div
             className={cn("absolute inset-0 w-full h-full flex flex-col justify-center items-center text-gray-700 text-xs z-10", (isVideoLoaded) && "opacity-0")}>
-            <ScrambleText text={"Generating"} loop></ScrambleText>
-            <ScrambleText text={"Avatar"} loop></ScrambleText>
+            <ScrambleTextLazy1 text={"Generating"} loop />
+            <ScrambleTextLazy2 text={"Avatar"} loop></ScrambleTextLazy2>
           </div>
           {videoUrl && !isLoading && (
             <video

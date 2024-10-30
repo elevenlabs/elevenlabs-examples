@@ -7,31 +7,12 @@ import { Input } from "@/components/ui/input";
 import { useAction } from "next-safe-action/hooks";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useScramble } from "use-scramble";
 import { toast } from "sonner";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { ScrambleText } from "@/components/scramble-text";
 
-export const ScrambleText = ({ text, loop = false }: {
-  text: string;
-  loop?: boolean;
-}) => {
-  const { ref, replay } = useScramble({
-    text: text,
-    tick: 3,
-    speed: 0.6,
-    ...(loop && {
-      onAnimationEnd: () => {
-        setTimeout(() => {
-          replay();
-        }, 1000);
-      },
-    }),
-  });
-
-  return <span ref={ref} />;
-};
 
 export function VoiceGenForm() {
   const [handle, setHandle] = useState("");
