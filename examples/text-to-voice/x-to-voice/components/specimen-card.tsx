@@ -34,14 +34,20 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
     voicePreviews: humanSpecimen.voicePreviews ?? [], //this is an array of URLS for example https://c3gi8hkknvghgbjw.public.blob.vercel-storage.com/audio/7xADYsXepoZV1s1Nb1zw-Wz44iHLJfqk9FlSVvHJIsw8PL2QrxI.mp3
   };
 
-  const videoJobId = humanSpecimen.videoJobs?.[0]
+  const videoJobId = humanSpecimen.videoJobs?.[0];
 
   return (
     <div className="w-full max-w-[850px] mx-auto space-y-6">
-      <Card className="bg-white/80 backdrop-blur-[16px] shadow-2xl border-none m-2">
+      <Card className="bg-white/80 sm:backdrop-blur-[16px] sm:shadow-2xl border-none border-0 shadow-none">
         <CardContent className="flex flex-col justify-center items-center p-8">
           <h1 className="mb-4 md:text-3xl text-2xl font-mono text-gray-900 inline sm:hidden">
-            @{human.userName}
+            <Link
+              href={`https://x.com/${human.userName}`}
+              rel="noopener noreferrer"
+              target={"_blank"}
+            >
+              @{human.userName}
+            </Link>
           </h1>
           <div className="flex justify-between items-start mb-8 w-full">
             <div className="flex gap-3 w-full">
@@ -50,7 +56,7 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
                   <AvatarPlayer jobId={videoJobId} />
                 </div>
               )}
-              <div className={'sm:flex flex-col flex-grow justify-center items-center hidden'}>
+              <div className={"sm:flex flex-col flex-grow justify-center items-center hidden"}>
                 <h1 className="md:text-3xl text-2xl font-mono text-gray-900 mb-2">
                   <Link
                     href={`https://x.com/${human.userName}`}
