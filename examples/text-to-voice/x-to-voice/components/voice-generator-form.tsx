@@ -114,9 +114,9 @@ export function VoiceGenForm() {
 const QuickLinks = () => {
   const celebrities = [
     {
-      profilePicture: "/mati.jpg",
-      handle: "matistanis",
-      name: "Mati Staniszewski",
+      profilePicture: "/victoria.jpg",
+      handle: "vic_weller",
+      name: "Victoria Weller",
     },
     {
       profilePicture: "/ammaar.jpg",
