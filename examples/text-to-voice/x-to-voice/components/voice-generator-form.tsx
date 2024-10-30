@@ -53,7 +53,7 @@ export function VoiceGenForm() {
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
-      <Card className="bg-white/80 backdrop-blur-[16px] shadow-2xl border-none">
+      <Card className="bg-white/80 sm:backdrop-blur-[16px] sm:shadow-2xl border-none border-0 shadow-none">
         <CardHeader>
           <CardTitle className="text-2xl">
             What does your X profile sound like?

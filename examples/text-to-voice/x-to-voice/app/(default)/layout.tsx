@@ -63,7 +63,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </div>
     </nav>
 
-    <div className="flex flex-col min-h-screen w-full items-center justify-center px-4">
+    <div className="flex flex-col min-h-screen w-full items-center justify-center sm:px-4">
       {children}
       <BackgroundWave />
     </div>
