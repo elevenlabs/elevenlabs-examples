@@ -7,31 +7,12 @@ import { Input } from "@/components/ui/input";
 import { useAction } from "next-safe-action/hooks";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useScramble } from "use-scramble";
 import { toast } from "sonner";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { ScrambleText } from "@/components/scramble-text";
 
-export const ScrambleText = ({ text, loop = false }: {
-  text: string;
-  loop?: boolean;
-}) => {
-  const { ref, replay } = useScramble({
-    text: text,
-    tick: 3,
-    speed: 0.6,
-    ...(loop && {
-      onAnimationEnd: () => {
-        setTimeout(() => {
-          replay();
-        }, 1000);
-      },
-    }),
-  });
-
-  return <span ref={ref} />;
-};
 
 export function VoiceGenForm() {
   const [handle, setHandle] = useState("");
@@ -53,7 +34,7 @@ export function VoiceGenForm() {
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
-      <Card className="bg-white/80 backdrop-blur-[16px] shadow-2xl border-none">
+      <Card className="bg-white/80 sm:backdrop-blur-[16px] sm:shadow-2xl border-none border-0 shadow-none">
         <CardHeader>
           <CardTitle className="text-2xl">
             What does your X profile sound like?
@@ -62,7 +43,7 @@ export function VoiceGenForm() {
             Analyze your X profile to generate a unique voice using
             ElevenLabs&apos; new{" "}
             <a
-              href="https://elevenlabs.io/docs/voices/voice-lab/voice-design"
+              href="https://elevenlabs.io/docs/api-reference/ttv-create-previews"
               rel="noopener noreferrer"
               target="_blank"
               className="font-medium text-primary underline underline-offset-4"
@@ -114,9 +95,9 @@ export function VoiceGenForm() {
 const QuickLinks = () => {
   const celebrities = [
     {
-      profilePicture: "/mati.jpg",
-      handle: "matistanis",
-      name: "Mati Staniszewski",
+      profilePicture: "/victoria.jpg",
+      handle: "vic_weller",
+      name: "Victoria Weller",
     },
     {
       profilePicture: "/ammaar.jpg",

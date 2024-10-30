@@ -2,11 +2,23 @@
 
 import { useEffect, useRef, useState } from "react";
 import { DownloadIcon, PauseIcon, PlayIcon, Volume2Icon, VolumeOffIcon } from "lucide-react";
-import { ScrambleText } from "@/components/voice-generator-form";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { HedraLogo } from "@/components/logos";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+// This hack lets us show a placeholder text before React has loaded
+// the components. Optimization for slow 3G network connections.
+const ScrambleTextLazy1 = dynamic(() => import("./scramble-text"), {
+  ssr: false,
+  loading: () => <span>Generating</span>,
+});
+
+const ScrambleTextLazy2 = dynamic(() => import("./scramble-text"), {
+  ssr: false,
+  loading: () => <span>Avatar</span>,
+});
 
 export function AvatarPlayer({ jobId }: {
   jobId: string,
@@ -17,6 +29,7 @@ export function AvatarPlayer({ jobId }: {
   const [isLoading, setIsLoading] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [isVideoClicked, setIsVideoClicked] = useState(false);
 
   const toggleMuted = () => {
     if (!videoRef.current) {
@@ -30,6 +43,7 @@ export function AvatarPlayer({ jobId }: {
       videoRef.current.volume = 0.5;
       setIsMuted(false);
     }
+    setIsVideoClicked(true)
   };
 
   const toggleVideo = () => {
@@ -43,15 +57,25 @@ export function AvatarPlayer({ jobId }: {
       videoRef.current.pause();
       setIsPlaying(false);
     }
+    setIsVideoClicked(true)
+  };
+
+  const restartVideo = () => {
+    if (!videoRef.current) {
+      return;
+    }
+    videoRef.current.currentTime = 0
   };
 
   const onCharacterClick = () => {
     if (isPlaying) {
-      toggleMuted()
+      toggleMuted();
+      restartVideo();
     } else {
-      toggleVideo()
+      toggleVideo();
     }
-  }
+    setIsVideoClicked(true)
+  };
 
   let intervalId: number | undefined = undefined;
 
@@ -82,9 +106,19 @@ export function AvatarPlayer({ jobId }: {
         <div className={"flex h-[240px] w-[240px] rounded-t-lg overflow-hidden"}>
           <div
             className={cn("absolute inset-0 w-full h-full flex flex-col justify-center items-center text-gray-700 text-xs z-10", (isVideoLoaded) && "opacity-0")}>
-            <ScrambleText text={"Generating"} loop></ScrambleText>
-            <ScrambleText text={"Avatar"} loop></ScrambleText>
+            <ScrambleTextLazy1 text={"Generating"} loop />
+            <ScrambleTextLazy2 text={"Avatar"} loop></ScrambleTextLazy2>
           </div>
+          {isVideoLoaded && !isVideoClicked && (
+            <div className={"absolute inset-0 w-full h-full flex justify-center items-center"}>
+              <div
+                className={cn("absolute inset-0 w-full h-full flex flex-col justify-center items-center text-gray-700 text-xs z-10 bg-black opacity-15")}>
+              </div>
+              <PlayIcon strokeWidth={4} className={"w-7 h-7 relative opacity-80"} fill={"white"} color={"white"}></PlayIcon>
+            </div>
+
+          )}
+
           {videoUrl && !isLoading && (
             <video
               ref={videoRef}
@@ -94,7 +128,7 @@ export function AvatarPlayer({ jobId }: {
               muted
               playsInline
               loop
-              onLoadedData={() => setIsVideoLoaded(true)}
+              onCanPlayThrough={() => setIsVideoLoaded(true)}
               className={cn("opacity-0", isVideoLoaded && "opacity-100")}
               onEnded={() => setIsPlaying(false)}
             >

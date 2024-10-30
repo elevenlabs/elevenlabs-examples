@@ -34,23 +34,29 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
     voicePreviews: humanSpecimen.voicePreviews ?? [], //this is an array of URLS for example https://c3gi8hkknvghgbjw.public.blob.vercel-storage.com/audio/7xADYsXepoZV1s1Nb1zw-Wz44iHLJfqk9FlSVvHJIsw8PL2QrxI.mp3
   };
 
-  const videoJobId = humanSpecimen.videoJobs?.[0]
+  const videoJobId = humanSpecimen.videoJobs?.[0];
 
   return (
     <div className="w-full max-w-[850px] mx-auto space-y-6">
-      <Card className="bg-white/80 backdrop-blur-[16px] shadow-2xl border-none m-2">
+      <Card className="bg-white/80 sm:backdrop-blur-[16px] sm:shadow-2xl border-none border-0 shadow-none">
         <CardContent className="flex flex-col justify-center items-center p-8">
           <h1 className="mb-4 md:text-3xl text-2xl font-mono text-gray-900 inline sm:hidden">
-            @{human.userName}
+            <Link
+              href={`https://x.com/${human.userName}`}
+              rel="noopener noreferrer"
+              target={"_blank"}
+            >
+              @{human.userName}
+            </Link>
           </h1>
-          <div className="flex justify-between items-start mb-8 w-full">
-            <div className="flex gap-3 w-full">
+          <div className="flex justify-between items-start w-full py-4">
+            <div className="flex sm:gap-16 md:gap-28 w-full">
               {videoJobId && (
-                <div className={"my-auto mx-auto sm:mx-0"}>
+                <div className={"flex flex-grow my-auto justify-center sm:justify-end"}>
                   <AvatarPlayer jobId={videoJobId} />
                 </div>
               )}
-              <div className={'sm:flex flex-col flex-grow justify-center items-center hidden'}>
+              <div className={"sm:flex flex-col flex-grow justify-center items-start hidden"}>
                 <h1 className="md:text-3xl text-2xl font-mono text-gray-900 mb-2">
                   <Link
                     href={`https://x.com/${human.userName}`}
@@ -96,11 +102,11 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
               <h2 className="text-xs uppercase tracking-wide text-gray-500 mb-1">
                 Date Analyzed
               </h2>
-              <p className="text-sm text-gray-700">{human.createdAt}</p>
+              <p className="text-sm text-gray-700">{new Date(human.createdAt).toLocaleString()}</p>
             </div>
-            <QRCodeSVG value={`https://x.com/${human.userName}`} size={80} />
+            <QRCodeSVG value={`https://x.com/${human.userName}`} className={"h-10 w-10 sm:h-20 sm:w-20"} />
           </div>
-          <Link href="/">
+          <Link href="/" className={"w-full sm:w-auto"}>
             <Button className="w-full" variant={"outline"}>
               <ArrowLeftIcon className="w-4 h-4 mr-2" />
               Generate a new profile voice
