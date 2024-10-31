@@ -14,7 +14,8 @@ function XIcon({ className }: { className: string }) {
   );
 }
 
-export function ShareOnXButton({ shareText }: { shareText: string }) {
+export function ShareOnXButton() {
+  const shareText = "This is what I would sound like based on my X posts using the @elevenlabsio Voice Designer\n\nTry it yourself on xtovoice.com\n\n#xtovoice\n\n"
   function share() {
     const url = window.location.href;
     window.open(
