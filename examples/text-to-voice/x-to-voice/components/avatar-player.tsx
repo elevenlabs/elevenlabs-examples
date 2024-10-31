@@ -169,7 +169,7 @@ export function AvatarPlayer({ jobId }: {
           </Button>
         </div>
         <div className={"flex flex-grow"}>
-          <Link href={videoUrl} target={"_blank"} className={"w-full flex"}>
+          <Link href={videoUrl || ''} target={"_blank"} className={"w-full flex"}>
             <Button variant={"ghost"} className={"flex-grow"} size={"sm"} disabled={!isVideoLoaded}>
               <DownloadIcon className={"text-black"} radius={10} />
             </Button>
