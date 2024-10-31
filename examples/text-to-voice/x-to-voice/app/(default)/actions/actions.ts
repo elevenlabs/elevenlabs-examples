@@ -22,9 +22,9 @@ const synthesizeRetrieveHumanSchema = z.object({
 });
 
 const uploadAudio = async (buffer: Buffer) => {
-  const fileBlob = new Blob([buffer], { type: 'audio/mpeg' });
+  const fileBlob = new Blob([buffer], { type: "audio/mpeg" });
   const formData = new FormData();
-  formData.append('file', fileBlob, 'audio.mp3');
+  formData.append("file", fileBlob, "audio.mp3");
   const audioResponse = await fetch(
     "https://mercury.dev.dream-ai.com/api/v1/audio",
     {
@@ -41,10 +41,9 @@ const uploadAudio = async (buffer: Buffer) => {
 
 const uploadImage = async (imageUrl: string) => {
   const imageResponse = await fetch(imageUrl);
-  console.log();
   const imageBlob = await imageResponse.blob();
   const formData = new FormData();
-  formData.append('file', imageBlob, 'image.jpg');
+  formData.append("file", imageBlob, "image.jpg");
   const audioResponse = await fetch(
     "https://mercury.dev.dream-ai.com/api/v1/portrait",
     {
@@ -89,16 +88,19 @@ export async function getJobStatus(jobId: string) {
   return status;
 }
 
-const createCharacter = async ({ voiceBuffer, profilePicture }: { voiceBuffer: Buffer, profilePicture: string }) => {
+const createCharacter = async ({ voiceBuffer, profilePicture }: {
+  voiceBuffer: Buffer,
+  profilePicture: string
+}): Promise<string | undefined> => {
   const [audioData, imageData] = await Promise.all([
     await uploadAudio(voiceBuffer),
-    await uploadImage(profilePicture)
+    await uploadImage(profilePicture),
   ]);
   const voiceUrl = audioData["url"];
   const avatarImage = imageData["url"];
-  const requestBody = { "audioSource": "audio", voiceUrl, avatarImage, };
+  const requestBody = { "audioSource": "audio", voiceUrl, avatarImage };
   const statusData = await createVideo(requestBody);
-  return statusData['jobId'];
+  return statusData["jobId"];
 };
 
 async function getAnalysis(user: XProfile) {
@@ -273,10 +275,21 @@ export const synthesizeHumanAction = actionClient
           ),
         ]);
 
-      const jobId = await createCharacter({
+      let jobId = await createCharacter({
         voiceBuffer: audioBuffer1,
-        profilePicture: user.profilePicture
-      })
+        profilePicture: user.profilePicture,
+      });
+
+      if (!jobId) {
+        jobId = await createCharacter({
+          voiceBuffer: audioBuffer1,
+          profilePicture: user.profilePicture,
+        });
+      }
+
+      if (!jobId) {
+        throw Error("Couldn't create character.")
+      }
 
       const humanSpecimen = humanSpecimenSchema.parse({
         user,
