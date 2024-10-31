@@ -19,7 +19,7 @@ export const tweetSchema = z.object({
   isReply: z.boolean(),
 })
 
-export const userSchema = z.object({
+export const xProfileSchema = z.object({
   name: z.string(),
   description: z.string(),
   profilePicture: z.string(),
@@ -30,9 +30,11 @@ export const userSchema = z.object({
   tweets: z.array(tweetSchema),
 });
 
+export type XProfile = z.infer<typeof xProfileSchema>
+
 export const humanSpecimenSchema = z.object({
   analysis: analysisSchema,
-  user: userSchema,
+  user: xProfileSchema,
   timestamp: z.string(),
   videoJobs: z.array(z.string()).optional(),
   voicePreviews: z.array(z.string()).optional(),

@@ -10,7 +10,7 @@ import { zodResponseFormat } from "openai/helpers/zod";
 import OpenAI from "openai";
 import { put } from "@vercel/blob";
 import { env } from "@/env.mjs";
-import { analysisSchema, humanSpecimenSchema, userSchema } from "@/app/types";
+import { analysisSchema, humanSpecimenSchema, XProfile, xProfileSchema } from "@/app/types";
 
 const kv = new Redis({
   url: env.KV_REST_API_URL,
@@ -101,6 +101,48 @@ const createCharacter = async ({ voiceBuffer, profilePicture }: { voiceBuffer: B
   return statusData['jobId'];
 };
 
+async function getAnalysis(user: XProfile) {
+  const openai = new OpenAI({ apiKey: env.OPEN_AI_API_KEY });
+  const completion = await openai.beta.chat.completions.parse({
+    model: "gpt-4o-2024-08-06",
+    messages: [
+      {
+        role: "system",
+        content:
+          "You are an insightful analyst who humorously examines human social media behavior. While your analysis can be playful and witty, when it comes to describing the human's voice in the 'textToVoicePrompt', be as detailed and descriptive as possible, focusing on accurate vocal characteristics without any humor or alien/robot references.",
+      },
+      {
+        role: "user",
+        content: `Analyze this X (Twitter) user profile and their recent tweets. Provide a humorous perspective on their online persona, but create a detailed 'textToVoicePrompt' for voice recreation that is descriptive and free of any humorous or robotic elements. Include the following information:
+                      - **Essence Description**: A short, witty summary of the user.
+                      - **Age Stratum**: Estimated age range.
+                      - **Characteristics**: A list of personality traits or attributes they must be funny.
+                      - **Specimen Metrics**:
+                        - **Voice Ferocity (0-100)**: How aggressive or assertive the user's voice might be.
+                        - **Sarcasm Quotient (0-100)**: Likelihood of snark or irony in vocal patterns.
+                        - **Sass Factor (0-100)**: The user's flair for delivering sass.
+                      - **Genesis Date**: The era or decade the user seems to belong to.
+                      - **TextToVoicePrompt**: A detailed and neutral description for recreating the user's voice, focusing on tone, pitch, pace, location, gender (important) and other vocal qualities. Exaggerate the tone based on their x profile. Never mention their name here, especially if they are famous.
+                      - **TextToGenerate**: Some demo text, to test out the new voice, as if the user was reading it themselves. Must be somewhat relevant to context and humurous. Must be between 101 & 700 characters long (keep it on the shorter end, around 120 characters)
+                      
+                      Here is the user's data:
+                      
+                      Name: ${user.name}
+                      Location: ${user.location}
+                      Bio: ${user.description}
+                      Followers: ${user.followers}
+                      Following: ${user.following}
+                      Recent tweets: ${user.tweets.map(t => t.text).join("\n")}
+          `,
+      },
+    ],
+    response_format: zodResponseFormat(analysisSchema, "analysis"),
+  });
+
+  const analysis = completion.choices[0].message.parsed;
+  return analysis;
+}
+
 export const synthesizeHumanAction = actionClient
   .schema(synthesizeRetrieveHumanSchema)
   .action(async ({ parsedInput: { handle: inputHandle }, ctx: { ip } }) => {
@@ -150,7 +192,7 @@ export const synthesizeHumanAction = actionClient
         followers: userProfile?.followers || 0,
       });
 
-      const user = userSchema.parse({
+      const user = xProfileSchema.parse({
         name: userProfile.name,
         userName: userProfile.userName,
         profilePicture: userProfile.profilePicture.replace(/_normal(?=\.\w+$)/, ""),
@@ -168,44 +210,10 @@ export const synthesizeHumanAction = actionClient
       });
 
       console.info(`[TTV-X] Starting OpenAI analysis for ${handle}`);
-      const openai = new OpenAI({ apiKey: env.OPEN_AI_API_KEY });
-      const completion = await openai.beta.chat.completions.parse({
-        model: "gpt-4o-2024-08-06",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are an insightful analyst who humorously examines human social media behavior. While your analysis can be playful and witty, when it comes to describing the human's voice in the 'textToVoicePrompt', be as detailed and descriptive as possible, focusing on accurate vocal characteristics without any humor or alien/robot references.",
-          },
-          {
-            role: "user",
-            content: `Analyze this X (Twitter) user profile and their recent tweets. Provide a humorous perspective on their online persona, but create a detailed 'textToVoicePrompt' for voice recreation that is descriptive and free of any humorous or robotic elements. Include the following information:
-                      - **Essence Description**: A short, witty summary of the user.
-                      - **Age Stratum**: Estimated age range.
-                      - **Characteristics**: A list of personality traits or attributes they must be funny.
-                      - **Specimen Metrics**:
-                        - **Voice Ferocity (0-100)**: How aggressive or assertive the user's voice might be.
-                        - **Sarcasm Quotient (0-100)**: Likelihood of snark or irony in vocal patterns.
-                        - **Sass Factor (0-100)**: The user's flair for delivering sass.
-                      - **Genesis Date**: The era or decade the user seems to belong to.
-                      - **TextToVoicePrompt**: A detailed and neutral description for recreating the user's voice, focusing on tone, pitch, pace, location, gender (important) and other vocal qualities. Exaggerate the tone based on their x profile. Never mention their name here, especially if they are famous.
-                      - **TextToGenerate**: Some demo text, to test out the new voice, as if the user was reading it themselves. Must be somewhat relevant to context and humurous. Must be between 101 & 700 characters (keep it on the shorter end, around 120 characters)
-                      
-                      Here is the user's data:
-                      
-                      Name: ${user.name}
-                      Location: ${user.location}
-                      Bio: ${user.description}
-                      Followers: ${user.followers}
-                      Following: ${user.following}
-                      Recent tweets: ${user.tweets.map(t => t.text).join("\n")}
-          `,
-          },
-        ],
-        response_format: zodResponseFormat(analysisSchema, "analysis"),
-      });
-
-      const analysis = completion.choices[0].message.parsed;
+      let analysis = await getAnalysis(user);
+      if (analysis.textToGenerate.length < 101 || analysis.textToGenerate.length > 700) {
+        analysis = await getAnalysis(user);
+      }
       console.info(
         `[TTV-X] Human analysis complete: ${JSON.stringify(analysis)}`,
       );
