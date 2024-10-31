@@ -43,7 +43,7 @@ export function AvatarPlayer({ jobId }: {
       videoRef.current.volume = 0.5;
       setIsMuted(false);
     }
-    setIsVideoClicked(true)
+    setIsVideoClicked(true);
   };
 
   const toggleVideo = () => {
@@ -57,14 +57,14 @@ export function AvatarPlayer({ jobId }: {
       videoRef.current.pause();
       setIsPlaying(false);
     }
-    setIsVideoClicked(true)
+    setIsVideoClicked(true);
   };
 
   const restartVideo = () => {
     if (!videoRef.current) {
       return;
     }
-    videoRef.current.currentTime = 0
+    videoRef.current.currentTime = 0;
   };
 
   const onCharacterClick = () => {
@@ -74,7 +74,7 @@ export function AvatarPlayer({ jobId }: {
     } else {
       toggleVideo();
     }
-    setIsVideoClicked(true)
+    setIsVideoClicked(true);
   };
 
   let intervalId: number | undefined = undefined;
@@ -114,7 +114,8 @@ export function AvatarPlayer({ jobId }: {
               <div
                 className={cn("absolute inset-0 w-full h-full flex flex-col justify-center items-center text-gray-700 text-xs z-10 bg-black opacity-15")}>
               </div>
-              <PlayIcon strokeWidth={4} className={"w-7 h-7 relative opacity-80"} fill={"white"} color={"white"}></PlayIcon>
+              <PlayIcon strokeWidth={4} className={"w-7 h-7 relative opacity-80"} fill={"white"}
+                        color={"white"}></PlayIcon>
             </div>
 
           )}
@@ -168,9 +169,12 @@ export function AvatarPlayer({ jobId }: {
           </Button>
         </div>
         <div className={"flex flex-grow"}>
-          <Button variant={"ghost"} className={"flex-grow"} size={"sm"} disabled={!isVideoLoaded}>
-            <DownloadIcon className={"text-black"} radius={10} />
-          </Button>
+          <Link href={videoUrl} target={"_blank"} className={"w-full flex"}>
+            <Button variant={"ghost"} className={"flex-grow"} size={"sm"} disabled={!isVideoLoaded}>
+              <DownloadIcon className={"text-black"} radius={10} />
+            </Button>
+          </Link>
+
         </div>
 
       </div>
