@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { VoicePreviews } from "@/components/voice-previews";
 import { CopyShareLink, ShareOnXButton } from "@/components/share-button";
-import { ArrowLeftIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { AvatarPlayer } from "@/components/avatar-player";
@@ -90,7 +90,13 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
               What is this?
             </h2>
             <blockquote className="border-l-2 pl-3 text-sm text-gray-700 leading-relaxed italic">
-              This fully open-source project shows what can be built with the new <Link href={"https://elevenlabs.io/docs/api-reference/ttv-create-previews"} className={"font-semibold"} target={"_blank"}>ElevenLabs Voice Designer API</Link>. We use the data from the X/Twitter profile to create a prompt for what the voice might sound like. We then create the voice using the <Link href={"https://elevenlabs.io/docs/api-reference/ttv-create-previews"} className={"underline"} target={"_blank"}>ElevenLabs Voice Design API</Link> and the video using the <Link href={"https://www.hedra.com/"} className={"underline"} target={"_blank"}>Hedra video API</Link>.
+              This fully open-source project shows what can be built with the new <Link
+              href={"https://elevenlabs.io/docs/api-reference/ttv-create-previews"} className={"font-semibold"}
+              target={"_blank"}>ElevenLabs Voice Designer API</Link>. We use the data from the X/Twitter profile to
+              create a prompt for what the voice might sound like. We then create the voice using the <Link
+              href={"https://elevenlabs.io/docs/api-reference/ttv-create-previews"} className={"underline"}
+              target={"_blank"}>ElevenLabs Voice Design API</Link> and the video using the <Link
+              href={"https://www.hedra.com/"} className={"underline"} target={"_blank"}>Hedra video API</Link>.
             </blockquote>
           </div>
           <div className="mt-4">
@@ -117,9 +123,9 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
             <QRCodeSVG value={`https://x.com/${human.userName}`} className={"h-10 w-10 sm:h-20 sm:w-20"} />
           </div>
           <Link href="/" className={"w-full sm:w-auto"}>
-            <Button className="w-full" variant={"outline"}>
-              <ArrowLeftIcon className="w-4 h-4 mr-2" />
-              Generate a new profile voice
+            <Button className="flex">
+              <PlusIcon className="w-4 h-4" />
+              New voice avatar
             </Button>
           </Link>
         </CardContent>
