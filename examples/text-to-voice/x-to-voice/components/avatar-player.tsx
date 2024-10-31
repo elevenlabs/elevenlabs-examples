@@ -91,7 +91,7 @@ export function AvatarPlayer({ jobId }: {
       setVideoUrl(data.videoUrl);
       setIsLoading(false);
     } catch {
-      intervalId = window.setTimeout(fetchCharacter, 2000);
+      intervalId = window.setTimeout(fetchCharacter, 4000);
     }
   }
 
