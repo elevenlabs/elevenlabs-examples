@@ -69,7 +69,7 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
                   </h1>
                   <div className="flex gap-2 items-center justify-center">
                     <ShareOnXButton
-                      shareText={`This is what I would sound like based on my X posts using the @elevenlabsio Voice Designer`}
+                      shareText={`This is what I would sound like based on my X posts using the @elevenlabsio Voice Designer #xtovoice`}
                     />
                     <CopyShareLink />
                   </div>
