@@ -9,7 +9,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-export const maxDuration = 60; // Applies to the actions
+export const maxDuration = 90; // Applies to the actions
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
