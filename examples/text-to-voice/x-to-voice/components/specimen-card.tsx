@@ -85,6 +85,14 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
             <CopyShareLink />
           </div>
           <Separator className="my-6" />
+          <div className="mt-4 w-full">
+            <h2 className="text-xs uppercase tracking-wide text-gray-500 mb-3">
+              What is this?
+            </h2>
+            <blockquote className="border-l-2 pl-3 text-sm text-gray-700 leading-relaxed italic">
+              This fully open-source project shows what can be built with the new <Link href={"https://elevenlabs.io/docs/api-reference/ttv-create-previews"} className={"font-semibold"}>ElevenLabs Voice Designer API</Link>. We use the data from the X/Twitter profile to create a prompt for what the voice might sound like. We then create the voice using the <Link href={"https://elevenlabs.io/docs/api-reference/ttv-create-previews"} className={"underline"}>ElevenLabs Voice Design API</Link> and the video using the <Link href={"https://www.hedra.com/"} className={"underline"}>Hedra video API</Link>.
+            </blockquote>
+          </div>
           <div className="mt-4">
             <h2 className="text-xs uppercase tracking-wide text-gray-500 mb-3">
               Voice Description
