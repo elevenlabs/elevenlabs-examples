@@ -66,7 +66,7 @@ export function VoiceGenForm() {
                 />
                 <Input
                   id="twitter-handle"
-                  placeholder="username i.e. johndoe"
+                  placeholder="username e.g. matistanis"
                   value={handle}
                   onChange={e => setHandle(e.target.value)}
                   disabled={status === "executing"}
