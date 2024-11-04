@@ -2,6 +2,8 @@ import { MetadataRoute } from "next";
 import { Redis } from "@upstash/redis";
 import { env } from "@/env.mjs";
 
+export const maxDuration = 60;
+
 const kv = new Redis({
   url: env.KV_REST_API_URL,
   token: env.KV_REST_API_TOKEN,
