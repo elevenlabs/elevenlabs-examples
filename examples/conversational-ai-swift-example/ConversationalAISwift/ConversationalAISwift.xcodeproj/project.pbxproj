@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BF5D8A802CDA218900E1EEE4 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = BF5D8A7F2CDA218900E1EEE4 /* Starscream */; };
+		BFEEC4212CDBA8B40038DF7F /* ElevenLabsSDK in Frameworks */ = {isa = PBXBuildFile; productRef = BFEEC4202CDBA8B40038DF7F /* ElevenLabsSDK */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,7 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BF5D8A802CDA218900E1EEE4 /* Starscream in Frameworks */,
+				BFEEC4212CDBA8B40038DF7F /* ElevenLabsSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,7 +70,7 @@
 			);
 			name = ConversationalAISwift;
 			packageProductDependencies = (
-				BF5D8A7F2CDA218900E1EEE4 /* Starscream */,
+				BFEEC4202CDBA8B40038DF7F /* ElevenLabsSDK */,
 			);
 			productName = ConversationalAISwift;
 			productReference = BF5D8A6B2CDA213E00E1EEE4 /* ConversationalAISwift.app */;
@@ -101,7 +101,7 @@
 			mainGroup = BF5D8A622CDA213E00E1EEE4;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				BF5D8A7E2CDA218900E1EEE4 /* XCRemoteSwiftPackageReference "Starscream" */,
+				BFEEC41F2CDBA8B40038DF7F /* XCLocalSwiftPackageReference "../../../../ElevenLabsSwift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BF5D8A6C2CDA213E00E1EEE4 /* Products */;
@@ -338,22 +338,17 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		BF5D8A7E2CDA218900E1EEE4 /* XCRemoteSwiftPackageReference "Starscream" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/daltoniam/Starscream";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.8;
-			};
+/* Begin XCLocalSwiftPackageReference section */
+		BFEEC41F2CDBA8B40038DF7F /* XCLocalSwiftPackageReference "../../../../ElevenLabsSwift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../../../ElevenLabsSwift;
 		};
-/* End XCRemoteSwiftPackageReference section */
+/* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		BF5D8A7F2CDA218900E1EEE4 /* Starscream */ = {
+		BFEEC4202CDBA8B40038DF7F /* ElevenLabsSDK */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = BF5D8A7E2CDA218900E1EEE4 /* XCRemoteSwiftPackageReference "Starscream" */;
-			productName = Starscream;
+			productName = ElevenLabsSDK;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

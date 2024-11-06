@@ -1,6 +1,9 @@
 import SwiftUI
+import ElevenLabsSDK
+import _Concurrency
+
 struct OrbView: View {
-    let mode: ElevenLabsSDK.ConversationMode
+    let mode: ElevenLabsSDK.Mode
     let audioLevel: Float
     
     private var iconName: String {
@@ -43,27 +46,126 @@ struct OrbView: View {
     }
 }
 
-// Updated main view
 struct ConversationalAIExampleView: View {
-    @ObservedObject private var sdk = ElevenLabsSDK.shared
     @State private var currentAgentIndex = 0
+    @State private var conversation: ElevenLabsSDK.Conversation?
+    @State private var audioLevel: Float = 0.0
+    @State private var mode: ElevenLabsSDK.Mode = .listening
+    @State private var status: ElevenLabsSDK.Status = .disconnected
     
     let agents = [
         Agent(
-            id: "<REPLACE-WITH-YOUR-AGENT-ID>",
+            id: "<insert agent id here>",
             name: "Matilda",
             description: "Math tutor"
+        ),
+        Agent(
+            id: "<insert agent id here>",
+            name: "Eric",
+            description: "Support agent"
+        ),
+        Agent(
+            id: "<insert agent id here>",
+            name: "Callum",
+            description: "Video game character"
         )
     ]
     
-    private func beginConversation(agent: Agent) {
-        if sdk.connectionStatus == .connected {
-            sdk.endConversation()
-        } else {
-            sdk.configure(with: .init(agentId: agent.id))
-            sdk.startConversation()
+    // MARK: - Functions
+    private func startConversation() {
+        let config = ElevenLabsSDK.SessionConfig(agentId: "wer")
+        conversation?.startRecording()
+        
+        Task {
+            do {
+                var callbacks = ElevenLabsSDK.Callbacks()
+                callbacks.onConnect = { conversationId in
+                    print("Connected with conversation ID: \(conversationId)")
+                }
+                callbacks.onDisconnect = {
+                    print("Disconnected")
+                }
+                callbacks.onMessage = { message, role in
+                    DispatchQueue.main.async {
+                        print(message)
+                    }
+                }
+                callbacks.onError = { errorMessage, _ in
+                    print("Error: \(errorMessage)")
+                }
+                callbacks.onStatusChange = { newStatus in
+                    DispatchQueue.main.async {
+                        
+                    }
+                }
+                callbacks.onModeChange = { newMode in
+                    DispatchQueue.main.async {
+                        
+                    }
+                }
+                
+                conversation = try await ElevenLabsSDK.Conversation.startSession(config: config, callbacks: callbacks)
+            } catch {
+                print("Failed to start conversation: \(error.localizedDescription)")
+            }
         }
     }
+    private func beginConversation(agent: Agent) {
+        if status == .connected {
+            conversation?.endSession()
+            conversation = nil
+        } else {
+            Task {
+                do {
+                    let config = ElevenLabsSDK.SessionConfig(agentId: agent.id)
+                    var callbacks = ElevenLabsSDK.Callbacks()
+                    
+                    callbacks.onConnect = { conversationId in
+                        
+                        status = .connected
+                    }
+                    callbacks.onDisconnect = {
+                        
+                        status = .disconnected
+                    }
+                    callbacks.onMessage = { message, role in
+                        DispatchQueue.main.async {
+                            print(message)
+                        }
+                    }
+                    
+                    callbacks.onError = { errorMessage, _ in
+                        print("Error: \(errorMessage)")
+                    }
+                    
+                    // Move these callbacks out from inside onStatusChange
+                    callbacks.onStatusChange = { newStatus in
+                        DispatchQueue.main.async {
+                            status = newStatus
+                        }
+                    }
+                    
+                    callbacks.onModeChange = { newMode in
+                        DispatchQueue.main.async {
+                            mode = newMode
+                        }
+                    }
+                    
+                    callbacks.onVolumeUpdate = { newVolume in
+                        DispatchQueue.main.async {
+                            audioLevel = newVolume
+                        }
+                    }
+                    
+                    conversation = try await ElevenLabsSDK.Conversation.startSession(config: config, callbacks: callbacks)
+                } catch {
+                    print("Error starting conversation: \(error)")
+                }
+            }
+        }
+    }
+    
+    
     
     var body: some View {
         ZStack {
@@ -71,7 +173,7 @@ struct ConversationalAIExampleView: View {
                 VStack {
                     Spacer()
                     
-                    OrbView(mode: sdk.currentMode, audioLevel: sdk.audioLevel)
+                    OrbView(mode: mode, audioLevel: audioLevel)
                         .padding(.bottom, 20)
                     
                     Text(agents[currentAgentIndex].name)
@@ -83,7 +185,7 @@ struct ConversationalAIExampleView: View {
                         .foregroundColor(.gray)
                     
                     HStack(spacing: 8) {
-                        ForEach(0..<agents.count, id: \.self) { index in
+                        ForEach(0..<agents.count, id: \ .self) { index in
                             Circle()
                                 .fill(index == currentAgentIndex ? Color.black : Color.gray)
                                 .frame(width: 8, height: 8)
@@ -94,7 +196,7 @@ struct ConversationalAIExampleView: View {
                     Spacer()
                     
                     CallButton(
-                        connectionStatus: sdk.connectionStatus,
+                        connectionStatus: status,
                         action: { beginConversation(agent: agents[currentAgentIndex]) }
                     )
                 }
@@ -114,7 +216,7 @@ struct ConversationalAIExampleView: View {
         .gesture(
             DragGesture()
                 .onEnded { value in
-                    guard sdk.connectionStatus != .connected else { return }
+                    guard status != .connected else { return }
                     
                     if value.translation.width < 0 && currentAgentIndex < agents.count - 1 {
                         currentAgentIndex += 1
@@ -128,7 +230,7 @@ struct ConversationalAIExampleView: View {
 
 // MARK: - Call Button Component
 struct CallButton: View {
-    let connectionStatus: ElevenLabsSDK.ConnectionStatus
+    let connectionStatus: ElevenLabsSDK.Status
     let action: () -> Void
     
     private var buttonIcon: String {
@@ -171,7 +273,6 @@ struct CallButton: View {
         .padding(.bottom, 40)
     }
 }
-
 
 // MARK: - Types and Preview
 struct Agent {
