@@ -43,7 +43,7 @@ async def get_signed_url():
             data = response.json()
             return {"signedUrl": data["signed_url"]}
             
-        except httpx.HTTPError as e:
+        except httpx.HTTPError:
             raise HTTPException(status_code=500, detail="Failed to get signed URL")
 
 # Mount static files for specific assets (CSS, JS, etc.)
