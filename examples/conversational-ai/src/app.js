@@ -60,7 +60,6 @@ async function startConversation() {
         const signedUrl = await getSignedUrl();
         //const agentId = await getAgentId(); // You can switch to agentID for public agents
         
-        console.log(signedUrl)
         conversation = await Conversation.startSession({
             signedUrl: signedUrl,
             //agentId: agentId, // You can switch to agentID for public agents
