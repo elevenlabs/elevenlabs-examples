@@ -8,7 +8,7 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../dist')));
+app.use('/static', express.static(path.join(__dirname, '../dist')));
 
 app.get('/api/signed-url', async (req, res) => {
     try {
@@ -32,6 +32,14 @@ app.get('/api/signed-url', async (req, res) => {
         console.error('Error:', error);
         res.status(500).json({ error: 'Failed to get signed URL' });
     }
+});
+
+//API route for getting Agent ID, used for public agents
+app.get('/api/getAgentId', (req, res) => {
+    const agentId = process.env.AGENT_ID;
+    res.json({ 
+        agentId: `${agentId}` 
+    });
 });
 
 // Serve index.html for all other routes

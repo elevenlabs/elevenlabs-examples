@@ -6,7 +6,6 @@ from fastapi.middleware.cors import CORSMiddleware
 import httpx
 import os
 from dotenv import load_dotenv
-from pathlib import Path
 
 # Load environment variables
 load_dotenv()
@@ -46,21 +45,17 @@ async def get_signed_url():
         except httpx.HTTPError:
             raise HTTPException(status_code=500, detail="Failed to get signed URL")
 
+
+#API route for getting Agent ID, used for public agents
+@app.get("/api/getAgentId")
+def get_unsigned_url():
+    agent_id = os.getenv("AGENT_ID")
+    return {"agentId": agent_id}
+
 # Mount static files for specific assets (CSS, JS, etc.)
 app.mount("/static", StaticFiles(directory="dist"), name="static")
 
 # Serve index.html for root path
 @app.get("/")
 async def serve_root():
-    return FileResponse("dist/index.html")
-
-# Catch-all route to serve index.html for client-side routing
-@app.get("/{full_path:path}")
-async def serve_spa(full_path: str):
-    # First try to serve from static directory
-    static_file = Path(f"dist/{full_path}")
-    if static_file.exists() and static_file.is_file():
-        return FileResponse(static_file)
-    
-    # If not found, serve index.html for client-side routing
     return FileResponse("dist/index.html")

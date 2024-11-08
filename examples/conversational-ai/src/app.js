@@ -25,6 +25,12 @@ async function getSignedUrl() {
     }
 }
 
+async function getAgentId() {
+    const response = await fetch('/api/getAgentId');
+    const { agentId } = await response.json();
+    return agentId;
+}
+
 function updateStatus(isConnected) {
     const statusElement = document.getElementById('connectionStatus');
     statusElement.textContent = isConnected ? 'Connected' : 'Disconnected';
@@ -52,9 +58,11 @@ async function startConversation() {
         }
 
         const signedUrl = await getSignedUrl();
+        //const agentId = await getAgentId(); // You can switch to agentID for public agents
         
         conversation = await Conversation.startSession({
-            signedUrl,
+            signedUrl: signedUrl,
+            //agentId: agentId, // You can switch to agentID for public agents
             onConnect: () => {
                 console.log('Connected');
                 updateStatus(true);
