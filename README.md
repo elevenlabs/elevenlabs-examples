@@ -1,8 +1,15 @@
-# ElevenLabs Examples
+<p align="center">
+  <a href="https://elevenlabs.io">
+    <h3 align="center">ElevenLabs Examples</h3>
+  </a>
+</p>
 
-This collection of demos and projects showcases the ElevenLabs API and how you can start building next generation AI audio apps with it. Whether you're looking to integrate text-to-speech into your website, create dubbed content, or explore advanced audio applications, you'll find valuable resources here.
+This collection of demos and projects showcases the ElevenLabs API and how you can start building next generation AI audio apps with it. Whether you're looking to integrate text-to-speech into your website, create dubbed content, or explore advanced conversational applications, you'll find valuable resources here.
 
 ## 🚀 Featured Projects
+
+### Conversational AI Demos
+These projects offer practical examples of building real-time, voice-driven applications with rich interactivity.
 
 ### Text-to-Speech (TTS) Demos
 - **Standard TTS Demo**: A straightforward implementation of our core TTS functionality.
