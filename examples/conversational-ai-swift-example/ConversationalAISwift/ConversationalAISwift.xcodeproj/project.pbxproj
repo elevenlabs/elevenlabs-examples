@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BFEEC4212CDBA8B40038DF7F /* ElevenLabsSDK in Frameworks */ = {isa = PBXBuildFile; productRef = BFEEC4202CDBA8B40038DF7F /* ElevenLabsSDK */; };
+		BFB984172CE2501C00E9087A /* ElevenLabsSDK in Frameworks */ = {isa = PBXBuildFile; productRef = BFB984162CE2501C00E9087A /* ElevenLabsSDK */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,7 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BFEEC4212CDBA8B40038DF7F /* ElevenLabsSDK in Frameworks */,
+				BFB984172CE2501C00E9087A /* ElevenLabsSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,7 +70,7 @@
 			);
 			name = ConversationalAISwift;
 			packageProductDependencies = (
-				BFEEC4202CDBA8B40038DF7F /* ElevenLabsSDK */,
+				BFB984162CE2501C00E9087A /* ElevenLabsSDK */,
 			);
 			productName = ConversationalAISwift;
 			productReference = BF5D8A6B2CDA213E00E1EEE4 /* ConversationalAISwift.app */;
@@ -101,7 +101,7 @@
 			mainGroup = BF5D8A622CDA213E00E1EEE4;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				BFEEC41F2CDBA8B40038DF7F /* XCLocalSwiftPackageReference "../../../../ElevenLabsSwift" */,
+				BF7C81012CE24FA600D2C589 /* XCRemoteSwiftPackageReference "ElevenLabsSwift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BF5D8A6C2CDA213E00E1EEE4 /* Products */;
@@ -338,16 +338,21 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		BFEEC41F2CDBA8B40038DF7F /* XCLocalSwiftPackageReference "../../../../ElevenLabsSwift" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../../../ElevenLabsSwift;
+/* Begin XCRemoteSwiftPackageReference section */
+		BF7C81012CE24FA600D2C589 /* XCRemoteSwiftPackageReference "ElevenLabsSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/elevenlabs/ElevenLabsSwift.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
 		};
-/* End XCLocalSwiftPackageReference section */
+/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		BFEEC4202CDBA8B40038DF7F /* ElevenLabsSDK */ = {
+		BFB984162CE2501C00E9087A /* ElevenLabsSDK */ = {
 			isa = XCSwiftPackageProductDependency;
+			package = BF7C81012CE24FA600D2C589 /* XCRemoteSwiftPackageReference "ElevenLabsSwift" */;
 			productName = ElevenLabsSDK;
 		};
 /* End XCSwiftPackageProductDependency section */
