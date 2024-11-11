@@ -1,9 +1,8 @@
 # Experimental ElevenLabsSwift Chat Demo
 
+![readme-image](https://github.com/user-attachments/assets/46639581-b209-4027-8980-c8937d1e45c9)
+
 This is a simple SwiftUI chat application demonstrating the use of the ElevenLabsSwift library for conversational AI features.
-
-![readme-image](https://github.com/user-attachments/assets/afdc5e96-9519-4f09-a5d5-c22a7dc9c721)
-
 ## Features
 
 - Start and end conversations
