@@ -172,7 +172,7 @@ export const synthesizeHumanAction = actionClient
       });
       const run = await apifyClient.actor("apidojo/tweet-scraper").call({
         twitterHandles: [handle],
-        maxItems: 5,
+        maxItems: 100,
       });
       console.info(
         `[TTV-X] Apify run created with ID: ${run.defaultDatasetId}`,
@@ -202,7 +202,7 @@ export const synthesizeHumanAction = actionClient
         location: userProfile.location,
         followers: userProfile.followers,
         following: userProfile.following,
-        tweets: items.map(tweet => ({
+        tweets: items.slice(0, 10).map(tweet => ({
           id: tweet.id,
           text: tweet.text,
           isRetweet: tweet.isRetweet,
