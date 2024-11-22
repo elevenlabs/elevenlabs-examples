@@ -55,61 +55,22 @@ struct ConversationalAIExampleView: View {
     
     let agents = [
         Agent(
-            id: "<insert agent id here>",
+            id: "<insert-agent-url-here>",
             name: "Matilda",
             description: "Math tutor"
         ),
         Agent(
-            id: "<insert agent id here>",
+            id: "<insert-agent-url-here>",
             name: "Eric",
             description: "Support agent"
         ),
         Agent(
-            id: "<insert agent id here>",
+            id: "<insert-agent-url-here>",
             name: "Callum",
             description: "Video game character"
         )
     ]
-    
-    // MARK: - Functions
-    private func startConversation() {
-        let config = ElevenLabsSDK.SessionConfig(agentId: "wer")
-        conversation?.startRecording()
-        
-        Task {
-            do {
-                var callbacks = ElevenLabsSDK.Callbacks()
-                callbacks.onConnect = { conversationId in
-                    print("Connected with conversation ID: \(conversationId)")
-                }
-                callbacks.onDisconnect = {
-                    print("Disconnected")
-                }
-                callbacks.onMessage = { message, role in
-                    DispatchQueue.main.async {
-                        print(message)
-                    }
-                }
-                callbacks.onError = { errorMessage, _ in
-                    print("Error: \(errorMessage)")
-                }
-                callbacks.onStatusChange = { newStatus in
-                    DispatchQueue.main.async {
-                        
-                    }
-                }
-                callbacks.onModeChange = { newMode in
-                    DispatchQueue.main.async {
-                        
-                    }
-                }
-                
-                conversation = try await ElevenLabsSDK.Conversation.startSession(config: config, callbacks: callbacks)
-            } catch {
-                print("Failed to start conversation: \(error.localizedDescription)")
-            }
-        }
-    }
+
     private func beginConversation(agent: Agent) {
         if status == .connected {
             conversation?.endSession()
@@ -117,6 +78,20 @@ struct ConversationalAIExampleView: View {
         } else {
             Task {
                 do {
+                    // If you would like to override an agent, uncoming the following lines:
+                    /*
+                     let promptOverride = ElevenLabsSDK.AgentPrompt(prompt: "You are a pleasant assistant called Eric, supporting a customer called Louis.")
+                     let agentConfig = ElevenLabsSDK.AgentConfig(
+                         prompt: promptOverride,
+                         firstMessage: "Hi, Louis! I'm Eric, your friendly assistant.",
+                         language: .en
+                     )
+                     let overrides = ElevenLabsSDK.ConversationConfigOverride(
+                         agent: agentConfig
+                     )
+                     let config = ElevenLabsSDK.SessionConfig(agentId: agent.id, overrides: overrides)
+                     */
+              
                     let config = ElevenLabsSDK.SessionConfig(agentId: agent.id)
                     var callbacks = ElevenLabsSDK.Callbacks()
                     
