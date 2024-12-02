@@ -1,20 +1,23 @@
 "use client";
 
+import { Orb } from "@/components/orb";
+import SantaCard from "@/components/santa-card";
+import { cn } from "@/lib/utils";
+import { useConversation } from "@11labs/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Phone } from "lucide-react";
 import { useEffect, useState } from "react";
 import Snowfall from "react-snowfall";
-import { cn } from "@/lib/utils";
-import { Orb } from "@/components/orb";
-import { useConversation } from "@11labs/react";
 
 export default function Home() {
   const [callState, setCallState] = useState<"idle" | "calling" | "connected">(
     "idle"
   );
 
-  const [name, setName] = useState("");
+  const [name, setName] = useState<string | null>(null);
+  const [wishlist, setWishlist] = useState<Array<{ key: string; name: string }>>([]);
 
+  console.log("wishlist", wishlist);
   const [audio] = useState(() => {
     if (typeof Audio !== "undefined") {
       const audioInstance = new Audio("/assets/ringing-phone.mp3");
@@ -25,16 +28,16 @@ export default function Home() {
   });
   const conversation = useConversation();
   
-  useEffect(() => {
-    const getMedia = async () => {
-      try {
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-      } catch (err) {
-        console.error("Error accessing media devices:", err);
-      }
-    };
-    getMedia();
-  }, []);
+  // useEffect(() => {
+  //   const getMedia = async () => {
+  //     try {
+  //       await navigator.mediaDevices.getUserMedia({ audio: true });
+  //     } catch (err) {
+  //       console.error("Error accessing media devices:", err);
+  //     }
+  //   };
+  //   getMedia();
+  // }, []);
 
   const handleCallClick = () => {
     if (callState === "idle") {
@@ -49,9 +52,15 @@ export default function Home() {
             triggerName: async (parameters: { name: string }) => {
               setName(parameters.name);
             },
+            triggerAddItemToWishlist: async (parameters: {itemName: string, itemKey: string}) => {
+              setWishlist(prevWishlist => [...prevWishlist, { name: parameters.itemName, key: parameters.itemKey }]);
+            },
+            triggerRemoveItemFromWishlist: async (parameters: {itemKey: string}) => {
+              setWishlist(prevWishlist => prevWishlist.filter(item => item.key !== parameters.itemKey));
+            }
           }
         });
-      }, 6000);
+      }, 0);
     }
   };
 
@@ -66,16 +75,19 @@ export default function Home() {
           backgroundBlendMode: "color-burn",
         }}
       />
-
-      <h1>Welcome to Talk to Santa {name}</h1>
-
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
+        <SantaCard name={name ?? ""} wishlist={wishlist} />
         <motion.button
           className={cn(
             "relative flex items-center justify-center text-white rounded-full shadow-lg",
             callState === "connected" ? "w-72 h-72" : "w-64 h-16",
-            callState === "idle" ? "bg-red-700" : "bg-red-500"
+            callState === "idle" ? "bg-red-700" : callState === "calling" ? "bg-red-500" : "bg-transparent"
           )}
+          style={callState === "connected" ? {
+            backgroundImage: "url('/assets/santa.jpg')",
+            backgroundSize: "cover",
+            backgroundPosition: "center"
+          } : undefined}
           onClick={handleCallClick}
           animate={callState}
           variants={{
@@ -125,7 +137,7 @@ export default function Home() {
               <motion.div
                 key="connected"
                 className="absolute inset-0 flex flex-col items-center justify-center"
-                initial={{ opacity: 0, scale: 0 }}
+                initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0 }}
                 transition={{ duration: 0.5 }}
@@ -136,6 +148,7 @@ export default function Home() {
                       colors={["#ff0000", "#008000"]}
                       getInputVolume={conversation.getInputVolume}
                       getOutputVolume={conversation.getOutputVolume}
+                      opacity={0.8}
                     />
                   </div>
                 </div>
@@ -143,8 +156,8 @@ export default function Home() {
             )}
           </AnimatePresence>
         </motion.button>
-      </main>
 
+      </main>
       <div className="absolute inset-0 z-[-1]">
         <Snowfall
           snowflakeCount={200}

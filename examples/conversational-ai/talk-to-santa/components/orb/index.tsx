@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import { useEffect, useMemo, useRef } from "react";
+import { motion } from "framer-motion";
 
 import vertexShader from "./shader.vert";
 import fragmentShader from "./shader.frag";
@@ -13,13 +14,21 @@ export function Orb({
   colors = ["#DBDCE0", "#ffffff"],
   getInputVolume,
   getOutputVolume,
+  opacity = 1,
 }: {
   colors?: string[];
   getInputVolume?: () => number;
   getOutputVolume?: () => number;
+  opacity?: number;
 }) {
   return (
-    <div className="w-full h-full">
+    <motion.div 
+      className="w-full h-full" 
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{ duration: 2, ease: "easeOut" }}
+      style={{ opacity }}
+    >
       <Canvas
         gl={{ antialias: true }}
         dpr={[1, 2]}
@@ -31,7 +40,7 @@ export function Orb({
           getOutputVolume={getOutputVolume}
         />
       </Canvas>
-    </div>
+    </motion.div>
   );
 }
 
@@ -118,7 +127,7 @@ function Scene({
 
   return (
     <mesh ref={circleRef}>
-      <circleGeometry args={[3.5, 64]} />
+      <circleGeometry args={[3.9, 64]} />
       <shaderMaterial
         attach="material"
         uniforms={uniforms}
