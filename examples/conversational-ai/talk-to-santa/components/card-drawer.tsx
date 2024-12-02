@@ -66,7 +66,7 @@ export function SantaCardDrawer({ isOpen, setIsOpen, name, wishlist }: SantaCard
                 </div>
                 <div className="space-y-2">
                   <p className="text-xl text-gray-700">
-                    These are the presents I'm wishing for:
+                    These are the presents I&apos;m wishing for:
                   </p>
                   <ol className="space-y-4 ml-8">
                     {wishlist.map(({name: presentName, key}) => (
