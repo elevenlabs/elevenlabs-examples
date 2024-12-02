@@ -21,9 +21,10 @@ export default function Home() {
   >([]);
 
   useEffect(() => {
-    setIsCardDrawerOpen(true);
-   
-  }, []);
+    if (name || wishlist.length > 0) {
+      setIsCardDrawerOpen(true);
+    }
+  }, [name, wishlist]);
   
 
   const [audio] = useState(() => {
@@ -176,7 +177,7 @@ export default function Home() {
           </motion.button>
 
           {/* Open Card Drawer Button */}
-          {(true) && (
+          {(name || wishlist.length > 0) && (
             <SantaCardDrawer
               isOpen={isCardDrawerOpen}
               setIsOpen={setIsCardDrawerOpen}
