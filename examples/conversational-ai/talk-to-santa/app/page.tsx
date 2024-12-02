@@ -39,10 +39,10 @@ export default function Home() {
   const handleCallClick = () => {
     if (callState === "idle") {
       setCallState("calling");
-      // audio?.play();
+      audio?.play();
       setTimeout(() => {
         setCallState("connected");
-        // audio?.pause();
+        audio?.pause();
         conversation.startSession({ 
           agentId: "s2aAy02SejH4YNv7Cp4k",
           clientTools: {
@@ -51,7 +51,7 @@ export default function Home() {
             },
           }
         });
-      }, 0); // TODO: 6000
+      }, 6000);
     }
   };
 
