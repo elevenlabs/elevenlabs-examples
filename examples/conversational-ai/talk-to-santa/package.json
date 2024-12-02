@@ -13,6 +13,7 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@react-three/drei": "^9.103.0",
     "@react-three/fiber": "9.0.0-alpha.8",
+    "@vercel/analytics": "^1.4.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^11.12.0",
