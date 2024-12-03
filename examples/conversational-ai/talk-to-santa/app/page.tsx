@@ -8,6 +8,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Phone } from "lucide-react";
 import { useEffect, useState } from "react";
 import Snowfall from "react-snowfall";
+import { ChristmasCountdown } from "@/components/christmas-countdown";
+import { Logo } from "@/components/logo/animated-logo";
 
 export default function Home() {
   const [callState, setCallState] = useState<"idle" | "calling" | "connected">(
@@ -37,16 +39,16 @@ export default function Home() {
   });
   const conversation = useConversation();
 
-  useEffect(() => {
-    const getMedia = async () => {
-      try {
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-      } catch (err) {
-        console.error("Error accessing media devices:", err);
-      }
-    };
-    getMedia();
-  }, []);
+  // useEffect(() => {
+  //   const getMedia = async () => {
+  //     try {
+  //       await navigator.mediaDevices.getUserMedia({ audio: true });
+  //     } catch (err) {
+  //       console.error("Error accessing media devices:", err);
+  //     }
+  //   };
+  //   getMedia();
+  // }, []);
 
   const handleCallClick = () => {
     if (callState === "idle") {
@@ -85,12 +87,18 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen overflow-hidden font-[family-name:var(--font-geist-sans)]">
+      {/* Header */}
+      <div className="absolute top-0 left-0 right-0 flex justify-between p-4 z-10">
+        <Logo />
+        <ChristmasCountdown />
+      </div>
+
       <main>
         {/* Call Santa Button */}
         <div className="flex flex-col items-center justify-center min-h-screen">
           <motion.button
             className={cn(
-              "relative flex items-center justify-center text-white rounded-full shadow-lg",
+              "relative flex items-center justify-center text-white rounded-full shadow-lg opacity-90",
               callState === "connected" ? "w-72 h-72" : "w-64 h-16",
               callState === "idle"
                 ? "bg-red-700 hover:bg-red-600"
@@ -132,7 +140,7 @@ export default function Home() {
                 >
                   <Phone size={24} />
                   <span className="text-lg font-semibold">
-                    Call the North Pole
+                    Call Santa
                   </span>
                 </motion.div>
               )}
