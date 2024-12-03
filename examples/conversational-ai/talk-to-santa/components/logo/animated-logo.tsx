@@ -2,10 +2,11 @@
 
 import animationData from "@/components/logo/logo-animation.json";
 import type { LottieRefCurrentProps } from "lottie-react";
-import Lottie from "lottie-react";
 import { cn } from "@/lib/utils";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 export const Logo = ({
   className,
@@ -13,12 +14,15 @@ export const Logo = ({
   className?: string;
 }) => {
   const ref = useRef<LottieRefCurrentProps>(null);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    ref.current?.goToAndStop(0);
-    ref.current?.setSpeed(0.4);
-    ref.current?.play();
-  }, []);
+    if (isReady) {
+      ref.current?.goToAndStop(0);
+      ref.current?.setSpeed(0.4);
+      ref.current?.play();
+    }
+  }, [isReady]);
 
   return (
     <div
@@ -32,6 +36,7 @@ export const Logo = ({
         animationData={animationData}
         loop={false}
         autoplay={false}
+        onDOMLoaded={() => setIsReady(true)}
       />
     </div>
   );

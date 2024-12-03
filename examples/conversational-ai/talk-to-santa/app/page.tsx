@@ -39,16 +39,16 @@ export default function Home() {
   });
   const conversation = useConversation();
 
-  // useEffect(() => {
-  //   const getMedia = async () => {
-  //     try {
-  //       await navigator.mediaDevices.getUserMedia({ audio: true });
-  //     } catch (err) {
-  //       console.error("Error accessing media devices:", err);
-  //     }
-  //   };
-  //   getMedia();
-  // }, []);
+  useEffect(() => {
+    const getMedia = async () => {
+      try {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (err) {
+        console.error("Error accessing media devices:", err);
+      }
+    };
+    getMedia();
+  }, []);
 
   const handleCallClick = () => {
     if (callState === "idle") {

@@ -1,3 +1,5 @@
+"use client";
+
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button"
