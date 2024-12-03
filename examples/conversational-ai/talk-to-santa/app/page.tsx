@@ -1,43 +1,43 @@
 "use client";
 
-import { SantaCardDrawer } from "@/components/card-drawer";
+import { LiveSantaCardDrawer } from "@/components/live-santa-card-drawer";
 import { Orb } from "@/components/orb";
 import { cn } from "@/lib/utils";
 import { useConversation } from "@11labs/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Phone } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Snowfall from "react-snowfall";
 import { ChristmasCountdown } from "@/components/christmas-countdown";
 import { Logo } from "@/components/logo/animated-logo";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { SaveSantaCardDrawer } from "@/components/save-santa-card-drawer";
+import { MusicPlayer } from "@/components/music-player";
 
 export default function Home() {
-  const [callState, setCallState] = useState<"idle" | "calling" | "connected">(
-    "idle"
-  );
-  const [isCardDrawerOpen, setIsCardDrawerOpen] = useState(false);
+  const [isLiveSantaCardDrawerOpen, setIsLiveSantaCardDrawerOpen] =
+    useState(false);
+  const [isConversationDrawerOpen, setIsConversationComplete] = useState(false);
 
+  const [isPhoneRinging, setIsPhoneRinging] = useState(false);
   const [name, setName] = useState<string | null>(null);
   const [wishlist, setWishlist] = useState<
     Array<{ key: string; name: string }>
   >([]);
 
-  useEffect(() => {
-    if (name || wishlist.length > 0) {
-      setIsCardDrawerOpen(true);
-    }
-  }, [name, wishlist]);
-  
+  // Video state
+  const [enableVideo, setEnableVideo] = useState(false);
+  const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [recordedVideo, setRecordedVideo] = useState<string | null>(null);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
 
-  const [audio] = useState(() => {
-    if (typeof Audio !== "undefined") {
-      const audioInstance = new Audio("/assets/ringing-phone.mp3");
-      audioInstance.loop = true;
-      return audioInstance;
-    }
-    return null;
-  });
-  const conversation = useConversation();
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  const [isPreviewVideoLoading, setIsPreviewVideoLoading] = useState(true);
 
   useEffect(() => {
     const getMedia = async () => {
@@ -50,15 +50,56 @@ export default function Home() {
     getMedia();
   }, []);
 
-  const handleCallClick = () => {
-    if (callState === "idle") {
-      setCallState("calling");
-      audio?.play();
+  useEffect(() => {
+    if (name || wishlist.length > 0) {
+      setIsLiveSantaCardDrawerOpen(true);
+    }
+  }, [name, wishlist]);
+
+  const [ringingPhoneAudio] = useState(() => {
+    if (typeof Audio !== "undefined") {
+      const audioInstance = new Audio("/assets/ringing-phone.mp3");
+      audioInstance.loop = true;
+      return audioInstance;
+    }
+    return null;
+  });
+  const conversation = useConversation();
+
+  const handleCallClick = async () => {
+    if (conversation.status === "disconnected") {
+      setIsPhoneRinging(true);
+      ringingPhoneAudio?.play();
+      const signedUrl = await getSignedUrl();
       setTimeout(() => {
-        setCallState("connected");
-        audio?.pause();
+        setIsPhoneRinging(false);
+        ringingPhoneAudio?.pause();
+        // Get signed URL before starting the session
         conversation.startSession({
-          agentId: "s2aAy02SejH4YNv7Cp4k",
+          signedUrl,
+          onConnect: ({ conversationId }) => {
+            setConversationId(conversationId);
+            // Start recording if video is enabled
+            if (enableVideo && videoStream) {
+              chunksRef.current = [];
+              const mediaRecorder = new MediaRecorder(videoStream);
+              mediaRecorderRef.current = mediaRecorder;
+
+              mediaRecorder.ondataavailable = event => {
+                chunksRef.current.push(event.data);
+              };
+
+              mediaRecorder.onstop = () => {
+                const blob = new Blob(chunksRef.current, {
+                  type: "video/webm",
+                });
+                const videoUrl = URL.createObjectURL(blob);
+                setRecordedVideo(videoUrl);
+              };
+
+              mediaRecorder.start();
+            }
+          },
           clientTools: {
             triggerName: async (parameters: { name: string }) => {
               setName(parameters.name);
@@ -85,6 +126,74 @@ export default function Home() {
     }
   };
 
+  const handleEndCallClick = async () => {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== "inactive"
+    ) {
+      mediaRecorderRef.current.stop();
+    }
+    setEnableVideo(false);
+    await conversation.endSession();
+    videoStream?.getTracks().forEach(track => track.stop());
+    setVideoStream(null);
+    setIsConversationComplete(true);
+  };
+
+  // First effect to handle stream setup
+  useEffect(() => {
+    let currentStream: MediaStream | null = null;
+
+    const setupVideoStream = async () => {
+      console.log("Setting up video stream, enableVideo:", enableVideo);
+
+      if (enableVideo) {
+        try {
+          console.log("Requesting user media...");
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false,
+          });
+
+          console.log("Stream obtained:", stream.active);
+          currentStream = stream;
+          setVideoStream(stream);
+          setCameraError(null);
+        } catch (err) {
+          console.error("Error accessing camera:", err);
+          setCameraError("Unable to access camera");
+          setEnableVideo(false);
+        }
+      }
+    };
+
+    setupVideoStream();
+
+    return () => {
+      console.log("Cleanup running, currentStream:", !!currentStream);
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => {
+          console.log("Stopping track:", track.kind, track.enabled);
+          track.stop();
+        });
+      }
+    };
+  }, [enableVideo]);
+
+  // New effect to handle video element
+  useEffect(() => {
+    if (videoStream && videoRef.current) {
+      console.log("Setting video stream to video element");
+      videoRef.current.srcObject = videoStream;
+    }
+
+    return () => {
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+    };
+  }, [videoStream]);
+
   return (
     <div className="relative min-h-screen overflow-hidden font-[family-name:var(--font-geist-sans)]">
       {/* Header */}
@@ -99,27 +208,24 @@ export default function Home() {
           <motion.button
             className={cn(
               "relative flex items-center justify-center text-white rounded-full shadow-lg opacity-90",
-              callState === "connected" ? "w-72 h-72" : "w-64 h-16",
-              callState === "idle"
+              conversation.status === "connected" ? "w-72 h-72" : "w-64 h-16",
+              conversation.status === "disconnected"
                 ? "bg-red-700 hover:bg-red-600"
-                : callState === "calling"
+                : conversation.status === "connecting"
                 ? "bg-red-500"
-                : "bg-transparent"
+                : "bg-red-500 bg-opacity-20"
             )}
-            style={
-              callState === "connected"
-                ? {
-                    backgroundImage: "url('/assets/santa.jpg')",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }
-                : undefined
-            }
             onClick={handleCallClick}
-            animate={callState}
+            initial="disconnected"
+            animate={conversation.status}
             variants={{
-              idle: { width: 256, height: 64, borderRadius: 32 },
-              calling: { width: 300, height: 64, borderRadius: 32 },
+              disconnected: {
+                width: 256,
+                height: 64,
+                borderRadius: "32px",
+                backgroundColor: "rgb(185 28 28)",
+              },
+              connecting: { width: 300, height: 64, borderRadius: "32px" },
               connected: {
                 width: 250,
                 height: 250,
@@ -130,37 +236,43 @@ export default function Home() {
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
           >
             <AnimatePresence mode="wait">
-              {callState === "idle" && (
+              {conversation.status === "disconnected" && !isPhoneRinging && (
                 <motion.div
-                  key="idle"
-                  className="flex items-center space-x-2"
+                  key="disconnected"
+                  className="relative flex items-center w-full"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  <Phone size={24} />
-                  <span className="text-lg font-semibold">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                    <img
+                      src="/assets/santa.jpg"
+                      alt="Santa"
+                      className="w-12 h-12 rounded-full"
+                    />
+                    <span className="absolute bottom-0 right-0 block w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                  </div>
+
+                  <span className="text-lg ml-10 font-semibold flex-1 text-center">
                     Call Santa
                   </span>
                 </motion.div>
               )}
+              {conversation.status === "connecting" ||
+                (isPhoneRinging && (
+                  <motion.div
+                    key="connecting"
+                    className="flex items-center space-x-2"
+                    initial={{ y: 50, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -50, opacity: 0 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                  >
+                    <span className="text-lg font-semibold">Ringing...</span>
+                  </motion.div>
+                ))}
 
-              {callState === "calling" && (
-                <motion.div
-                  key="calling"
-                  className="flex items-center space-x-2"
-                  initial={{ y: 50, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -50, opacity: 0 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 20 }}
-                >
-                  <span className="text-lg font-semibold">
-                    Checking if Santa is available
-                  </span>
-                </motion.div>
-              )}
-
-              {callState === "connected" && (
+              {conversation.status === "connected" && (
                 <motion.div
                   key="connected"
                   className="absolute inset-0 flex flex-col items-center justify-center"
@@ -175,7 +287,6 @@ export default function Home() {
                         colors={["#ff0000", "#008000"]}
                         getInputVolume={conversation.getInputVolume}
                         getOutputVolume={conversation.getOutputVolume}
-                        opacity={0.8}
                       />
                     </div>
                   </div>
@@ -184,14 +295,101 @@ export default function Home() {
             </AnimatePresence>
           </motion.button>
 
+          {conversation.status === "disconnected" && (
+            <>
+              <div className="mt-4 flex items-center space-x-2">
+                <Switch
+                  id="video-mode"
+                  checked={enableVideo}
+                  onCheckedChange={setEnableVideo}
+                />
+                <Label htmlFor="video-mode" className="text-white font-bold">
+                  Record Video
+                </Label>
+                {cameraError && (
+                  <span className="text-red-400 text-sm ml-2">
+                    {cameraError}
+                  </span>
+                )}
+              </div>
+            </>
+          )}
+
+          <div className="mt-4 flex space-x-4">
+            {conversation.status === "connected" && (
+              <motion.div
+                className="w-32 h-32 rounded-full overflow-hidden border-4 border-red-500 border-opacity-50 shadow-lg"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <img
+                  src="/assets/santa.jpg"
+                  alt="Santa"
+                  className="w-full h-full object-cover opacity-90"
+                />
+              </motion.div>
+            )}
+
+            {enableVideo && videoStream && (
+              <motion.div
+                className="w-32 h-32 rounded-full overflow-hidden border-4 border-red-500 border-opacity-50 shadow-lg relative"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                {isPreviewVideoLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
+                  </div>
+                )}
+                <video
+                  ref={videoRef}
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover opacity-90"
+                  onLoadedMetadata={e => {
+                    console.log("Video metadata loaded");
+                    const videoElement = e.target as HTMLVideoElement;
+                    videoElement.play().catch(err => {
+                      console.warn("Video play error:", err);
+                    });
+                  }}
+                  onLoadedData={() => setIsPreviewVideoLoading(false)}
+                  onError={() => setIsPreviewVideoLoading(false)}
+                />
+              </motion.div>
+            )}
+          </div>
+
           {/* Open Card Drawer Button */}
           {(name || wishlist.length > 0) && (
-            <SantaCardDrawer
-              isOpen={isCardDrawerOpen}
-              setIsOpen={setIsCardDrawerOpen}
+            <LiveSantaCardDrawer
+              isOpen={isLiveSantaCardDrawerOpen}
+              setIsOpen={setIsLiveSantaCardDrawerOpen}
               name={name}
               wishlist={wishlist}
             />
+          )}
+
+          {isConversationDrawerOpen && (
+            <SaveSantaCardDrawer
+              isOpen={true}
+              name={name}
+              wishlist={wishlist}
+              conversationId={"H4ZIASOGYfPT9IPSGtF7"}
+              recordedVideo={recordedVideo}
+            />
+          )}
+
+          {conversation.status === "connected" && (
+            <motion.button
+              className="mt-4 px-4 py-2 bg-red-600 text-white rounded-full shadow-lg"
+              onClick={handleEndCallClick}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              End Call
+            </motion.button>
           )}
         </div>
       </main>
@@ -215,6 +413,16 @@ export default function Home() {
           wind={[-0.5, 1]}
         />
       </div>
+      <MusicPlayer />
     </div>
   );
+}
+
+async function getSignedUrl(): Promise<string> {
+  const response = await fetch("/api/signed-url");
+  if (!response.ok) {
+    throw Error("Failed to get signed url");
+  }
+  const data = await response.json();
+  return data.signedUrl;
 }

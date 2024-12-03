@@ -16,12 +16,10 @@ export function Orb({
   colors = ["#DBDCE0", "#ffffff"],
   getInputVolume,
   getOutputVolume,
-  opacity = 1,
 }: {
   colors?: string[];
   getInputVolume?: () => number;
   getOutputVolume?: () => number;
-  opacity?: number;
 }) {
   return (
     <motion.div 
@@ -29,7 +27,6 @@ export function Orb({
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       transition={{ duration: 2, ease: "easeOut" }}
-      style={{ opacity }}
     >
       <Canvas
         gl={{ antialias: true }}

@@ -7,10 +7,12 @@ import { cn } from "@/lib/utils"
 
 const Drawer = ({
   shouldScaleBackground = true,
+  dismissible = true,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
   <DrawerPrimitive.Root
     shouldScaleBackground={shouldScaleBackground}
+    dismissible={dismissible}
     {...props}
   />
 )
@@ -46,7 +48,7 @@ const DrawerContent = React.forwardRef<
         "fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] bg-background",
         "mx-auto max-w-[90%] sm:max-w-[600px]",
         "bg-[repeating-linear-gradient(45deg,#ff0000_0px,#ff0000_10px,#ffffff_10px,#ffffff_20px)]",
-        "p-[3px]",
+        "pt-[20px]",
         className
       )}
       {...props}
