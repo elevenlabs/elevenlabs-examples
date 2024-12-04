@@ -1,39 +1,40 @@
-import { Logo } from "@/components/logo/index";
-import { ChristmasCountdown } from "@/components/christmas-countdown";
-import { Snowfall } from "@/components/snowfall";
-import { MusicPlayer } from "@/components/music-player";
+import type { Metadata } from "next";
+import localFont from "next/font/local";
+import { Toaster } from "@/components/ui/sonner";
+import "../globals.css";
+import { Analytics } from "@vercel/analytics/react";
 
-export default function Layout({
+const geistSans = localFont({
+  src: "../fonts/GeistVF.woff",
+  variable: "--font-geist-sans",
+  weight: "100 900",
+});
+const geistMono = localFont({
+  src: "../fonts/GeistMonoVF.woff",
+  variable: "--font-geist-mono",
+  weight: "100 900",
+});
+
+export const metadata: Metadata = {
+  title: "Talk to Santa | ElevenLabs",
+  description:
+    "Have a magical conversation with Santa Claus, powered by Conversational AI.",
+};
+
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <div className="relative min-h-screen overflow-hidden font-[family-name:var(--font-geist-sans)]">
-      <div className="absolute top-0 left-0 right-0 flex justify-between p-4 z-10">
-        <Logo />
-        <ChristmasCountdown />
-      </div>
-
-      <main>
-        <div className="flex flex-col items-center justify-center min-h-screen">
-          {children}
-        </div>
-      </main>
-
-      <div
-        className="absolute inset-0 z-[-2]"
-        style={{
-          background: `radial-gradient(circle, rgb(168 0 0 / 50%) 20%, rgba(0,0,0,0.7) 100%), url('/assets/background.jpg')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundBlendMode: "color-burn",
-        }}
-      />
-      <div className="absolute inset-0 z-[-1]">
-        <Snowfall />
-      </div>
-      <MusicPlayer />
-    </div>
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        {children}
+        <Toaster richColors position="top-right" />
+        <Analytics />
+      </body>
+    </html>
   );
 }

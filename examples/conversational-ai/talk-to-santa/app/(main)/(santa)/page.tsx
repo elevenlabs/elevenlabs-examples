@@ -1,18 +1,25 @@
 "use client";
-
-import { getAgentSignedUrl } from "@/app/(main)/actions/actions";
+import { useRouter } from "next/navigation";
+import {
+  getAgentSignedUrl,
+  getSupabaseUploadSignedUrl,
+} from "@/app/(main)/(santa)/actions/actions";
+import { toast } from "sonner";
 import { CallButton } from "@/components/call-button";
 import { Orb } from "@/components/orb";
 import { SantaCard } from "@/components/santa-card";
 import { Button } from "@/components/ui/button";
+import { saveConversationData } from "@/app/(main)/(santa)/actions/actions";
 import { useConversation } from "@11labs/react";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
 export default function Page() {
   const conversation = useConversation();
+  const router = useRouter();
 
   const [isCardOpen, setIsCardOpen] = useState(false);
+  const [isEndingCall, setIsEndingCall] = useState(false);
 
   // session state
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -25,23 +32,11 @@ export default function Page() {
   const [isVideoEnabled, setIsVideoEnabled] = useState(false);
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
   const [isPreviewVideoLoading, setIsPreviewVideoLoading] = useState(true);
-  const [recordedVideo, setRecordedVideo] = useState<string | null>(null);
 
   // refs
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  useEffect(() => {
-    const getMedia = async () => {
-      try {
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-      } catch (err) {
-        console.error("Error accessing media devices:", err);
-      }
-    };
-    getMedia();
-  }, []);
 
   useEffect(() => {
     let currentStream: MediaStream | null = null;
@@ -57,7 +52,7 @@ export default function Page() {
           setVideoStream(stream);
         } catch (err) {
           console.error("Error accessing camera:", err);
-          alert("Unable to access camera");
+          toast.error("Please enable camera access in your browser.");
           setIsVideoEnabled(false);
         }
       }
@@ -84,44 +79,102 @@ export default function Page() {
   }, [videoStream]);
 
   const startCall = async () => {
-    const req = await getAgentSignedUrl({});
-    const signedUrl = req?.data?.signedUrl;
-    if (!signedUrl) {
-      throw new Error("Failed to get signed URL");
+    try {
+      const req = await getAgentSignedUrl({});
+      const signedUrl = req?.data?.signedUrl;
+      if (!signedUrl) {
+        throw new Error("Failed to get signed URL");
+      }
+      conversation.startSession({
+        signedUrl,
+        onConnect: ({ conversationId }) => {
+          setConversationId(conversationId);
+          if (isVideoEnabled) {
+            startRecordingVideo();
+          }
+        },
+        clientTools: tools,
+      });
+    } catch (err) {
+      console.error("Error starting call:", err);
+      toast.error("Failed to start call.");
     }
-    conversation.startSession({
-      signedUrl,
-      onConnect: ({ conversationId }) => {
-        setConversationId(conversationId);
-        if (isVideoEnabled) {
-          startRecordingVideo();
-        }
-      },
-      clientTools: tools,
-    });
   };
 
   const endCall = async () => {
-    if (
-      mediaRecorderRef.current &&
-      mediaRecorderRef.current.state !== "inactive"
-    ) {
-      mediaRecorderRef.current.stop();
+    if (!conversationId) {
+      toast.error("Conversation not found");
+      return;
     }
+    setIsEndingCall(true);
+    if (isVideoEnabled) {
+      try {
+        // attempt to upload the video
+        if (
+          mediaRecorderRef.current &&
+          mediaRecorderRef.current.state !== "inactive"
+        ) {
+          mediaRecorderRef.current.stop();
+          await new Promise(resolve =>
+            mediaRecorderRef.current?.addEventListener("stop", resolve, {
+              once: true,
+            })
+          );
+        }
+
+        const blob = new Blob(chunksRef.current, { type: "video/webm" });
+        if (blob.size < 1) {
+          throw new Error("No video recorded to upload!");
+        }
+
+        const response = await getSupabaseUploadSignedUrl({
+          conversationId,
+        });
+
+        if (!response?.data) {
+          throw new Error("Failed to retrieve a signed upload URL.");
+        }
+        const { signedUrl, token } = response.data;
+
+        const uploadResponse = await fetch(signedUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": blob.type,
+            Authorization: `Bearer ${token}`,
+          },
+          body: blob,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error("File upload failed.");
+        }
+        // success
+        toast.success("Video uploaded successfully!");
+      } catch (err) {
+        console.error("Error uploading video:", err);
+        toast.error("Failed to upload video.");
+      }
+    }
+    try {
+      // save conversation data
+      await saveConversationData({ conversationId, name, wishlist });
+    } catch (err) {
+      console.error("Error saving conversation:", err);
+      toast.error("Failed to save conversation.");
+    }
+    // cleanup
     setIsVideoEnabled(false);
     await conversation.endSession();
     videoStream?.getTracks().forEach(track => track.stop());
     setVideoStream(null);
-
-    // save the conversation
-    console.log("saving conversation");
-    console.log(conversationId)
-    console.log(recordedVideo)
+    setIsEndingCall(false);
+    // redirect to the card page
+    router.push(`/cards/${conversationId}`, { scroll: false });
   };
 
   const startRecordingVideo = () => {
     if (!videoStream) {
-      alert("unable to record video");
+      toast.error("Unable to record video");
       return;
     }
     chunksRef.current = [];
@@ -129,13 +182,6 @@ export default function Page() {
     mediaRecorderRef.current = mediaRecorder;
     mediaRecorder.ondataavailable = event => {
       chunksRef.current.push(event.data);
-    };
-    mediaRecorder.onstop = () => {
-      const blob = new Blob(chunksRef.current, {
-        type: "video/webm",
-      });
-      const videoUrl = URL.createObjectURL(blob);
-      setRecordedVideo(videoUrl);
     };
     mediaRecorder.start();
   };
@@ -228,7 +274,6 @@ export default function Page() {
                 muted
                 className="w-full h-full object-cover opacity-90"
                 onLoadedMetadata={e => {
-                  console.log("Video metadata loaded");
                   const videoElement = e.target as HTMLVideoElement;
                   videoElement.play().catch(err => {
                     console.warn("Video play error:", err);
@@ -246,8 +291,16 @@ export default function Page() {
             variant="default"
             className="mt-4 px-4 py-2 rounded-full border-red-500 border-2 hover:bg-red-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
             onClick={endCall}
+            disabled={isEndingCall}
           >
-            Save & End the Call
+            {isEndingCall ? (
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                Ending call...
+              </div>
+            ) : (
+              "Save & End the Call"
+            )}
           </Button>
         )}
 
