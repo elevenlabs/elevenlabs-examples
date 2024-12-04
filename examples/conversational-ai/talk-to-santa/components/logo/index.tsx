@@ -8,11 +8,7 @@ import dynamic from "next/dynamic";
 
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
-export const Logo = ({
-  className,
-}: {
-  className?: string;
-}) => {
+export const Logo = ({ className }: { className?: string }) => {
   const ref = useRef<LottieRefCurrentProps>(null);
   const [isReady, setIsReady] = useState(false);
 
@@ -26,7 +22,7 @@ export const Logo = ({
 
   return (
     <div
-      className={cn( 
+      className={cn(
         "flex h-[32px] w-[160px] items-center lg:h-8 [&_svg]:!h-[32px] lg:[&_svg]:!h-[32px] text-white",
         className
       )}
