@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 export default function Page() {
@@ -31,9 +31,6 @@ export default function Page() {
   const [audio, setAudio] = useState<string | null>(null);
 
   const video = `https://iifpdwenjojkwnidrlxl.supabase.co/storage/v1/object/public/media/media/${id}.mp4`;
-
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     const checkVideoExists = async () => {
@@ -102,29 +99,6 @@ export default function Page() {
     };
   }, [id]);
 
-
-  const handleVideoPlay = () => {
-    if (audioRef.current) {
-      audioRef.current.play();
-    }
-  };
-
-  const handleVideoPause = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-  };
-
-  const handleVideoTimeUpdate = () => {
-    if (videoRef.current && audioRef.current) {
-      const timeDiff = Math.abs(
-        videoRef.current.currentTime - audioRef.current.currentTime
-      );
-      if (timeDiff > 0.1) {
-        audioRef.current.currentTime = videoRef.current.currentTime;
-      }
-    }
-  };
 
   if (isLoading) {
     return (
@@ -220,11 +194,17 @@ export default function Page() {
 
         <div className="flex flex-col items-center border-t pt-6 p-4">
           {audio && videoUrl ? (
-            <audio
-              ref={audioRef}
-              className="hidden"
-              src={`data:audio/mpeg;base64,${audio}`}
-            />
+            <video
+              className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-sm h-auto rounded-lg"
+              controls
+              autoPlay
+              muted
+              playsInline
+              loop
+            >
+              <source src={videoUrl} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
           ) : (
             audio && (
               <div className="w-full max-w-md mb-4">
@@ -235,21 +215,6 @@ export default function Page() {
                 />
               </div>
             )
-          )}
-          {videoUrl && (
-            <video
-              ref={videoRef}
-              className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-sm h-auto rounded-lg"
-              controls
-              playsInline
-              preload="metadata"
-              onPlay={handleVideoPlay}
-              onPause={handleVideoPause}
-              onTimeUpdate={handleVideoTimeUpdate}
-            >
-              <source src={videoUrl} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
           )}
 
           <span className="text-gray-500 pt-4">
