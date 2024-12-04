@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import {
   Drawer,
   DrawerContent,
-  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
@@ -44,7 +43,9 @@ export function SantaCard({
               variant="default"
               size="lg"
             >
-              <Mail /> Open Your Letter to Santa
+              <Mail /> 
+              <span className="hidden sm:inline">Open Your Letter to Santa</span>
+              <span className="sm:hidden">Open Letter</span>
             </Button>
           </motion.div>
         )}
@@ -55,13 +56,10 @@ export function SantaCard({
         >
           <div className="container mx-auto">
             <DrawerHeader>
-              <DrawerTitle className="text-4xl font-bold text-red-600 text-center">
+              <DrawerTitle className="text-2xl font-bold text-red-600 text-center">
                 My Letter to Santa
               </DrawerTitle>
-              <DrawerDescription className="text-xl text-gray-600 text-center mb-2">
-                From my heart to the North Pole
-              </DrawerDescription>
-              <hr className="border-t-2 border-gray-300 my-4" />
+              <hr className="border-t-2 border-red-300 my-2 opacity-20" />
             </DrawerHeader>
             <div className="max-w-2xl mx-auto bg-white px-8 py-5 rounded-lg">
               <div className="space-y-1">
@@ -88,16 +86,23 @@ export function SantaCard({
                     These are the presents I&apos;m wishing for:
                   </p>
                   <ol className="space-y-4 ml-8">
-                    {wishlist.map(({ name: presentName, key }) => (
-                      <li
+                    {wishlist.map(({ name: presentName, key }, index) => (
+                      <motion.li
                         key={key}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{
+                          duration: 1,
+                          ease: "easeOut",
+                          delay: 0.3 + index * 0.2,
+                        }}
                         className="flex items-center gap-4 text-xl text-gray-800"
                       >
                         <span className="text-1xl">🎄</span>
                         <span className="text-red-600 font-bold">
                           {presentName}
                         </span>
-                      </li>
+                      </motion.li>
                     ))}
                   </ol>
                   <p className="text-xl text-gray-800 pt-4">Thank you Santa!</p>

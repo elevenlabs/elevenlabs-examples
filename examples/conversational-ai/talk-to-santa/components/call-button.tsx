@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
-
+import Image from "next/image";
 interface CallButtonProps {
   status: "disconnected" | "connecting" | "connected" | "disconnecting";
   startCall: () => void;
@@ -14,7 +14,7 @@ interface CallButtonProps {
   setIsVideoEnabled: (isVideoEnabled: boolean) => void;
 }
 
-const RINGING_PHONE_AUDIO_DURATION = 6000;
+const RINGING_PHONE_AUDIO_DURATION = 0;
 
 export function CallButton({
   status,
@@ -53,10 +53,12 @@ export function CallButton({
         )}
       >
         <div className="absolute left-3 top-1/2 -translate-y-1/2">
-          <img
+          <Image
             src="/assets/santa.jpg"
             alt="Santa"
-            className="w-12 h-12 rounded-full"
+            className="rounded-full"
+            width={48}
+            height={48}
           />
           <span className="absolute bottom-0 right-0 block w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
         </div>
