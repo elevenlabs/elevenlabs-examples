@@ -46,7 +46,11 @@ export default function Page() {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({
             video: true,
-            audio: false,
+            audio: {
+              echoCancellation: false, // Disable echo cancellation
+              noiseSuppression: false, // Disable noise suppression
+              autoGainControl: false, // Disable auto gain control
+            },
           });
           currentStream = stream;
           setVideoStream(stream);
