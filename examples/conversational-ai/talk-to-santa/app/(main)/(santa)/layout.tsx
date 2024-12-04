@@ -29,7 +29,7 @@ export default function Layout({
       <div
         className="absolute inset-0 z-[-2]"
         style={{
-          background: `url('/assets/background.jpg')`,
+          background: `url('/assets/background.webp')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
