@@ -109,6 +109,7 @@ export default function Page() {
     setIsEndingCall(true);
     if (isVideoEnabled) {
       try {
+        setIsEndingCall(true);
         // attempt to upload the video
         if (
           mediaRecorderRef.current &&
@@ -156,6 +157,7 @@ export default function Page() {
       }
     }
     try {
+      setIsEndingCall(true);
       // save conversation data
       await saveConversationData({ conversationId, name, wishlist });
     } catch (err) {
@@ -211,7 +213,7 @@ export default function Page() {
     <div>
       {/* Call Santa Button */}
       <div className="flex flex-col items-center justify-center min-h-screen">
-        {conversation.status !== "connected" && (
+        {conversation.status !== "connected" && !isEndingCall && (
           <CallButton
             status={conversation.status}
             startCall={startCall}
