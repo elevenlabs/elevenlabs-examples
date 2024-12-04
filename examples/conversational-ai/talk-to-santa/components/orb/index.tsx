@@ -22,8 +22,8 @@ export function Orb({
   getOutputVolume?: () => number;
 }) {
   return (
-    <motion.div 
-      className="w-full h-full" 
+    <motion.div
+      className="w-full h-full"
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       transition={{ duration: 2, ease: "easeOut" }}
@@ -122,6 +122,7 @@ function Scene({
       uInputVolume: new THREE.Uniform(0),
       uOutputVolume: new THREE.Uniform(0),
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [perlinNoiseTexture]);
 
   return (

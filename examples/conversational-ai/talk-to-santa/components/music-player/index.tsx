@@ -8,13 +8,13 @@ import { useEffect, useRef, useState } from "react";
 
 const TRACKS = [
   {
-    title: "Christmas Magic",
-    artist: "ElevenLabs",
+    title: "Winter Solstice",
+    artist: "Daniel Lau",
     url: "/assets/xi-1.mp3",
   },
   {
-    title: "Winter Wonderland",
-    artist: "ElevenLabs",
+    title: "Merry Christmas",
+    artist: "Danic Dora",
     url: "/assets/xi-2.mp3",
   },
 ];
@@ -32,6 +32,7 @@ export function MusicPlayer() {
     return () => {
       audioRef.current?.pause();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTrackIndex]);
 
   const togglePlay = () => {
@@ -48,7 +49,7 @@ export function MusicPlayer() {
       audioRef.current?.pause();
     } else {
       if (audioRef.current) {
-        audioRef.current.volume = 0.2;
+        audioRef.current.volume = 0.1;
         audioRef.current.play();
       }
     }

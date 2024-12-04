@@ -43,8 +43,10 @@ export function SantaCard({
               variant="default"
               size="lg"
             >
-              <Mail /> 
-              <span className="hidden sm:inline">Open Your Letter to Santa</span>
+              <Mail />
+              <span className="hidden sm:inline">
+                Open Your Letter to Santa
+              </span>
               <span className="sm:hidden">Open Letter</span>
             </Button>
           </motion.div>

@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
 
-const SnowfallLibrary = dynamic(() => import('react-snowfall'), { ssr: false })
+const SnowfallLibrary = dynamic(() => import("react-snowfall"), { ssr: false });
 
 export function Snowfall() {
   return (
@@ -13,5 +13,5 @@ export function Snowfall() {
       radius={[0.5, 2.5]}
       wind={[-0.5, 1]}
     />
-  )
+  );
 }

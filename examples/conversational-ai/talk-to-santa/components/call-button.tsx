@@ -1,17 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
 import Image from "next/image";
+import { useState } from "react";
 interface CallButtonProps {
   status: "disconnected" | "connecting" | "connected" | "disconnecting";
   startCall: () => void;
-  isVideoEnabled: boolean;
-  setIsVideoEnabled: (isVideoEnabled: boolean) => void;
+  hasMediaAccess: boolean;
+  requestMediaPermissions: () => void;
 }
 
 const RINGING_PHONE_AUDIO_DURATION = 0;
@@ -19,8 +17,8 @@ const RINGING_PHONE_AUDIO_DURATION = 0;
 export function CallButton({
   status,
   startCall,
-  isVideoEnabled,
-  setIsVideoEnabled,
+  hasMediaAccess,
+  requestMediaPermissions,
 }: CallButtonProps) {
   const [isCalling, setIsCalling] = useState(false);
   const [ringingPhoneAudio] = useState(() => {
@@ -33,6 +31,10 @@ export function CallButton({
   });
 
   const onCallClick = () => {
+    if (!hasMediaAccess) {
+      requestMediaPermissions();
+      return;
+    }
     setIsCalling(true);
     ringingPhoneAudio?.play();
     setTimeout(() => {
@@ -54,7 +56,7 @@ export function CallButton({
       >
         <div className="absolute left-3 top-1/2 -translate-y-1/2">
           <Image
-            src="/assets/santa.jpg"
+            src="/assets/santa.webp"
             alt="Santa"
             className="rounded-full"
             width={48}
@@ -76,20 +78,6 @@ export function CallButton({
           </>
         )}
       </Button>
-      {status === "disconnected" && !isCalling && (
-        <>
-          <div className="mt-4 flex items-center space-x-2">
-            <Switch
-              id="video-mode"
-              checked={isVideoEnabled}
-              onCheckedChange={setIsVideoEnabled}
-            />
-            <Label htmlFor="video-mode" className="text-white font-bold">
-              Record Video
-            </Label>
-          </div>
-        </>
-      )}
     </>
   );
 }

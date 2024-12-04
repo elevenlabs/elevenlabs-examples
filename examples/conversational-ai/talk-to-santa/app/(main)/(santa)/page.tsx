@@ -1,25 +1,27 @@
 "use client";
-import { useRouter } from "next/navigation";
 import {
   getAgentSignedUrl,
   getSupabaseUploadSignedUrl,
+  saveConversationData,
 } from "@/app/(main)/(santa)/actions/actions";
-import { toast } from "sonner";
 import { CallButton } from "@/components/call-button";
 import { Orb } from "@/components/orb";
 import { SantaCard } from "@/components/santa-card";
 import { Button } from "@/components/ui/button";
-import { saveConversationData } from "@/app/(main)/(santa)/actions/actions";
+import { cn } from "@/lib/utils";
 import { useConversation } from "@11labs/react";
 import { motion } from "framer-motion";
+import { VideoIcon, VideoOffIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-
+import { toast } from "sonner";
+import Image from "next/image";
 export default function Page() {
   const conversation = useConversation();
   const router = useRouter();
 
-  const [isCardOpen, setIsCardOpen] = useState(false);
-  const [isEndingCall, setIsEndingCall] = useState(false);
+  // permission state
+  const [hasMediaAccess, setHasMediaAccess] = useState(false);
 
   // session state
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -27,61 +29,68 @@ export default function Page() {
   const [wishlist, setWishlist] = useState<
     Array<{ key: string; name: string }>
   >([]);
-
-  // video state
-  const [isVideoEnabled, setIsVideoEnabled] = useState(false);
-  const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
+  const [isCardOpen, setIsCardOpen] = useState(false);
+  const [isEndingCall, setIsEndingCall] = useState(false);
   const [isPreviewVideoLoading, setIsPreviewVideoLoading] = useState(true);
 
   // refs
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
+  // video stream handling
+  const requestMediaPermissions = async () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+        },
+      });
+      streamRef.current = stream;
+      setHasMediaAccess(true);
+      return stream;
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        "Please grant video/audio media permissions in site settings to continue"
+      );
+      setHasMediaAccess(false);
+      return null;
+    }
+  };
   useEffect(() => {
-    let currentStream: MediaStream | null = null;
-
+    let mounted = true;
     const setupVideoStream = async () => {
-      if (isVideoEnabled) {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: {
-              echoCancellation: false, // Disable echo cancellation
-              noiseSuppression: false, // Disable noise suppression
-              autoGainControl: false, // Disable auto gain control
-            },
-          });
-          currentStream = stream;
-          setVideoStream(stream);
-        } catch (err) {
-          console.error("Error accessing camera:", err);
-          toast.error("Please enable camera access in your browser.");
-          setIsVideoEnabled(false);
-        }
+      const stream = await requestMediaPermissions();
+      if (stream && videoRef.current && mounted) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+        setIsPreviewVideoLoading(false);
+      } else {
+        setIsPreviewVideoLoading(false);
       }
     };
     setupVideoStream();
     return () => {
-      if (currentStream) {
-        currentStream.getTracks().forEach(track => {
+      mounted = false;
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => {
           track.stop();
         });
+        streamRef.current = null;
       }
     };
-  }, [isVideoEnabled]);
+  }, []);
 
-  useEffect(() => {
-    if (videoStream && videoRef.current) {
-      videoRef.current.srcObject = videoStream;
-    }
-    return () => {
-      if (videoRef.current) {
-        videoRef.current.srcObject = null;
-      }
-    };
-  }, [videoStream]);
-
+  // call handling
   const startCall = async () => {
     try {
       const req = await getAgentSignedUrl({});
@@ -93,28 +102,44 @@ export default function Page() {
         signedUrl,
         onConnect: ({ conversationId }) => {
           setConversationId(conversationId);
-          if (isVideoEnabled) {
-            startRecordingVideo();
-          }
+          startRecordingVideo();
         },
-        clientTools: tools,
+        clientTools: {
+          triggerName: async (parameters: { name: string }) => {
+            setName(parameters.name);
+            setIsCardOpen(true);
+          },
+          triggerAddItemToWishlist: async (parameters: {
+            itemName: string;
+            itemKey: string;
+          }) => {
+            setWishlist(prevWishlist => [
+              ...prevWishlist,
+              { name: parameters.itemName, key: parameters.itemKey },
+            ]);
+          },
+          triggerRemoveItemFromWishlist: async (parameters: {
+            itemKey: string;
+          }) => {
+            setWishlist(prevWishlist =>
+              prevWishlist.filter(item => item.key !== parameters.itemKey)
+            );
+          },
+        },
       });
     } catch (err) {
-      console.error("Error starting call:", err);
-      toast.error("Failed to start call.");
+      console.error(err);
+      toast.error("Failed to start conversation.");
     }
   };
-
-  const endCall = async () => {
+  const endCall = async (withVideo: boolean = true) => {
     if (!conversationId) {
       toast.error("Conversation not found");
       return;
     }
     setIsEndingCall(true);
-    if (isVideoEnabled) {
+    if (withVideo) {
       try {
-        setIsEndingCall(true);
-        // attempt to upload the video
         if (
           mediaRecorderRef.current &&
           mediaRecorderRef.current.state !== "inactive"
@@ -156,61 +181,39 @@ export default function Page() {
         // success
         toast.success("Video uploaded successfully!");
       } catch (err) {
-        console.error("Error uploading video:", err);
+        console.error(err);
         toast.error("Failed to upload video.");
       }
     }
+
     try {
-      setIsEndingCall(true);
-      // save conversation data
       await saveConversationData({ conversationId, name, wishlist });
     } catch (err) {
-      console.error("Error saving conversation:", err);
+      console.error(err);
       toast.error("Failed to save conversation.");
     }
-    // cleanup
-    setIsVideoEnabled(false);
     await conversation.endSession();
-    videoStream?.getTracks().forEach(track => track.stop());
-    setVideoStream(null);
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
     setIsEndingCall(false);
     // redirect to the card page
     router.push(`/cards/${conversationId}`, { scroll: false });
   };
 
   const startRecordingVideo = () => {
-    if (!videoStream) {
+    if (!streamRef.current) {
       toast.error("Unable to record video");
       return;
     }
     chunksRef.current = [];
-    const mediaRecorder = new MediaRecorder(videoStream);
+    const mediaRecorder = new MediaRecorder(streamRef.current);
     mediaRecorderRef.current = mediaRecorder;
     mediaRecorder.ondataavailable = event => {
       chunksRef.current.push(event.data);
     };
     mediaRecorder.start();
-  };
-
-  const tools = {
-    triggerName: async (parameters: { name: string }) => {
-      setName(parameters.name);
-      setIsCardOpen(true);
-    },
-    triggerAddItemToWishlist: async (parameters: {
-      itemName: string;
-      itemKey: string;
-    }) => {
-      setWishlist(prevWishlist => [
-        ...prevWishlist,
-        { name: parameters.itemName, key: parameters.itemKey },
-      ]);
-    },
-    triggerRemoveItemFromWishlist: async (parameters: { itemKey: string }) => {
-      setWishlist(prevWishlist =>
-        prevWishlist.filter(item => item.key !== parameters.itemKey)
-      );
-    },
   };
 
   return (
@@ -221,8 +224,8 @@ export default function Page() {
           <CallButton
             status={conversation.status}
             startCall={startCall}
-            isVideoEnabled={isVideoEnabled}
-            setIsVideoEnabled={setIsVideoEnabled}
+            hasMediaAccess={hasMediaAccess}
+            requestMediaPermissions={requestMediaPermissions}
           />
         )}
 
@@ -230,7 +233,7 @@ export default function Page() {
         {conversation.status === "connected" && (
           <motion.div
             key="connected"
-            className="relative flex items-center justify-center w-64 h-64" // Added fixed dimensions
+            className="relative flex items-center justify-center w-64 h-64"
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0 }}
@@ -255,61 +258,88 @@ export default function Page() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <img
-                src="/assets/santa.jpg"
+              <Image
+                src="/assets/santa.webp"
                 alt="Santa"
-                className="w-full h-full object-cover opacity-90"
+                width={128}
+                height={128}
+                className="object-cover opacity-90"
+                sizes="128px"
               />
             </motion.div>
           )}
 
-          {isVideoEnabled && videoStream && (
-            <motion.div
-              className="w-32 h-32 rounded-full overflow-hidden border-4 border-red-500 border-opacity-50 shadow-lg relative"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              {isPreviewVideoLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
-                </div>
-              )}
-              <video
-                ref={videoRef}
-                playsInline
-                muted
-                className="w-full h-full object-cover opacity-90"
-                onLoadedMetadata={e => {
-                  const videoElement = e.target as HTMLVideoElement;
-                  videoElement.play().catch(err => {
-                    console.warn("Video play error:", err);
-                  });
-                }}
-                onLoadedData={() => setIsPreviewVideoLoading(false)}
-                onError={() => setIsPreviewVideoLoading(false)}
-              />
-            </motion.div>
-          )}
+          <motion.div
+            className={cn(
+              "w-32 h-32 rounded-full overflow-hidden border-4 border-red-500 border-opacity-50 shadow-lg relative",
+              !hasMediaAccess && "hidden"
+            )}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            {isPreviewVideoLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
+              </div>
+            )}
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-full object-cover opacity-90"
+              onLoadedData={() => {
+                setIsPreviewVideoLoading(false);
+              }}
+              onError={e => {
+                console.error(e);
+                setIsPreviewVideoLoading(false);
+              }}
+            />
+          </motion.div>
         </div>
 
         {conversation.status === "connected" && (
-          <Button
-            variant="default"
-            className="mt-4 px-4 py-2 rounded-full border-red-500 border-2 hover:bg-red-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
-            onClick={endCall}
-            disabled={isEndingCall}
-          >
+          <div className="flex flex-col gap-3 mt-4">
             {isEndingCall ? (
-              <div className="flex items-center gap-2">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                Ending call...
+              <div className="flex flex-col items-center gap-2">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
+                <span className="text-white">Finishing up...</span>
               </div>
             ) : (
-              "Save & End the Call"
-            )}
-          </Button>
-        )}
+              <>
+                <Button
+                  variant="default"
+                  className="px-4 py-2 rounded-full border-emerald-500 border-2 hover:bg-emerald-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
+                  onClick={() => endCall()}
+                >
+                  Save Call with Video
+                  <VideoIcon className="w-4 h-4" />
+                </Button>
 
+                <Button
+                  variant="default"
+                  className="px-4 py-2 rounded-full border-blue-500 border-2 hover:bg-blue-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
+                  onClick={() => endCall(false)}
+                >
+                  Save Call w/o Video
+                  <VideoOffIcon className="w-4 h-4" />
+                </Button>
+
+                <Button
+                  variant="default"
+                  className="px-4 py-2 rounded-full border-gray-500 border-2 hover:bg-gray-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
+                  onClick={() => {
+                    conversation.endSession();
+                    router.push("/");
+                  }}
+                >
+                  Restart
+                </Button>
+              </>
+            )}
+          </div>
+        )}
         {conversation.status === "connected" && (
           <SantaCard
             isOpen={isCardOpen}
