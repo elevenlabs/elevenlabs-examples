@@ -42,11 +42,20 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
   const id = (await params).id;
 
   const videoUrl = `https://iifpdwenjojkwnidrlxl.supabase.co/storage/v1/object/public/media/media/${id}.mp4`;
-  // const videoExists = (await fetch(videoUrl)).ok;
   const conversationData = (await getConversationData({ conversationId: id }))
     ?.data;
 
-  const title = `${conversationData?.name} | Talk to Santa| Elevenlabs`;
+  const name = conversationData?.name || "My";
+  const possessiveForm = name.endsWith('s') 
+    ? `${name}'` 
+    : `${name}'s`;
+
+  const title = `${
+    name.length > 0
+      ? `${possessiveForm} Letter to Santa`
+      : "My Letter to Santa"
+  } | Talk to Santa| By Elevenlabs`;
+
   const description = "Call Santa, powered by ElevenLabs Conversational AI.";
 
   const metadata: Metadata = {
@@ -85,7 +94,7 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
         },
       ],
       players: {
-        playerUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/embed/${id}`,
+        playerUrl: `https://talktosanta.io/embed/${id}`,
         streamUrl: videoUrl,
         width: 512,
         height: 512,
