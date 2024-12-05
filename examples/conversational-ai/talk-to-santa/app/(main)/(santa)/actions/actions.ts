@@ -94,23 +94,22 @@ export const getAgentConversationAudio = actionClient
       );
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
+        const error = await response.json();
+
         throw new Error(
-          errorData?.detail || `HTTP error! status: ${response.status}`
+          error?.detail || `HTTP error! status: ${response.status}`
         );
       }
 
       const audioBuffer = await response.arrayBuffer();
       const base64Audio = Buffer.from(audioBuffer).toString("base64");
 
-      return { audio: base64Audio };
+      return { audio: base64Audio, status: 200 };
     } catch (error) {
-      console.error("Error fetching conversation audio:", error);
-      throw new Error(
-        error instanceof Error
-          ? `Failed to get conversation audio: ${error.message}`
-          : "Failed to get conversation audio"
-      );
+      const errorMessage =
+        error instanceof Error ? error.message : JSON.stringify(error);
+
+      throw new Error(`Failed to get conversation audio: ${errorMessage}`);
     }
   });
 

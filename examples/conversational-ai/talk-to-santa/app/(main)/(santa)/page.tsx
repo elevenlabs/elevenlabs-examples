@@ -1,4 +1,5 @@
 "use client";
+
 import {
   getAgentSignedUrl,
   getSupabaseUploadSignedUrl,
@@ -16,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
+
 export default function Page() {
   const conversation = useConversation();
   const router = useRouter();
@@ -138,8 +140,9 @@ export default function Page() {
       return;
     }
     setIsEndingCall(true);
-    if (withVideo) {
-      try {
+
+    try {
+      if (withVideo) {
         if (
           mediaRecorderRef.current &&
           mediaRecorderRef.current.state !== "inactive"
@@ -180,26 +183,22 @@ export default function Page() {
         }
         // success
         toast.success("Video uploaded successfully!");
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to upload video.");
       }
-    }
 
-    try {
       await saveConversationData({ conversationId, name, wishlist });
+      await conversation.endSession();
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+
+      // redirect to the card page
+      router.push(`/cards/${conversationId}`, { scroll: false });
     } catch (err) {
       console.error(err);
       toast.error("Failed to save conversation.");
+      setIsEndingCall(false); // Only reset loading state if there's an error
     }
-    await conversation.endSession();
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
-    setIsEndingCall(false);
-    // redirect to the card page
-    router.push(`/cards/${conversationId}`, { scroll: false });
   };
 
   const startRecordingVideo = () => {
@@ -272,7 +271,7 @@ export default function Page() {
           <motion.div
             className={cn(
               "w-32 h-32 rounded-full overflow-hidden border-4 border-red-500 border-opacity-50 shadow-lg relative",
-              !hasMediaAccess && "hidden"
+              !hasMediaAccess || (isEndingCall && "hidden")
             )}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -299,45 +298,45 @@ export default function Page() {
           </motion.div>
         </div>
 
-        {conversation.status === "connected" && (
+        {isEndingCall && (
           <div className="flex flex-col gap-3 mt-4">
-            {isEndingCall ? (
-              <div className="flex flex-col items-center gap-2">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
-                <span className="text-white">Finishing up...</span>
-              </div>
-            ) : (
-              <>
-                <Button
-                  variant="default"
-                  className="px-4 py-2 rounded-full border-emerald-500 border-2 hover:bg-emerald-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
-                  onClick={() => endCall()}
-                >
-                  Save Call with Video
-                  <VideoIcon className="w-4 h-4" />
-                </Button>
+            <div className="flex flex-col items-center gap-2">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
+              <span className="text-white">Finishing up...</span>
+            </div>
+          </div>
+        )}
 
-                <Button
-                  variant="default"
-                  className="px-4 py-2 rounded-full border-blue-500 border-2 hover:bg-blue-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
-                  onClick={() => endCall(false)}
-                >
-                  Save Call w/o Video
-                  <VideoOffIcon className="w-4 h-4" />
-                </Button>
+        {conversation.status === "connected" && !isEndingCall && (
+          <div className="flex flex-col gap-3 mt-4">
+            <Button
+              variant="default"
+              className="px-4 py-2 rounded-full border-emerald-500 border-2 hover:bg-emerald-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
+              onClick={() => endCall()}
+            >
+              Save Call with Video
+              <VideoIcon className="w-4 h-4" />
+            </Button>
 
-                <Button
-                  variant="default"
-                  className="px-4 py-2 rounded-full border-gray-500 border-2 hover:bg-gray-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
-                  onClick={() => {
-                    conversation.endSession();
-                    router.push("/");
-                  }}
-                >
-                  Restart
-                </Button>
-              </>
-            )}
+            <Button
+              variant="default"
+              className="px-4 py-2 rounded-full border-blue-500 border-2 hover:bg-blue-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
+              onClick={() => endCall(false)}
+            >
+              Save Call w/o Video
+              <VideoOffIcon className="w-4 h-4" />
+            </Button>
+
+            <Button
+              variant="default"
+              className="px-4 py-2 rounded-full border-gray-500 border-2 hover:bg-gray-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
+              onClick={() => {
+                conversation.endSession();
+                router.push("/");
+              }}
+            >
+              Restart
+            </Button>
           </div>
         )}
         {conversation.status === "connected" && (
