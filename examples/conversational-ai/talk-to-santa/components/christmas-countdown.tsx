@@ -1,6 +1,5 @@
 "use client";
 
-import { getConversationCount } from "@/app/(main)/(santa)/actions/actions";
 import { christmasFont } from "@/components/custom-fonts";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -14,24 +13,6 @@ export const ChristmasCountdown = () => {
     seconds: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
-  const [conversationCount, setConversationCount] = useState<number>(0);
-
-  const donationPerConversation = 2;
-  const maxDonation = 11000;
-  const totalDonation = Math.min(
-    conversationCount * donationPerConversation,
-    maxDonation
-  );
-  const isMaxDonationReached = totalDonation >= maxDonation;
-
-  useEffect(() => {
-    const fetchConversationCount = async () => {
-      const data = await getConversationCount({});
-      setConversationCount(data?.data?.count || 0);
-    };
-
-    fetchConversationCount();
-  }, []);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -62,8 +43,8 @@ export const ChristmasCountdown = () => {
     <motion.div
       initial={{ y: -100, x: "-50%" }}
       animate={{ y: 0 }}
-      transition={{ type: "spring", bounce: 0.3 }}
-      className="fixed top-0 left-1/2 z-50"
+      transition={{ type: "spring", bounce: 0.25 }}
+      className="fixed top-0 left-1/2 z-50 overflow-hidden"
     >
       <div
         className="rounded-b-2xl bg-white/5 backdrop-blur-[16px] shadow-2xl p-4"
@@ -73,6 +54,7 @@ export const ChristmasCountdown = () => {
           borderImage:
             "repeating-linear-gradient(45deg, #ff0000 0px, #ff0000 10px, #ffffff 10px, #ffffff 20px)",
           borderImageSlice: "1",
+          borderImageOutset: "1px",
         }}
       >
         <div className="rounded-xl">
@@ -108,40 +90,6 @@ export const ChristmasCountdown = () => {
                 </div>
               ))}
             </div>
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-              className={cn(
-                "text-white text-center mt-2",
-                christmasFont.className
-              )}
-            >
-              <div className="flex flex-col gap-1">
-                <div className="text-lg">
-                  <span className="text-red-400">{conversationCount.toLocaleString()}</span> Letters
-                  to Santa
-                </div>
-                <div className="text-sm mt-1 text-gray-300">
-                  <span className="text-red-400">{conversationCount.toLocaleString()}</span> × $
-                  {donationPerConversation} ={" "}
-                  <span className="text-gray-300">${totalDonation.toLocaleString()}</span>{" "}
-                  {isMaxDonationReached && <span className="text-yellow-400">(Maximum reached!)</span>}{" "}
-                  <span className="text-gray-300">donated to</span>{" "}
-                  <a
-                    href="https://bridgingvoice.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-green-400 hover:text-green-300 underline underline-offset-2"
-                  >
-                    Bridging Voice
-                  </a>
-                </div>
-                <div className="text-base opacity-70">
-                  and counting!
-                </div>
-              </div>
-            </motion.div>
           </div>
         </div>
       </div>
