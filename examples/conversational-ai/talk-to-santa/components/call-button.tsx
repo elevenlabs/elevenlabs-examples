@@ -2,6 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -11,6 +13,8 @@ interface CallButtonProps {
   startCall: () => void;
   hasMediaAccess: boolean;
   requestMediaPermissions: () => void;
+  isVideoEnabled: boolean;
+  toggleVideoEnabled: (value: boolean) => void;
 }
 
 const RINGING_PHONE_AUDIO_DURATION = 6000;
@@ -20,6 +24,8 @@ export function CallButton({
   startCall,
   hasMediaAccess,
   requestMediaPermissions,
+  isVideoEnabled,
+  toggleVideoEnabled,
 }: CallButtonProps) {
   const [isCalling, setIsCalling] = useState(false);
   const [ringingPhoneAudio] = useState(() => {
@@ -84,6 +90,17 @@ export function CallButton({
           </>
         )}
       </Button>
+      <div className="flex items-center space-x-2 pt-3">
+        <Switch
+          id="airplane-mode"
+          className="bg-red-500"
+          checked={isVideoEnabled}
+          onCheckedChange={toggleVideoEnabled}
+        />
+        <Label htmlFor="airplane-mode" className="text-white">
+          Enable Video
+        </Label>
+      </div>
     </>
   );
 }

@@ -23,7 +23,9 @@ export default function Page() {
   const router = useRouter();
 
   // permission state
-  const [hasMediaAccess, setHasMediaAccess] = useState(false);
+  const [hasAudioAccess, setHasAudioAccess] = useState(false);
+  const [hasVideoAccess, setHasVideoAccess] = useState(false);
+  const [isVideoEnabled, setIsVideoEnabled] = useState(false);
 
   // session state
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -41,15 +43,15 @@ export default function Page() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  // video stream handling
-  const requestMediaPermissions = async () => {
+  // audio stream handling
+  const requestAudioPermissions = async () => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
+        video: false,
         audio: {
           echoCancellation: false,
           noiseSuppression: false,
@@ -57,21 +59,73 @@ export default function Page() {
         },
       });
       streamRef.current = stream;
-      setHasMediaAccess(true);
+      setHasAudioAccess(true);
       return stream;
     } catch (err) {
       console.error(err);
       toast.error(
-        "Please grant video/audio media permissions in site settings to continue"
+        "Please grant audio permissions in site settings to continue"
       );
-      setHasMediaAccess(false);
+      setHasAudioAccess(false);
       return null;
     }
   };
+
+  // video stream handling
+  const requestVideoPermissions = async () => {
+    try {
+      if (!streamRef.current) {
+        throw new Error("Audio stream not initialized");
+      }
+
+      const videoStream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: false,
+      });
+
+      // Add video track to existing audio stream
+      const videoTrack = videoStream.getVideoTracks()[0];
+      streamRef.current.addTrack(videoTrack);
+      setHasVideoAccess(true);
+      return streamRef.current;
+    } catch (err) {
+      console.error(err);
+      toast.error("Unable to access camera");
+      setHasVideoAccess(false);
+      setIsVideoEnabled(false);
+      return streamRef.current;
+    }
+  };
+
+  const toggleVideoEnabled = async () => {
+    const newVideoState = !isVideoEnabled;
+    setIsVideoEnabled(newVideoState);
+
+    if (newVideoState) {
+      // Adding video
+      if (!hasVideoAccess) {
+        await requestVideoPermissions();
+      } else if (streamRef.current) {
+        // Re-enable existing video track
+        streamRef.current
+          .getVideoTracks()
+          .forEach(track => (track.enabled = true));
+      }
+    } else {
+      // Removing video
+      if (streamRef.current) {
+        streamRef.current
+          .getVideoTracks()
+          .forEach(track => (track.enabled = false));
+      }
+    }
+  };
+
+  // Update the useEffect
   useEffect(() => {
     let mounted = true;
-    const setupVideoStream = async () => {
-      const stream = await requestMediaPermissions();
+    const setupStream = async () => {
+      const stream = await requestAudioPermissions();
       if (stream && videoRef.current && mounted) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
@@ -80,7 +134,32 @@ export default function Page() {
         setIsPreviewVideoLoading(false);
       }
     };
-    setupVideoStream();
+    setupStream();
+    return () => {
+      mounted = false;
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => {
+          track.stop();
+        });
+        streamRef.current = null;
+      }
+    };
+  }, []);
+
+  // Update the useEffect
+  useEffect(() => {
+    let mounted = true;
+    const setupStream = async () => {
+      const stream = await requestAudioPermissions();
+      if (stream && videoRef.current && mounted) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+        setIsPreviewVideoLoading(false);
+      } else {
+        setIsPreviewVideoLoading(false);
+      }
+    };
+    setupStream();
     return () => {
       mounted = false;
       if (streamRef.current) {
@@ -223,8 +302,10 @@ export default function Page() {
           <CallButton
             status={conversation.status}
             startCall={startCall}
-            hasMediaAccess={hasMediaAccess}
-            requestMediaPermissions={requestMediaPermissions}
+            hasMediaAccess={hasAudioAccess}
+            requestMediaPermissions={requestAudioPermissions}
+            isVideoEnabled={isVideoEnabled}
+            toggleVideoEnabled={toggleVideoEnabled}
           />
         )}
 
@@ -271,7 +352,7 @@ export default function Page() {
           <motion.div
             className={cn(
               "w-32 h-32 rounded-full overflow-hidden border-4 border-red-500 border-opacity-50 shadow-lg relative",
-              !hasMediaAccess || (isEndingCall && "hidden")
+              (!hasVideoAccess || !isVideoEnabled || isEndingCall) && "hidden"
             )}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -314,24 +395,38 @@ export default function Page() {
               isCardOpen ? "invisible" : "visible"
             )}
           >
-            <Button
-              variant="default"
-              className="px-4 py-2 rounded-full border-emerald-500 border-2 hover:bg-emerald-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
-              onClick={() => endCall()}
-            >
-              Save Card with Video
-              <VideoIcon className="w-4 h-4" />
-            </Button>
+            {isVideoEnabled && (
+              <>
+                <Button
+                  variant="default"
+                  className="px-4 py-2 rounded-full border-emerald-500 border-2 hover:bg-emerald-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
+                  onClick={() => endCall()}
+                >
+                  Save Card with Video
+                  <VideoIcon className="w-4 h-4" />
+                </Button>
 
-            <Button
-              variant="default"
-              className="px-4 py-2 rounded-full border-blue-500 border-2 hover:bg-blue-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
-              onClick={() => endCall(false)}
-            >
-              Save Card without Video
-              <VideoOffIcon className="w-4 h-4" />
-            </Button>
-
+                <Button
+                  variant="default"
+                  className="px-4 py-2 rounded-full border-blue-500 border-2 hover:bg-blue-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
+                  onClick={() => endCall(false)}
+                >
+                  Save Card without Video
+                  <VideoOffIcon className="w-4 h-4" />
+                </Button>
+              </>
+            )}
+            {!isVideoEnabled && (
+              <>
+                <Button
+                  variant="default"
+                  className="px-4 py-2 rounded-full border-blue-500 border-2 hover:bg-blue-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
+                  onClick={() => endCall(false)}
+                >
+                  Save Card
+                </Button>
+              </>
+            )}
             <Button
               variant="default"
               className="px-4 py-2 rounded-full border-gray-500 border-2 hover:bg-gray-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
