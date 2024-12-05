@@ -16,16 +16,27 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://talktosanta.io'),
-  title: "Talk to Santa - Live AI Christmas Conversations | ElevenLabs",
-  description: "Experience magical real-time conversations with Santa Claus using advanced AI technology. Perfect for children and families this holiday season. Powered by ElevenLabs AI.",
-  keywords: ["Santa Claus", "AI Santa", "Christmas", "Kids", "Holiday", "Virtual Santa", "Talk to Santa", "ElevenLabs", "AI Chat"], 
+  metadataBase: new URL("https://talktosanta.io"),
+  title: "Talk to Santa | ElevenLabs",
+  description: "Talk to Santa, powered by ElevenLabs Conversational AI.",
+  keywords: [
+    "Santa Claus",
+    "AI Santa",
+    "Christmas",
+    "Holiday",
+    "Virtual Santa",
+    "North Pole",
+    "Talk to Santa",
+    "ElevenLabs",
+    "AI Chat",
+    "Conversational AI",
+  ],
   openGraph: {
-    title: "Talk to Santa - Live AI Christmas Conversations | ElevenLabs",
-    description: "Experience magical real-time conversations with Santa Claus using advanced AI technology. Perfect for children and families this holiday season.",
+    title: "Talk to Santa | ElevenLabs",
+    description: "Talk to Santa, powered by ElevenLabs Conversational AI.",
     images: [
       {
-        url: "/og.jpg",
+        url: "/assets/og.jpg",
         width: 1200,
         height: 630,
         alt: "Interactive AI Santa Claus Experience by ElevenLabs",
@@ -37,9 +48,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Talk to Santa - Live AI Christmas Conversations | ElevenLabs",
-    description: "Experience magical real-time conversations with Santa Claus using advanced AI technology. Perfect for children and families.",
-    images: ["/og-image.jpg"],
+    title: "Talk to Santa | ElevenLabs",
+    description:
+      "Experience a real-time conversation with Santa Claus, powered by ElevenLabs Conversational AI.",
+    images: ["/assets/og-image.jpg"],
     creator: "@elevenlabsio",
   },
   robots: {
@@ -48,9 +60,9 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
 };
