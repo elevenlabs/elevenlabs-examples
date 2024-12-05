@@ -210,16 +210,37 @@ export default function Page() {
       return;
     }
     chunksRef.current = [];
-    const options = {
-      mimeType: 'video/webm; codecs=vp8,opus',
+    
+    // Try different MIME types based on browser support
+    const mimeTypes = [
+      'video/webm;codecs=h264',
+      'video/mp4;codecs=h264',
+      'video/webm;codecs=vp8,opus',
+    ];
+    
+    let selectedMimeType = mimeTypes.find(type => MediaRecorder.isTypeSupported(type));
+    
+    if (!selectedMimeType) {
+      toast.error("Your browser doesn't support video recording");
+      return;
+    }
+
+    const options: MediaRecorderOptions = {
+      mimeType: selectedMimeType,  // Now passing a single string instead of array
       videoBitsPerSecond: 1000000, // 1 Mbps
     };
-    const mediaRecorder = new MediaRecorder(streamRef.current, options);
-    mediaRecorderRef.current = mediaRecorder;
-    mediaRecorder.ondataavailable = event => {
-      chunksRef.current.push(event.data);
-    };
-    mediaRecorder.start();
+
+    try {
+      const mediaRecorder = new MediaRecorder(streamRef.current, options);
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.ondataavailable = event => {
+        chunksRef.current.push(event.data);
+      };
+      mediaRecorder.start();
+    } catch (error) {
+      console.error('Error starting MediaRecorder:', error);
+      toast.error("Failed to start recording");
+    }
   };
 
   return (
