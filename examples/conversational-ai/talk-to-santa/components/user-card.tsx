@@ -17,6 +17,8 @@ import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { ShareOnXButton, CopyShareLink } from "@/components/share-buttons";
+import Link from "next/link";
 
 export function UserCard({
   video,
@@ -93,10 +95,10 @@ export function UserCard({
           <CardDescription className="text-xl text-gray-600 mb-2 text-center">
             From my heart to the North Pole
           </CardDescription>
-          <hr className="border-t-2 border-gray-300 my-4" />
+          <hr className="border-t-2 border-red-300 opacity-20" />
         </CardHeader>
 
-        <CardContent className="max-w-2xl mx-auto px-8 py-5">
+        <CardContent className="max-w-2xl mx-auto px-8 pt-2">
           <div className="space-y-1">
             <div className="text-4xl font-medium text-gray-800 mb-6">
               Dear Santa,
@@ -160,7 +162,7 @@ export function UserCard({
         <div className="flex flex-col items-center border-t pt-6 p-4">
           {video && (
             <video
-              className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-sm h-auto rounded-lg"
+              className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-sm h-auto rounded-lg mb-4"
               controls
               autoPlay
               muted
@@ -191,6 +193,11 @@ export function UserCard({
             </div>
           )}
 
+          <div className="flex gap-2">
+            <ShareOnXButton />
+            <CopyShareLink />
+          </div>
+
           <span className="text-gray-500 pt-4">
             Made with{" "}
             <span role="img" aria-label="heart">
@@ -203,6 +210,12 @@ export function UserCard({
               </a>
             </strong>
           </span>
+          <Link
+            href="/"
+            className="text-sm text-gray-400 hover:text-gray-600 mt-2 transition-colors"
+          >
+            ✨ Create your own letter to Santa
+          </Link>
         </div>
       </Card>
     </div>
