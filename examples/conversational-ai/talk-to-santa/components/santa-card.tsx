@@ -133,6 +133,7 @@ export function SantaCard({
                   variant="default"
                   className="flex-1 px-4 py-2 rounded-full border-gray-500 border-2 bg-gray-900/90 hover:bg-gray-950/90 text-white backdrop-blur-[16px] shadow-2xl"
                   onClick={async () => {
+                    setIsOpen(false);
                     await conversation.endSession();
                     window.location.reload();
                   }}
@@ -142,7 +143,10 @@ export function SantaCard({
                 <Button
                   variant="default"
                   className="flex-1 px-4 py-2 rounded-full border-blue-500 border-2 bg-blue-900/90 hover:bg-blue-950/90 text-white backdrop-blur-[16px] shadow-2xl"
-                  onClick={() => endCall(false)}
+                  onClick={() => {
+                    setIsOpen(false);
+                    endCall(false);
+                  }}
                 >
                   Save Card without Video
                   <VideoOffIcon className="w-4 h-4 ml-2" />
@@ -150,7 +154,10 @@ export function SantaCard({
                 <Button
                   variant="default"
                   className="flex-1 px-4 py-2 rounded-full border-emerald-500 border-2 bg-emerald-900/90 hover:bg-emerald-950/90 text-white backdrop-blur-[16px] shadow-2xl"
-                  onClick={() => endCall()}
+                  onClick={() => {
+                    setIsOpen(false);
+                    endCall();
+                  }}
                 >
                   Save Card with Video
                   <VideoIcon className="w-4 h-4 ml-2" />

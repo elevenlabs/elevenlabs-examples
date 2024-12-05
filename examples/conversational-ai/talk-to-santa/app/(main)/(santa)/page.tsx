@@ -307,7 +307,7 @@ export default function Page() {
           </div>
         )}
 
-        {conversation.status === "connected" && (
+        {conversation.status === "connected" && !isEndingCall && (
           <div
             className={cn(
               "flex flex-col gap-3 mt-4",
