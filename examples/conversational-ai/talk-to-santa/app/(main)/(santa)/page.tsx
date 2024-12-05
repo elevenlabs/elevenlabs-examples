@@ -49,7 +49,10 @@ export default function Page() {
     }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
+        video: {
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+        },
         audio: {
           echoCancellation: false,
           noiseSuppression: false,
@@ -207,7 +210,11 @@ export default function Page() {
       return;
     }
     chunksRef.current = [];
-    const mediaRecorder = new MediaRecorder(streamRef.current);
+    const options = {
+      mimeType: 'video/webm; codecs=vp8,opus',
+      videoBitsPerSecond: 1000000, // 1 Mbps
+    };
+    const mediaRecorder = new MediaRecorder(streamRef.current, options);
     mediaRecorderRef.current = mediaRecorder;
     mediaRecorder.ondataavailable = event => {
       chunksRef.current.push(event.data);
