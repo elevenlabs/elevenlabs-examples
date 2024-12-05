@@ -48,12 +48,7 @@ export function CallButton({
   return (
     <>
       {!isCalling && (
-        <div
-          className={cn(
-            "text-white font-bold flex items-center gap-2 text-sm mb-2",
-            christmasFont.className
-          )}
-        >
+        <div className={"text-white flex items-center gap-2 text-sm mb-2"}>
           For the best experience, find a quiet place
         </div>
       )}
