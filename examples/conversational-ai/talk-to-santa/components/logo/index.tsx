@@ -23,7 +23,7 @@ export const Logo = ({ className }: { className?: string }) => {
   return (
     <div
       className={cn(
-        "flex h-[32px] w-[160px] items-center lg:h-8 [&_svg]:!h-[32px] lg:[&_svg]:!h-[32px] text-white",
+        "flex h-[24px] w-[120px] items-center sm:h-[32px] sm:w-[160px] [&_svg]:!h-[24px] sm:[&_svg]:!h-[32px] text-white",
         className
       )}
     >

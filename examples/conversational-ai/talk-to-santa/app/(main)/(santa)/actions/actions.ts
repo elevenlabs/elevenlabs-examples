@@ -208,3 +208,22 @@ export const getConversationData = actionClient
       );
     }
   });
+
+export const getConversationCount = actionClient
+  .schema(z.object({}))
+  .action(async ({}) => {
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !serviceRoleKey) {
+      throw new Error("Environment variables are not set");
+    }
+
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+    const { count } = await supabase
+      .from("conversations")
+      .select("*", { count: "exact", head: true });
+
+    return { count: count || 0 };
+  });
