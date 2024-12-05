@@ -13,7 +13,7 @@ interface CallButtonProps {
   requestMediaPermissions: () => void;
 }
 
-const RINGING_PHONE_AUDIO_DURATION = 0;
+const RINGING_PHONE_AUDIO_DURATION = 6000;
 
 export function CallButton({
   status,
