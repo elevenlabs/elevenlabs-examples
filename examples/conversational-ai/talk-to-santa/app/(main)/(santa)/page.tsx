@@ -218,7 +218,7 @@ export default function Page() {
       'video/webm;codecs=vp8,opus',
     ];
     
-    let selectedMimeType = mimeTypes.find(type => MediaRecorder.isTypeSupported(type));
+    const selectedMimeType = mimeTypes.find(type => MediaRecorder.isTypeSupported(type));
     
     if (!selectedMimeType) {
       toast.error("Your browser doesn't support video recording");
