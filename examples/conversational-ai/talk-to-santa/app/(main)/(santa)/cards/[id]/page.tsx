@@ -3,6 +3,7 @@
 import { UserCard } from "@/components/user-card";
 import { Loader2 } from "lucide-react";
 import { Suspense } from "react";
+import { Metadata } from "next";
 
 import { getConversationData } from "@/app/(main)/(santa)/actions/actions";
 
@@ -35,4 +36,65 @@ export default async function Page({
       />
     </Suspense>
   );
+}
+
+export async function generateMetadata({ params }: any): Promise<Metadata> {
+  const id = (await params).id;
+
+  const videoUrl = `https://iifpdwenjojkwnidrlxl.supabase.co/storage/v1/object/public/media/media/${id}.mp4`;
+  // const videoExists = (await fetch(videoUrl)).ok;
+  const conversationData = (await getConversationData({ conversationId: id }))
+    ?.data;
+
+  const title = `${conversationData?.name} | Talk to Santa| Elevenlabs`;
+  const description = "Call Santa, powered by ElevenLabs Conversational AI.";
+
+  const metadata: Metadata = {
+    title,
+    openGraph: {
+      title,
+      description,
+      images: [
+        {
+          url: "/assets/og.jpg",
+          width: 1200,
+          height: 630,
+        },
+      ],
+      videos: [
+        {
+          url: videoUrl,
+          width: 512,
+          height: 512,
+        },
+      ],
+      locale: "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "player",
+      title,
+      description,
+      site: "@elebenlabs.io",
+      creator: "@elevenlabsio",
+      images: [
+        {
+          url: "/assets/og.jpg",
+          width: 1200,
+          height: 630,
+        },
+      ],
+      players: {
+        playerUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/embed/${id}`,
+        streamUrl: videoUrl,
+        width: 512,
+        height: 512,
+      },
+    },
+  };
+
+  return {
+    title,
+    ...metadata,
+  };
 }

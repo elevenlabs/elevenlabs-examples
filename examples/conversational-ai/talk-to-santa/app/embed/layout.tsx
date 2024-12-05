@@ -1,3 +1,4 @@
+import "../globals.css";
 
 export const metadata = {
   title: "Embed",
@@ -6,12 +7,14 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }: {
-  children: React.ReactNode
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en" className={"h-full w-full"}>
-    <body className={"h-full w-full"}>{children}</body>
+      <body className={"h-full w-full"}>{children}</body>
     </html>
   );
 }
