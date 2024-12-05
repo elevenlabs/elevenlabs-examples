@@ -232,7 +232,7 @@ export default function Page() {
         {conversation.status === "connected" && (
           <motion.div
             key="connected"
-            className="relative flex items-center justify-center w-64 h-48 md:h-64 -mt-16 md:mt-0"
+            className="relative flex items-center justify-center w-28 h-28 md:h-64 md:w-64 -mt-16 md:mt-0"
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0 }}

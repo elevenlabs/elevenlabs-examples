@@ -3,6 +3,7 @@ import { ChristmasCountdown } from "@/components/christmas-countdown";
 import { Snowfall } from "@/components/snowfall";
 import { MusicPlayer } from "@/components/music-player";
 import Link from "next/link";
+import { DisclaimerButton } from "@/components/disclaimer-button";
 
 export default function Layout({
   children,
@@ -38,6 +39,7 @@ export default function Layout({
         <Snowfall />
       </div>
       <MusicPlayer />
+      <DisclaimerButton />
     </div>
   );
 }
