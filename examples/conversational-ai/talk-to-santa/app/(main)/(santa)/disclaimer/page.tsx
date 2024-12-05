@@ -3,6 +3,7 @@
 import { christmasFont } from "@/components/custom-fonts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { X } from "lucide-react";
 
 export default function Page() {
   return (
@@ -15,6 +16,13 @@ export default function Page() {
         christmasFont.className
       )}
     >
+      <button
+        onClick={() => (window.location.href = "/")}
+        className="absolute top-5 right-5 text-white bg-red-600 hover:bg-red-700 z-10 rounded-full w-8 h-8 flex items-center justify-center font-bold shadow-md"
+        aria-label="Close"
+      >
+        <X className="w-4 h-4" />
+      </button>
       <Card className="bg-white backdrop-blur-sm rounded-lg">
         <CardHeader>
           <CardTitle className="text-4xl font-bold text-red-600 text-center">
