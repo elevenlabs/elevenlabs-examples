@@ -218,7 +218,7 @@ export default function Page() {
   return (
     <div>
       {/* Call Santa Button */}
-      <div className="flex flex-col items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen md:min-h-screen pt-0 md:pt-16">
         {conversation.status !== "connected" && !isEndingCall && (
           <CallButton
             status={conversation.status}
@@ -232,7 +232,7 @@ export default function Page() {
         {conversation.status === "connected" && (
           <motion.div
             key="connected"
-            className="relative flex items-center justify-center w-64 h-64"
+            className="relative flex items-center justify-center w-64 h-48 md:h-64 -mt-16 md:mt-0"
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0 }}
@@ -314,7 +314,7 @@ export default function Page() {
               className="px-4 py-2 rounded-full border-emerald-500 border-2 hover:bg-emerald-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
               onClick={() => endCall()}
             >
-              Save Call with Video
+              Save Card with Video
               <VideoIcon className="w-4 h-4" />
             </Button>
 
@@ -323,16 +323,16 @@ export default function Page() {
               className="px-4 py-2 rounded-full border-blue-500 border-2 hover:bg-blue-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
               onClick={() => endCall(false)}
             >
-              Save Call w/o Video
+              Save Card w/o Video
               <VideoOffIcon className="w-4 h-4" />
             </Button>
 
             <Button
               variant="default"
               className="px-4 py-2 rounded-full border-gray-500 border-2 hover:bg-gray-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
-              onClick={() => {
-                conversation.endSession();
-                router.push("/");
+              onClick={async () => {
+                await conversation.endSession();
+                window.location.reload();
               }}
             >
               Restart
