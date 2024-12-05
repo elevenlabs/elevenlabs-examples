@@ -216,7 +216,7 @@ export default function Page() {
   };
 
   return (
-    <div>
+    <div className="overflow-hidden">
       {/* Call Santa Button */}
       <div className="flex flex-col items-center justify-center min-h-screen md:min-h-screen pt-0 md:pt-16">
         {conversation.status !== "connected" && !isEndingCall && (
