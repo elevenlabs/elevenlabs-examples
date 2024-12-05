@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { christmasFont } from "@/components/custom-fonts";
 
 interface CallButtonProps {
   status: "disconnected" | "connecting" | "connected" | "disconnecting";
@@ -46,6 +47,16 @@ export function CallButton({
   };
   return (
     <>
+      {!isCalling && (
+        <div
+          className={cn(
+            "text-white font-bold flex items-center gap-2 text-sm mb-2",
+            christmasFont.className
+          )}
+        >
+          For the best experience, find a quiet place
+        </div>
+      )}
       <Button
         variant="default"
         onClick={onCallClick}
