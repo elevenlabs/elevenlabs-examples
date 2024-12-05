@@ -217,7 +217,7 @@ export function UserCard({
             href="/"
             className="mt-6 px-8 py-4 text-xl font-bold text-white bg-gradient-to-r from-red-600 to-red-500 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 flex items-center gap-2"
           >
-            ✨ Create Your Own Magical Letter to Santa ✨
+            Create Your Own Letter to Santa ✨
           </Link>
         </div>
       </Card>
