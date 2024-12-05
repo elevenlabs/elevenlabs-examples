@@ -1,14 +1,10 @@
 "use client";
 
 import { christmasFont } from "@/components/custom-fonts";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 
 export default function Page() {
-  const router = useRouter();
-
   return (
     <div
       className={cn(
@@ -72,15 +68,6 @@ export default function Page() {
               </a>
             </strong>
           </span>
-        </div>
-        <div className="px-4 pb-4">
-          <Button
-            onClick={() => router.push("/")}
-            className="w-full"
-            variant="destructive"
-          >
-            I Understand
-          </Button>
         </div>
       </Card>
     </div>
