@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { christmasFont } from "@/components/custom-fonts";
 
 interface CallButtonProps {
   status: "disconnected" | "connecting" | "connected" | "disconnecting";
