@@ -307,8 +307,13 @@ export default function Page() {
           </div>
         )}
 
-        {conversation.status === "connected" && !isEndingCall && (
-          <div className="flex flex-col gap-3 mt-4">
+        {conversation.status === "connected" && (
+          <div
+            className={cn(
+              "flex flex-col gap-3 mt-4",
+              isCardOpen ? "invisible" : "visible"
+            )}
+          >
             <Button
               variant="default"
               className="px-4 py-2 rounded-full border-emerald-500 border-2 hover:bg-emerald-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
@@ -323,7 +328,7 @@ export default function Page() {
               className="px-4 py-2 rounded-full border-blue-500 border-2 hover:bg-blue-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
               onClick={() => endCall(false)}
             >
-              Save Card w/o Video
+              Save Card without Video
               <VideoOffIcon className="w-4 h-4" />
             </Button>
 
@@ -341,6 +346,8 @@ export default function Page() {
         )}
         {conversation.status === "connected" && (
           <SantaCard
+            conversation={conversation}
+            endCall={endCall}
             isOpen={isCardOpen}
             setIsOpen={setIsCardOpen}
             name={name}

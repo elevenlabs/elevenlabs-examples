@@ -11,13 +11,15 @@ import {
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { Mail } from "lucide-react";
+import { Mail, VideoIcon, VideoOffIcon } from "lucide-react";
 
 interface SantaCardProps {
   name: string | null;
   wishlist: Array<{ key: string; name: string }>;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  conversation: any;
+  endCall: (withVideo?: boolean) => void;
 }
 
 export function SantaCard({
@@ -25,6 +27,8 @@ export function SantaCard({
   setIsOpen,
   name,
   wishlist,
+  conversation,
+  endCall,
 }: SantaCardProps) {
   return (
     <>
@@ -124,6 +128,34 @@ export function SantaCard({
                   </a>
                 </strong>
               </span>
+              <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                <Button
+                  variant="default"
+                  className="flex-1 px-4 py-2 rounded-full border-gray-500 border-2 bg-gray-900/90 hover:bg-gray-950/90 text-white backdrop-blur-[16px] shadow-2xl"
+                  onClick={async () => {
+                    await conversation.endSession();
+                    window.location.reload();
+                  }}
+                >
+                  Restart
+                </Button>
+                <Button
+                  variant="default"
+                  className="flex-1 px-4 py-2 rounded-full border-blue-500 border-2 bg-blue-900/90 hover:bg-blue-950/90 text-white backdrop-blur-[16px] shadow-2xl"
+                  onClick={() => endCall(false)}
+                >
+                  Save Card without Video
+                  <VideoOffIcon className="w-4 h-4 ml-2" />
+                </Button>
+                <Button
+                  variant="default"
+                  className="flex-1 px-4 py-2 rounded-full border-emerald-500 border-2 bg-emerald-900/90 hover:bg-emerald-950/90 text-white backdrop-blur-[16px] shadow-2xl"
+                  onClick={() => endCall()}
+                >
+                  Save Card with Video
+                  <VideoIcon className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
             </DrawerFooter>
           </div>
         </DrawerContent>
