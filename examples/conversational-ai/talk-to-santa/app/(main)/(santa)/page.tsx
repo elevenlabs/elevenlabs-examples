@@ -49,10 +49,7 @@ export default function Page() {
     }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 640 },
-          height: { ideal: 480 },
-        },
+        video: true,
         audio: {
           echoCancellation: false,
           noiseSuppression: false,
@@ -210,37 +207,12 @@ export default function Page() {
       return;
     }
     chunksRef.current = [];
-    
-    // Try different MIME types based on browser support
-    const mimeTypes = [
-      'video/webm;codecs=h264',
-      'video/mp4;codecs=h264',
-      'video/webm;codecs=vp8,opus',
-    ];
-    
-    const selectedMimeType = mimeTypes.find(type => MediaRecorder.isTypeSupported(type));
-    
-    if (!selectedMimeType) {
-      toast.error("Your browser doesn't support video recording");
-      return;
-    }
-
-    const options: MediaRecorderOptions = {
-      mimeType: selectedMimeType,  // Now passing a single string instead of array
-      videoBitsPerSecond: 1000000, // 1 Mbps
+    const mediaRecorder = new MediaRecorder(streamRef.current);
+    mediaRecorderRef.current = mediaRecorder;
+    mediaRecorder.ondataavailable = event => {
+      chunksRef.current.push(event.data);
     };
-
-    try {
-      const mediaRecorder = new MediaRecorder(streamRef.current, options);
-      mediaRecorderRef.current = mediaRecorder;
-      mediaRecorder.ondataavailable = event => {
-        chunksRef.current.push(event.data);
-      };
-      mediaRecorder.start();
-    } catch (error) {
-      console.error('Error starting MediaRecorder:', error);
-      toast.error("Failed to start recording");
-    }
+    mediaRecorder.start();
   };
 
   return (
