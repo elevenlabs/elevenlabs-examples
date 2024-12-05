@@ -83,6 +83,7 @@ export function UserCard({
         "mx-auto max-w-4xl",
         "relative rounded-lg",
         "p-[10px]",
+        "mt-32 sm:mt-40",
         "bg-[repeating-linear-gradient(45deg,#ff0000_0px,#ff0000_10px,#ffffff_10px,#ffffff_20px)]",
         christmasFont.className
       )}
@@ -161,17 +162,19 @@ export function UserCard({
 
         <div className="flex flex-col items-center border-t pt-6 p-4">
           {video && (
-            <video
-              className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-sm h-auto rounded-lg mb-4"
-              controls
-              autoPlay
-              muted
-              playsInline
-              loop
-            >
-              <source src={video} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
+            <div className="aspect-video w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-sm bg-black flex items-center justify-center">
+              <video
+                className="h-full w-full object-contain"
+                controls
+                autoPlay
+                muted
+                playsInline
+                loop
+              >
+                <source src={video} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
           )}
 
           {loadingAudio && (
@@ -193,7 +196,7 @@ export function UserCard({
             </div>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-4">
             <ShareOnXButton />
             <CopyShareLink />
           </div>
