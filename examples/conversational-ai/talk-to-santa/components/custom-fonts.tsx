@@ -10,7 +10,7 @@ export const christmasFont = localFont({
     {
       path: "../app/fonts/SantasSleighFullBold.woff2",
       weight: "700",
-      style: "normal",
+      style: "bold",
     },
   ],
   variable: "--font-santa",

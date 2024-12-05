@@ -215,9 +215,9 @@ export function UserCard({
           </span>
           <Link
             href="/"
-            className="text-sm text-gray-400 hover:text-gray-600 mt-2 transition-colors"
+            className="mt-6 px-8 py-4 text-xl font-bold text-white bg-gradient-to-r from-red-600 to-red-500 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 flex items-center gap-2"
           >
-            ✨ Create your own letter to Santa
+            ✨ Create Your Own Magical Letter to Santa ✨
           </Link>
         </div>
       </Card>
