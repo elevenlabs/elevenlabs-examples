@@ -241,7 +241,7 @@ export default function Page() {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-full h-full max-w-[250px] max-h-[250px]">
                 <Orb
-                  colors={["#ff0000", "#008000"]}
+                  colors={["#000000", "#FF0000"]}
                   getInputVolume={conversation.getInputVolume}
                   getOutputVolume={conversation.getOutputVolume}
                 />
