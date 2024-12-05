@@ -46,14 +46,11 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
     ?.data;
 
   const name = conversationData?.name || "My";
-  const possessiveForm = name.endsWith('s') 
-    ? `${name}'` 
-    : `${name}'s`;
+  const possessiveForm =
+    name === "My" ? "My" : name.endsWith("s") ? `${name}'` : `${name}'s`;
 
   const title = `${
-    name.length > 0
-      ? `${possessiveForm} Letter to Santa`
-      : "My Letter to Santa"
+    name.length > 0 ? `${possessiveForm} Letter to Santa` : "My Letter to Santa"
   } | Talk to Santa| By Elevenlabs`;
 
   const description = "Call Santa, powered by ElevenLabs Conversational AI.";
