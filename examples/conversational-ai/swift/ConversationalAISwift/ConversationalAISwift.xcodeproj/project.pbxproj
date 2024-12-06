@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BFB984172CE2501C00E9087A /* ElevenLabsSDK in Frameworks */ = {isa = PBXBuildFile; productRef = BFB984162CE2501C00E9087A /* ElevenLabsSDK */; };
+		912700AD2D031C0A0063AF97 /* ElevenLabsSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 912700AC2D031C0A0063AF97 /* ElevenLabsSDK */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,7 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BFB984172CE2501C00E9087A /* ElevenLabsSDK in Frameworks */,
+				912700AD2D031C0A0063AF97 /* ElevenLabsSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,7 +70,7 @@
 			);
 			name = ConversationalAISwift;
 			packageProductDependencies = (
-				BFB984162CE2501C00E9087A /* ElevenLabsSDK */,
+				912700AC2D031C0A0063AF97 /* ElevenLabsSDK */,
 			);
 			productName = ConversationalAISwift;
 			productReference = BF5D8A6B2CDA213E00E1EEE4 /* ConversationalAISwift.app */;
@@ -101,7 +101,7 @@
 			mainGroup = BF5D8A622CDA213E00E1EEE4;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				BF7C81012CE24FA600D2C589 /* XCRemoteSwiftPackageReference "ElevenLabsSwift" */,
+				912700AB2D031C0A0063AF97 /* XCRemoteSwiftPackageReference "ElevenLabsSwift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BF5D8A6C2CDA213E00E1EEE4 /* Products */;
@@ -339,7 +339,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		BF7C81012CE24FA600D2C589 /* XCRemoteSwiftPackageReference "ElevenLabsSwift" */ = {
+		912700AB2D031C0A0063AF97 /* XCRemoteSwiftPackageReference "ElevenLabsSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/elevenlabs/ElevenLabsSwift.git";
 			requirement = {
@@ -350,9 +350,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		BFB984162CE2501C00E9087A /* ElevenLabsSDK */ = {
+		912700AC2D031C0A0063AF97 /* ElevenLabsSDK */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = BF7C81012CE24FA600D2C589 /* XCRemoteSwiftPackageReference "ElevenLabsSwift" */;
+			package = 912700AB2D031C0A0063AF97 /* XCRemoteSwiftPackageReference "ElevenLabsSwift" */;
 			productName = ElevenLabsSDK;
 		};
 /* End XCSwiftPackageProductDependency section */
