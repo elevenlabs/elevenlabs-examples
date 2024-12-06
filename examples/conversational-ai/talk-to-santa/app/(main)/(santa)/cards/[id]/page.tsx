@@ -62,7 +62,7 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
       description,
       images: [
         {
-          url: "/assets/og.jpg",
+          url: "/assets/og-image.jpg",
           width: 1200,
           height: 630,
         },
@@ -85,7 +85,7 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
       creator: "@elevenlabsio",
       images: [
         {
-          url: "/assets/og.jpg",
+          url: "/assets/og-image.jpg",
           width: 1200,
           height: 630,
         },

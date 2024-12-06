@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     description: "Talk to Santa, powered by ElevenLabs Conversational AI.",
     images: [
       {
-        url: "/assets/og.jpg",
+        url: "/assets/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Interactive AI Santa Claus Experience by ElevenLabs",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     title: "Talk to Santa | ElevenLabs",
     description:
       "Experience a real-time conversation with Santa Claus, powered by ElevenLabs Conversational AI.",
-    images: ["/assets/og.jpg"],
+    images: ["/assets/og-image.jpg"],
     creator: "@elevenlabsio",
   },
   robots: {
