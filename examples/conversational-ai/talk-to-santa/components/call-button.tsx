@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { LanguageDropdown, LANGUAGES } from "@/components/language-dropdown";
 
 interface CallButtonProps {
   status: "disconnected" | "connecting" | "connected" | "disconnecting";
@@ -15,6 +16,9 @@ interface CallButtonProps {
   requestMediaPermissions: () => void;
   isVideoEnabled: boolean;
   toggleVideoEnabled: (value: boolean) => void;
+  language: string | null;
+  setLanguage: (value: string) => void;
+  languages: typeof LANGUAGES;
 }
 
 const RINGING_PHONE_AUDIO_DURATION = 6000;
@@ -26,6 +30,9 @@ export function CallButton({
   requestMediaPermissions,
   isVideoEnabled,
   toggleVideoEnabled,
+  language,
+  setLanguage,
+  languages,
 }: CallButtonProps) {
   const [isCalling, setIsCalling] = useState(false);
   const [ringingPhoneAudio] = useState(() => {
@@ -90,6 +97,15 @@ export function CallButton({
           </>
         )}
       </Button>
+      {!isCalling && (
+        <div className={"flex items-center gap-2 text-sm mt-2"}>
+          <LanguageDropdown
+            language={language}
+            setLanguage={setLanguage}
+            languages={languages}
+          />
+        </div>
+      )}
       <div className="flex items-center space-x-2 pt-3">
         <Switch
           id="airplane-mode"

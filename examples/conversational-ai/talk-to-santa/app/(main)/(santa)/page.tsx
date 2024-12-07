@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
-
+import { LANGUAGES } from "@/components/language-dropdown";
 export default function Page() {
   const conversation = useConversation();
   const router = useRouter();
@@ -26,6 +26,35 @@ export default function Page() {
   const [hasAudioAccess, setHasAudioAccess] = useState(false);
   const [hasVideoAccess, setHasVideoAccess] = useState(false);
   const [isVideoEnabled, setIsVideoEnabled] = useState(false);
+  const [language, setLanguage] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("preferredLanguage");
+      if (stored && LANGUAGES.find(l => l.code === stored)) {
+        setLanguage(stored);
+        return;
+      }
+
+      console.log("navigator.language", navigator.language);
+      if (navigator.language) {
+        const browserLang = navigator.language.split("-")[0];
+        const matchingLang = LANGUAGES.find(l => l.code === browserLang);
+        if (matchingLang) {
+          setLanguage(matchingLang.code);
+          return;
+        }
+      }
+    } catch (error) {
+      console.warn("Language detection failed:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (language) {
+      localStorage.setItem("preferredLanguage", language);
+    }
+  }, [language]);
 
   // session state
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -181,6 +210,14 @@ export default function Page() {
       }
       conversation.startSession({
         signedUrl,
+        overrides: {
+          agent: {
+            language: language ?? ("en" as any),
+            firstMessage:
+              LANGUAGES.find(l => l.code === language)?.firstSentence ??
+              LANGUAGES[0].firstSentence,
+          },
+        },
         onConnect: ({ conversationId }) => {
           setConversationId(conversationId);
           startRecordingVideo();
@@ -306,6 +343,9 @@ export default function Page() {
             requestMediaPermissions={requestAudioPermissions}
             isVideoEnabled={isVideoEnabled}
             toggleVideoEnabled={toggleVideoEnabled}
+            language={language}
+            setLanguage={setLanguage}
+            languages={LANGUAGES}
           />
         )}
 
