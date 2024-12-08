@@ -26,7 +26,7 @@ Before using the SDK, configure your AWS credentials to enable access to S3:
 
 ## Usage
 
-For detailed usage instructions and code examples, please refer to the [Tutorial here](http://example.com/tutorial).
+For detailed usage instructions and code examples, please refer to [this guide](https://elevenlabs.io/docs/developer-guides/how-to-use-tts-with-streaming).
 
 ## Contributing
 
