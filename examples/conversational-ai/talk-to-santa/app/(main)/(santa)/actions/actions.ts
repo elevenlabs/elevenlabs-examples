@@ -46,7 +46,15 @@ export const getAgentConversation = actionClient
     })
   )
   .action(async ({ parsedInput: { conversationId } }) => {
-    const apiKey = process.env.XI_API_KEY;
+    const conversationData = await getConversationData({ conversationId });
+
+    const createdAt = new Date(conversationData?.data?.created_at);
+    const migrationDate = new Date(Date.UTC(2024, 11, 9, 13, 0, 0));
+
+    const apiKey =
+      createdAt <= migrationDate
+        ? process.env.XI_API_KEY_OLD
+        : process.env.XI_API_KEY;
 
     if (!apiKey) {
       throw new Error("XI_API_KEY is not set");
@@ -73,7 +81,15 @@ export const getAgentConversationAudio = actionClient
     })
   )
   .action(async ({ parsedInput: { conversationId } }) => {
-    const apiKey = process.env.XI_API_KEY;
+    const conversationData = await getConversationData({ conversationId });
+
+    const createdAt = new Date(conversationData?.data?.created_at);
+    const migrationDate = new Date(Date.UTC(2024, 11, 9, 13, 0, 0));
+
+    const apiKey =
+      createdAt <= migrationDate
+        ? process.env.XI_API_KEY_OLD
+        : process.env.XI_API_KEY;
 
     if (!apiKey) {
       throw new Error("XI_API_KEY is not set");
