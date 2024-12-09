@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -8,6 +8,15 @@ import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { LanguageDropdown, LANGUAGES } from "@/components/language-dropdown";
+import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface CallButtonProps {
   status: "disconnected" | "connecting" | "connected" | "disconnecting";
@@ -35,6 +44,7 @@ export function CallButton({
   languages,
 }: CallButtonProps) {
   const [isCalling, setIsCalling] = useState(false);
+  const [showAgeModal, setShowAgeModal] = useState(false);
   const [ringingPhoneAudio] = useState(() => {
     if (typeof Audio !== "undefined") {
       const audioInstance = new Audio("/assets/ringing-phone.mp3");
@@ -49,6 +59,11 @@ export function CallButton({
       requestMediaPermissions();
       return;
     }
+    setShowAgeModal(true);
+  };
+
+  const handleAgeConfirm = () => {
+    setShowAgeModal(false);
     setIsCalling(true);
     ringingPhoneAudio?.play();
     setTimeout(() => {
@@ -57,6 +72,7 @@ export function CallButton({
       startCall();
     }, RINGING_PHONE_AUDIO_DURATION);
   };
+
   return (
     <>
       {!isCalling && (
@@ -97,6 +113,23 @@ export function CallButton({
           </>
         )}
       </Button>
+
+      {!isCalling && (
+        <div className={"text-sm"}>
+          <span className="text-gray-200">Powered by</span>{" "}
+          <Link
+            target="_blank"
+            href="https://elevenlabs.io/conversational-ai"
+            className={cn(
+              buttonVariants({ variant: "link" }),
+              "text-white pl-0"
+            )}
+          >
+            ElevenLabs Conversational AI
+          </Link>
+        </div>
+      )}
+
       {!isCalling && (
         <div className={"flex items-center gap-2 text-sm mt-2"}>
           <LanguageDropdown
@@ -117,6 +150,23 @@ export function CallButton({
           Enable Video
         </Label>
       </div>
+
+      <Dialog open={showAgeModal} onOpenChange={setShowAgeModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Age Verification</DialogTitle>
+            <DialogDescription>
+              Please confirm that you are 18 years or older to continue.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-y-2">
+            <Button variant="secondary" className="bg-red-800 hover:bg-red-600 text-white mb-2 sm:mb-0" onClick={() => setShowAgeModal(false)}>
+              Cancel
+            </Button>
+            <Button className="bg-green-800 hover:bg-green-600" onClick={handleAgeConfirm}>I confirm I am 18+</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
