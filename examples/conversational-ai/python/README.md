@@ -3,7 +3,7 @@
 ## How to run the code
 
 1. Clone this repo
-1. `cd elevenlabs-examples/examples/conversational-ai-python`
+1. `cd elevenlabs-examples/examples/conversational-ai/python`
 1. Install the dependencies with either `poetry` or `pip`:
 
    ```bash
