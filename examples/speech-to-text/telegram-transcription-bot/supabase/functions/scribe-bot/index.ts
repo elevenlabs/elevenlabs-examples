@@ -1,0 +1,142 @@
+// Follow this setup guide to integrate the Deno language server with your editor:
+// https://deno.land/manual/getting_started/setup_your_environment
+// This enables autocomplete, go to definition, etc.
+
+// Setup type definitions for built-in Supabase Runtime APIs
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "jsr:@supabase/supabase-js@2";
+
+console.log(`Function "11-scribe-bot" up and running!`);
+
+import { ElevenLabsClient } from "npm:elevenlabs";
+import {
+  Bot,
+  webhookCallback,
+} from "https://deno.land/x/grammy@v1.34.0/mod.ts";
+// TODO: remove once SDK is released
+import { scribeFile } from "../_shared/utils.ts";
+
+const elevenLabsClient = new ElevenLabsClient({
+  apiKey: Deno.env.get("ELEVENLABS_API_KEY") || "",
+});
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL") || "",
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
+);
+
+async function scribe(
+  { fileURL, fileType, duration, chatId, messageId, username }: {
+    fileURL: string;
+    fileType: string;
+    duration: number;
+    chatId: number;
+    messageId: number;
+    username: string;
+  },
+) {
+  let transcript: string | null = null;
+  let languageCode: string | null = null;
+  let errorMsg: string | null = null;
+  try {
+    const sourceFileArrayBuffer = await fetch(fileURL).then((res) =>
+      res.arrayBuffer()
+    );
+    const sourceBlob = new Blob([sourceFileArrayBuffer], {
+      type: fileType,
+    });
+
+    const scribeResult = await scribeFile({
+      file: sourceBlob,
+    });
+    // console.log({ scribeResult });
+    transcript = scribeResult.segments[0].text;
+    languageCode = scribeResult.language_code;
+    // Reply to the user with the transcript
+    await bot.api.sendMessage(chatId, transcript || "", {
+      reply_parameters: { message_id: messageId },
+    });
+  } catch (error) {
+    errorMsg = error.message;
+    console.log(errorMsg);
+    await bot.api.sendMessage(
+      chatId,
+      "Sorry, there was an error. Please try again.",
+      {
+        reply_parameters: { message_id: messageId },
+      },
+    );
+  }
+  // Write log to Supabase.
+  await supabase.from("transcription_logs").insert({
+    file_type: fileType,
+    duration,
+    chat_id: chatId,
+    message_id: messageId,
+    username,
+    transcript,
+    language_code: languageCode,
+    error: errorMsg,
+  });
+}
+
+// Use beforeunload event handler to be notified when function is about to shutdown
+addEventListener("beforeunload", (ev) => {
+  console.log("Function will be shutdown due to", ev.detail?.reason);
+
+  // save state or log the current progress
+});
+
+const telegramBotToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
+const bot = new Bot(telegramBotToken || "");
+const startMessage =
+  `Welcome to the ElevenLabs Scribe Bot\\! I can transcribe speech from 80 different languages with super high accuracy\\! 
+    \nTry it out by sending or forwarding me a voice message, video, or audio file\\!
+    \n[Learn more about Scribe](https://elevenlabs.io/speech-to-text) or [build your own bot](https://elevenlabs.io/docs/cookbooks/speech-to-text/telegram-bot)\\!
+  `;
+bot.command(
+  "start",
+  (ctx) => ctx.reply(startMessage.trim(), { parse_mode: "MarkdownV2" }),
+);
+
+bot.on([":voice", ":audio", ":video"], async (ctx) => {
+  // console.log(ctx);
+  const file = await ctx.getFile();
+  const fileURL =
+    `https://api.telegram.org/file/bot${telegramBotToken}/${file.file_path}`;
+  const fileMeta = ctx.message?.video ?? ctx.message?.voice ??
+    ctx.message?.audio;
+  // console.log({ fileURL, fileMeta });
+  if (!fileMeta) {
+    return ctx.reply("No video|audio|voice metadata found. Please try again.");
+  }
+
+  // this will not block the request,
+  // instead it will run in the background
+  EdgeRuntime.waitUntil(
+    scribe({
+      fileURL,
+      fileType: fileMeta.mime_type!,
+      duration: fileMeta.duration,
+      chatId: ctx.chat.id,
+      messageId: ctx.message?.message_id!,
+      username: ctx.from?.username || "",
+    }),
+  );
+
+  return ctx.reply("Received. Scribing...");
+});
+
+const handleUpdate = webhookCallback(bot, "std/http");
+
+Deno.serve(async (req) => {
+  try {
+    const url = new URL(req.url);
+    if (url.searchParams.get("secret") !== Deno.env.get("FUNCTION_SECRET")) {
+      return new Response("not allowed", { status: 405 });
+    }
+
+    return await handleUpdate(req);
+  } catch (err) {
+    console.error(err);
+  }
+});
