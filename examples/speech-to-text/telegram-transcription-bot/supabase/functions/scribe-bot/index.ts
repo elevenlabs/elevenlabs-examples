@@ -97,34 +97,48 @@ bot.command(
   "start",
   (ctx) => ctx.reply(startMessage.trim(), { parse_mode: "MarkdownV2" }),
 );
+bot.command("feedback", (ctx) => {
+  // TODO: Add feedback to database
+});
 
 bot.on([":voice", ":audio", ":video"], async (ctx) => {
-  // console.log(ctx);
-  const file = await ctx.getFile();
-  const fileURL =
-    `https://api.telegram.org/file/bot${telegramBotToken}/${file.file_path}`;
-  const fileMeta = ctx.message?.video ?? ctx.message?.voice ??
-    ctx.message?.audio;
-  // console.log({ fileURL, fileMeta });
-  if (!fileMeta) {
-    return ctx.reply("No video|audio|voice metadata found. Please try again.");
+  try {
+    // console.log(ctx);
+    const file = await ctx.getFile();
+    const fileURL =
+      `https://api.telegram.org/file/bot${telegramBotToken}/${file.file_path}`;
+    const fileMeta = ctx.message?.video ?? ctx.message?.voice ??
+      ctx.message?.audio;
+    // console.log({ fileURL, fileMeta });
+    if (!fileMeta) {
+      return ctx.reply(
+        "No video|audio|voice metadata found. Please try again.",
+      );
+    }
+
+    // this will not block the request,
+    // instead it will run in the background
+    EdgeRuntime.waitUntil(
+      scribe({
+        fileURL,
+        fileType: fileMeta.mime_type!,
+        duration: fileMeta.duration,
+        chatId: ctx.chat.id,
+        messageId: ctx.message?.message_id!,
+        username: ctx.from?.username || "",
+      }),
+    );
+
+    return ctx.reply("Received. Scribing...");
+  } catch (error) {
+    console.error(error);
+    return ctx.reply(
+      "Sorry, there was an error getting the file. Please try again with a smaller file or a YouTube URL!",
+    );
   }
-
-  // this will not block the request,
-  // instead it will run in the background
-  EdgeRuntime.waitUntil(
-    scribe({
-      fileURL,
-      fileType: fileMeta.mime_type!,
-      duration: fileMeta.duration,
-      chatId: ctx.chat.id,
-      messageId: ctx.message?.message_id!,
-      username: ctx.from?.username || "",
-    }),
-  );
-
-  return ctx.reply("Received. Scribing...");
 });
+
+// TODO: Handle video URLs (YT / vimeo / etc)
 
 const handleUpdate = webhookCallback(bot, "std/http");
 
