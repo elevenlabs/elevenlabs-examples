@@ -3,9 +3,9 @@
 ## How to run the code
 
 1. Clone this repo
-1. `cd elevenlabs-examples/examples/conversational-ai/python`
-1. Follow the [installation instructions](https://pypi.org/project/PyAudio/) for PyAudio.
-1. Install the dependencies with either `poetry` or `pip`:
+2. `cd elevenlabs-examples/examples/conversational-ai/python`
+3. Follow the [installation instructions](https://pypi.org/project/PyAudio/) for PyAudio.
+4. Install the dependencies with either `poetry` or `pip`:
 
    ```bash
    poetry install
