@@ -4,6 +4,7 @@
 
 1. Clone this repo
 1. `cd elevenlabs-examples/examples/conversational-ai/python`
+1. Follow the [installation instructions](https://pypi.org/project/PyAudio/) for PyAudio.
 1. Install the dependencies with either `poetry` or `pip`:
 
    ```bash
@@ -14,13 +15,13 @@
 
 1. Set up environment variables. You must set the agent ID. The API key is required if the agent is not public ("Enable authentication" in the agent settings).
 
-    ```bash
-    # Required:
-    export AGENT_ID=agentid
-    
-    # Optional, for auth-enabled agents:
-    export ELEVENLABS_API_KEY=sk_yourkey
-    ```
+   ```bash
+   # Required:
+   export AGENT_ID=agentid
+
+   # Optional, for auth-enabled agents:
+   export ELEVENLABS_API_KEY=sk_yourkey
+   ```
 
 1. Run the demo:
 
