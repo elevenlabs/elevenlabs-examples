@@ -3,7 +3,7 @@
 ## How to run the code
 
 1. Clone this repo
-2. `cd elevenlabs-examples/examples/conversational-ai`
+2. `cd elevenlabs-examples/examples/conversational-ai/javascript`
 3. Setup the environment variables
    - `cp .env.example .env`
    - Fill in the values
@@ -19,7 +19,8 @@
    npm start
    ```
 
-6. Visit localhost 
+6. Visit localhost
+
 ```html
 http://localhost:3000/
 ```
