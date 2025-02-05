@@ -6,19 +6,18 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-console.log(`Function "11-scribe-bot" up and running!`);
+console.log(`Function "elevenlabs-scribe-bot" up and running!`);
 
-import { ElevenLabsClient } from "npm:elevenlabs";
+import { ElevenLabsClient } from "npm:elevenlabs@1.50.5";
 import {
   Bot,
   webhookCallback,
 } from "https://deno.land/x/grammy@v1.34.0/mod.ts";
-// TODO: remove once SDK is released
-import { scribeFile } from "../_shared/utils.ts";
 
 const elevenLabsClient = new ElevenLabsClient({
   apiKey: Deno.env.get("ELEVENLABS_API_KEY") || "",
 });
+
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL") || "",
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
@@ -45,14 +44,17 @@ async function scribe(
       type: fileType,
     });
 
-    const scribeResult = await scribeFile({
+    const scribeResult = await elevenLabsClient.speechToText.convert({
       file: sourceBlob,
+      model_id: "scribe_v1",
+      tag_audio_events: false,
     });
     // console.log({ scribeResult });
-    transcript = scribeResult.segments[0].text;
+    transcript = scribeResult.text;
     languageCode = scribeResult.language_code;
+
     // Reply to the user with the transcript
-    await bot.api.sendMessage(chatId, transcript || "", {
+    await bot.api.sendMessage(chatId, transcript, {
       reply_parameters: { message_id: messageId },
     });
   } catch (error) {
@@ -67,16 +69,17 @@ async function scribe(
     );
   }
   // Write log to Supabase.
-  await supabase.from("transcription_logs").insert({
+  const logLine = {
     file_type: fileType,
     duration,
     chat_id: chatId,
     message_id: messageId,
     username,
-    transcript,
     language_code: languageCode,
     error: errorMsg,
-  });
+  };
+  console.log({ logLine });
+  await supabase.from("transcription_logs").insert({ ...logLine, transcript });
 }
 
 // Use beforeunload event handler to be notified when function is about to shutdown
@@ -97,9 +100,6 @@ bot.command(
   "start",
   (ctx) => ctx.reply(startMessage.trim(), { parse_mode: "MarkdownV2" }),
 );
-bot.command("feedback", (ctx) => {
-  // TODO: Add feedback to database
-});
 
 bot.on([":voice", ":audio", ":video"], async (ctx) => {
   try {
@@ -116,8 +116,7 @@ bot.on([":voice", ":audio", ":video"], async (ctx) => {
       );
     }
 
-    // this will not block the request,
-    // instead it will run in the background
+    // Run the transcription in the background.
     EdgeRuntime.waitUntil(
       scribe({
         fileURL,
@@ -129,16 +128,15 @@ bot.on([":voice", ":audio", ":video"], async (ctx) => {
       }),
     );
 
+    // Reply to the user immediately to let them know we received their file.
     return ctx.reply("Received. Scribing...");
   } catch (error) {
     console.error(error);
     return ctx.reply(
-      "Sorry, there was an error getting the file. Please try again with a smaller file or a YouTube URL!",
+      "Sorry, there was an error getting the file. Please try again with a smaller file!",
     );
   }
 });
-
-// TODO: Handle video URLs (YT / vimeo / etc)
 
 const handleUpdate = webhookCallback(bot, "std/http");
 
