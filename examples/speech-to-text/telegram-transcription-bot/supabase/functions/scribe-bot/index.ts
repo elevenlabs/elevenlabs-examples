@@ -92,7 +92,7 @@ addEventListener("beforeunload", (ev) => {
 const telegramBotToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
 const bot = new Bot(telegramBotToken || "");
 const startMessage =
-  `Welcome to the ElevenLabs Scribe Bot\\! I can transcribe speech from 80 different languages with super high accuracy\\! 
+  `Welcome to the ElevenLabs Scribe Bot\\! I can transcribe speech in 80\\+ languages with super high accuracy\\!
     \nTry it out by sending or forwarding me a voice message, video, or audio file\\!
     \n[Learn more about Scribe](https://elevenlabs.io/speech-to-text) or [build your own bot](https://elevenlabs.io/docs/cookbooks/speech-to-text/telegram-bot)\\!
   `;

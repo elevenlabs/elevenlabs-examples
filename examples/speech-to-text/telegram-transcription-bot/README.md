@@ -34,6 +34,14 @@ Next, use [the BotFather](https://t.me/BotFather) to create a new Telegram bot. 
 - In another terminal use [ngrok](https://ngrok.com/) to tunnel webhooks to the local server: `ngrok http 54321`
 - Set the bot's webhook url to the ngrok url: `https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook?url=https://<NGROK_URL>/functions/v1/scribe-bot?secret=<FUNCTION_SECRET>`
 
+Note: For background tasks to work locally, you need to set the `per_worker` policy in the [`supabase/config.toml`](./supabase/config.toml) file.
+
+```
+[edge_runtime]
+enabled = true
+policy = "per_worker"
+```
+
 ## Deploy
 
 1. Run `supabase link` and link your local project to your Supabase account.
