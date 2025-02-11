@@ -12,7 +12,7 @@ async function requestMicrophonePermission() {
   }
 }
 
-export default function DOMComponent() {
+export default function DOMComponent({}: { dom: import("expo/dom").DOMProps }) {
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
