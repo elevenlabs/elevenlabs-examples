@@ -4,9 +4,10 @@ import { Conversation } from "@11labs/client";
 
 async function requestMicrophonePermission() {
   try {
-    await navigator.mediaDevices.getUserMedia({ audio: true });
+    await window.navigator.mediaDevices.getUserMedia({ audio: true });
     return true;
-  } catch {
+  } catch (error) {
+    console.log(error);
     console.error("Microphone permission denied");
     return false;
   }
