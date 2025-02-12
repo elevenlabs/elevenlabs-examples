@@ -13,8 +13,8 @@
 ## Setting up the Agent
 
 1. Set-up a Conversational AI agent in ElevenLabs [Guide](https://elevenlabs.io/docs/conversational-ai/docs/agent-setup).
-
-2. Configure the agent with the following first message and system prompt:
+2. Enable overrides in agent Settings => Security => Enable overrides.
+3. Configure the agent with the following first message and system prompt:
 
 ```
 First Message:
@@ -40,7 +40,7 @@ You must call the `triggerAddItemToWishlist` function when the user tells you a 
 You must call the `triggerRemoveItemFromWishlist` function if the user no longer wants the present.
 ```
 
-3. Add the following client-tools:
+4. Add the following client-tools:
 
    1. name: `triggerName`
 
