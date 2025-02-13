@@ -11,7 +11,8 @@
    python -m venv venv
    ```
 
-2. **Activate the Virtual Environment**  
+2. **Activate the Virtual Environment**
+
    - On Windows:
      ```bash
      venv\Scripts\activate
@@ -38,6 +39,14 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
 
 In your code, ensure that the `requires_auth` parameter is set correctly in the `Conversation` instantiation. It should have the same value as the settings of your agent.
 
+### Tunneling through ngrok
+
+```bash
+ngrok http 8000
+```
+
+- Set webhook: https://<ngrok-url>/twilio/inbound_call
+
 ### Setting Environment Variables
 
 You need to export the following environment variables:
@@ -58,4 +67,3 @@ Alternatively, you can use a `.env` file with the `python-dotenv` package. Creat
 ELEVENLABS_API_KEY=your_api_key_here
 AGENT_ID=your_agent_id_here
 ```
-

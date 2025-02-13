@@ -32,12 +32,12 @@ async def handle_incoming_call(request: Request):
 
     response = VoiceResponse()
     connect = Connect()
-    connect.stream(url=f"wss://{request.url.hostname}/media-stream-eleven")
+    connect.stream(url=f"wss://{request.url.hostname}/media-stream")
     response.append(connect)
     return HTMLResponse(content=str(response), media_type="application/xml")
 
 
-@app.websocket("/media-stream-eleven")
+@app.websocket("/media-stream")
 async def handle_media_stream(websocket: WebSocket):
     await websocket.accept()
     print("WebSocket connection opened")
