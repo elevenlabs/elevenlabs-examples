@@ -14,7 +14,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.elevenlabs-conversational-ai-expo-react-native"
+      "bundleIdentifier": "com.anonymous.elevenlabs-conversational-ai-expo-react-native",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app uses the microphone to record audio."
+      }
     },
     "android": {
       "adaptiveIcon": {

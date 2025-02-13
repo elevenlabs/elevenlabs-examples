@@ -361,7 +361,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.anonymous.elevenlabs-conversational-ai-expo-react-native";
-				PRODUCT_NAME = elevenlabsconversationalaiexporeactnative;
+				PRODUCT_NAME = "elevenlabsconversationalaiexporeactnative";
 				SWIFT_OBJC_BRIDGING_HEADER = "elevenlabsconversationalaiexporeactnative/elevenlabsconversationalaiexporeactnative-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -393,7 +393,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.anonymous.elevenlabs-conversational-ai-expo-react-native";
-				PRODUCT_NAME = elevenlabsconversationalaiexporeactnative;
+				PRODUCT_NAME = "elevenlabsconversationalaiexporeactnative";
 				SWIFT_OBJC_BRIDGING_HEADER = "elevenlabsconversationalaiexporeactnative/elevenlabsconversationalaiexporeactnative-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

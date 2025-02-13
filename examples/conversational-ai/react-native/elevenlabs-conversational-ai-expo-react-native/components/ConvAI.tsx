@@ -4,7 +4,7 @@ import { Conversation } from "@11labs/client";
 
 async function requestMicrophonePermission() {
   try {
-    await window.navigator.mediaDevices.getUserMedia({ audio: true });
+    await navigator.mediaDevices.getUserMedia({ audio: true });
     return true;
   } catch (error) {
     console.log(error);
