@@ -343,7 +343,7 @@ const HomeDetails = observer(() => {
             </motion.div>
             <motion.div className="stack gap-3 px-6 w-full">
               {orchestrator.sfxPlayers.map((player, index) => (
-                <div className="flex items-center">
+                <div className="flex items-center" key={index}>
                   <SoundEffect
                     key={"sound-effect" + index}
                     index={index}
@@ -440,7 +440,8 @@ const SoundEffect = observer(
     isDownloading: boolean;
   }) => {
     return (
-      <motion.button
+      <motion.div
+        role={'button'}
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{
           opacity: 1,
@@ -498,7 +499,7 @@ const SoundEffect = observer(
             <DownloadIcon size={16} className="text-gray-800/50" />
           )}
         </Button>
-      </motion.button>
+      </motion.div>
     );
   }
 );
