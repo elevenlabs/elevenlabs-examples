@@ -9,13 +9,21 @@ from elevenlabs import ElevenLabs
 from elevenlabs.conversational_ai.conversation import Conversation
 from twilio_audio_interface import TwilioAudioInterface
 from starlette.websockets import WebSocketDisconnect
+from outbound import router as outbound_router
 
-load_dotenv()
+# Update the load_dotenv call with error handling and specific file path
+if not load_dotenv(dotenv_path=".env", override=True):
+    print("Warning: .env file not found. Make sure it exists with required environment variables.")
 
 ELEVEN_LABS_AGENT_ID = os.getenv("ELEVENLABS_AGENT_ID")
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
 
+# Add environment variable validation
+if not all([ELEVEN_LABS_AGENT_ID, ELEVENLABS_API_KEY]):
+    raise ValueError("Missing required environment variables. Please check your .env file.")
+
 app = FastAPI()
+app.include_router(outbound_router) # Outbound calling logic
 
 
 @app.get("/")
