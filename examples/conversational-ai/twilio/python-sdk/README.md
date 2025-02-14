@@ -52,18 +52,18 @@ ngrok http 8000
 You need to export the following environment variables:
 
 - `ELEVENLABS_API_KEY`
-- `AGENT_ID`
+- `ELEVENLABS_AGENT_ID`
 
 You can do this in your terminal:
 
 ```bash
 export ELEVENLABS_API_KEY='your_api_key_here'
-export AGENT_ID='your_agent_id_here'
+export ELEVENLABS_AGENT_ID='your_agent_id_here'
 ```
 
 Alternatively, you can use a `.env` file with the `python-dotenv` package. Create a `.env` file in your project root and add:
 
 ```
 ELEVENLABS_API_KEY=your_api_key_here
-AGENT_ID=your_agent_id_here
+ELEVENLABS_AGENT_ID=your_agent_id_here
 ```
