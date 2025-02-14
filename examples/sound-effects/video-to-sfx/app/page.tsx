@@ -9,31 +9,25 @@ import { Orchestrator } from "./state/orchestrator";
 import { AudioPlayer } from "./state/player";
 import { observer } from "mobx-react";
 import { cn } from "@/lib/utils";
-import { autorun, reaction, when } from "mobx";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { reaction } from "mobx";
+import { QueryClient, QueryClientProvider, useMutation } from "@tanstack/react-query";
+import { convertVideoToSFX } from "@/lib/videoToSFX";
+import { ArrowRight, DownloadIcon, Github, LoaderCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { mergeAndDownload } from "@/lib/mergeAndDownload";
+import posthog from "posthog-js";
+import { Progress } from "@/components/ui/progress";
 
 const HoverOverlay = ({ className }: { className?: string }) => {
   return (
     <div
       className={cn(
         "absolute inset-[4px] bg-gradient-to-tr from-[#08B0D5] to-[#AD20D0] rounded-[inherit] opacity-0 -z-10 group-hover:inset-0 group-hover:opacity-[17.5%] transition-all duration-300",
-        className
+        className,
       )}
     ></div>
   );
 };
-import { convertVideoToSFX } from "@/lib/videoToSFX";
-import { useMutation } from "@tanstack/react-query";
-import {
-  ArrowRight,
-  DownloadIcon,
-  Github,
-  GithubIcon,
-  LoaderCircle,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { mergeAndDownload } from "@/lib/mergeAndDownload";
-import posthog from "posthog-js";
 
 const queryClient = new QueryClient();
 
@@ -153,10 +147,16 @@ const HomeDetails = observer(() => {
     false,
     false,
   ]);
+  const [progress, setProgress] = useState([
+    0,
+    0,
+    0,
+    0,
+  ]);
 
   const previewUrl = useMemo(
     () => (file ? URL.createObjectURL(file) : null),
-    [file]
+    [file],
   );
 
   useEffect(() => {
@@ -187,7 +187,7 @@ const HomeDetails = observer(() => {
             videoRef.current.pause();
           }
         }
-      }
+      },
     );
   }, [orchestrator]);
 
@@ -242,7 +242,7 @@ const HomeDetails = observer(() => {
       <motion.div
         className={cn(
           "flex flex-col md:hidden text-black p-4 gap-4",
-          previewUrl && "hidden"
+          previewUrl && "hidden",
         )}
       >
         <a
@@ -290,7 +290,7 @@ const HomeDetails = observer(() => {
                     new Orchestrator({
                       soundEffects: sfx.soundEffects,
                       caption: sfx.caption,
-                    })
+                    }),
                   );
                 }
               }}
@@ -362,13 +362,20 @@ const HomeDetails = observer(() => {
                         newState[index] = true;
                         return newState;
                       });
-                      await mergeAndDownload(file, url);
+                      await mergeAndDownload(file, url, (newProgress: number) => {
+                        setProgress(prev => {
+                          const newState = [...prev];
+                          newState[index] = newProgress;
+                          return newState;
+                        });
+                      });
                       setIsDownloading(prev => {
                         const newState = [...prev];
                         newState[index] = false;
                         return newState;
                       });
                     }}
+                    progress={progress[index]}
                     isDownloading={isDownloading[index]}
                   />
                 </div>
@@ -391,9 +398,9 @@ const Home = () => {
 
 const Waveform = observer(
   ({
-    player,
-    barBgColor = "bg-gray-800/30",
-  }: {
+     player,
+     barBgColor = "bg-gray-800/30",
+   }: {
     player: AudioPlayer;
     barBgColor: string;
   }) => {
@@ -418,19 +425,20 @@ const Waveform = observer(
         ))}
       </div>
     );
-  }
+  },
 );
 
 const SoundEffect = observer(
   ({
-    index,
-    player,
-    onPlay,
-    onPause,
-    active,
-    onDownload,
-    isDownloading,
-  }: {
+     index,
+     player,
+     onPlay,
+     onPause,
+     active,
+     onDownload,
+     isDownloading,
+     progress,
+   }: {
     index: number;
     player: AudioPlayer;
     onPlay: () => void;
@@ -438,10 +446,11 @@ const SoundEffect = observer(
     active: boolean;
     onDownload: () => void;
     isDownloading: boolean;
+    progress: number
   }) => {
     return (
       <motion.div
-        role={'button'}
+        role={"button"}
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{
           opacity: 1,
@@ -494,7 +503,7 @@ const SoundEffect = observer(
           className="self-center mr-3 rounded-full bg-transparent hover:bg-white/25 active:bg-white/40 border-gray-800/20"
         >
           {isDownloading ? (
-            <LoaderCircle className="animate-spin text-gray-800/50" size={16} />
+            <span className={'text-[10px] text-gray-900/50'}>{progress}%</span>
           ) : (
             <DownloadIcon size={16} className="text-gray-800/50" />
           )}
