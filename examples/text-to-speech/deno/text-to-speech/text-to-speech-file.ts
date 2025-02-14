@@ -1,27 +1,38 @@
-import 'https://deno.land/x/dotenv/load.ts';
-import { readerFromStreamReader } from 'https://deno.land/std/io/mod.ts';
-import { copy } from 'https://deno.land/std/io/copy.ts';
-import { ElevenLabsClient } from 'npm:elevenlabs';
+import "https://deno.land/x/dotenv/load.ts";
+import { Buffer } from "node:buffer";
+import { ElevenLabsClient } from "npm:elevenlabs";
 
-const elevenlabs = new ElevenLabsClient({
-  apiKey: Deno.env.get('ELEVENLABS_API_KEY'),
+const client = new ElevenLabsClient({
+  apiKey: Deno.env.get("ELEVENLABS_API_KEY"),
 });
 
 export const createAudioFileFromText = async (
   text: string,
-  output: string,
+  output: string
 ): Promise<void> => {
-  const audio = await elevenlabs.generate({
-    voice: 'Rachel',
-    model_id: 'eleven_multilingual_v2',
+  const audio = await client.textToSpeech.convert("JBFqnCBsd6RMkjVDRZzb", {
+    model_id: "eleven_multilingual_v2",
+    output_format: "mp3_44100_128",
     text,
   });
-  const reader = readerFromStreamReader(audio.getReader());
+
+  // Convert stream to buffer
+  const chunks: Uint8Array[] = [];
+  for await (const chunk of audio) {
+    chunks.push(chunk);
+  }
+  const buffer = Buffer.concat(chunks);
+
   const file = await Deno.open(output, {
     write: true,
     create: true,
     truncate: true,
   });
-  await copy(reader, file);
-  file.close();
+
+  try {
+    await file.write(buffer);
+    console.log(`Audio file created: ${output}`);
+  } finally {
+    file.close();
+  }
 };

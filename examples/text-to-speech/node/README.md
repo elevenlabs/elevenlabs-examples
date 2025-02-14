@@ -10,14 +10,11 @@
 4. Install the dependencies
 
    ```bash
-   npm install -g typescript
-   npm install -g ts-node # used to compile and run the script
-
    npm install # install the dependencies
    ```
 
 5. Run the script
 
    ```bash
-   ts-node src/index.ts
+   npm run start
    ```

@@ -18,10 +18,10 @@ export const createAudioFileFromText = async (
 ): Promise<string> => {
   return new Promise<string>(async (resolve, reject) => {
     try {
-      const audio = await client.generate({
-        voice: "Rachel",
-        model_id: "eleven_turbo_v2",
+      const audio = await client.textToSpeech.convert("JBFqnCBsd6RMkjVDRZzb", {
         text,
+        model_id: "eleven_multilingual_v2",
+        output_format: "mp3_44100_128",
       });
       const fileName = `${uuid()}.mp3`;
       const fileStream = createWriteStream(fileName);
