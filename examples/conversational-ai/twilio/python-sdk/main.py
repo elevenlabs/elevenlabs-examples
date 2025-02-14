@@ -12,7 +12,7 @@ from starlette.websockets import WebSocketDisconnect
 
 load_dotenv()
 
-ELEVEN_LABS_AGENT_ID = os.getenv("AGENT_ID")
+ELEVEN_LABS_AGENT_ID = os.getenv("ELEVENLABS_AGENT_ID")
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
 
 app = FastAPI()
