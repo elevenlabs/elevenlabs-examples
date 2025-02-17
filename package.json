@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "geist": "^1.3.0",
-    "mobx-react": "^9.1.1",
-    "openai": "^4.28.0"
-  }
-}
