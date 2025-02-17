@@ -1,5 +1,7 @@
 # Conversational AI Twilio Python SDK
 
+This demo shows how to integrate ElevenLabs Conversational AI with Twilio to create an interactive voice agent that can handle inbound and outbound phone calls.
+
 ## Getting Started
 
 ### Setting Up the Environment
