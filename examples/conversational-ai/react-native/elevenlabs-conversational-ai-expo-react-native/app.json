@@ -2,6 +2,7 @@
   "expo": {
     "name": "elevenlabs-conversational-ai-expo-react-native",
     "slug": "elevenlabs-conversational-ai-expo-react-native",
+    "scheme": "elevenlabs",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

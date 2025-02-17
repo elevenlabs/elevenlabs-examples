@@ -18,7 +18,8 @@
     "react-native": "0.76.6",
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
-    "expo-audio": "~0.3.4"
+    "expo-audio": "~0.3.4",
+    "expo-dev-client": "~5.0.12"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
