@@ -16,11 +16,14 @@ const client = new ElevenLabsClient({
 export const createAudioStreamFromText = async (
   text: string
 ): Promise<Buffer> => {
-  const audioStream = await client.generate({
-    voice: "Rachel",
-    model_id: "eleven_turbo_v2",
-    text,
-  });
+  const audioStream = await client.textToSpeech.convertAsStream(
+    "JBFqnCBsd6RMkjVDRZzb",
+    {
+      output_format: "mp3_44100_128",
+      model_id: "eleven_multilingual_v2",
+      text,
+    }
+  );
 
   const chunks: Buffer[] = [];
   for await (const chunk of audioStream) {
