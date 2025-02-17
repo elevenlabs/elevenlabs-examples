@@ -55,7 +55,29 @@ class TwilioAudioInterface(AudioInterface):
     async def handle_twilio_message(self, data):
         event_type = data.get("event")
         if event_type == "start":
+            print("Received start event from Twilio:", data["start"])
             self.stream_sid = data["start"]["streamSid"]
+            custom_parameters = data["start"]["customParameters"]
+            if "prompt" in custom_parameters and "first_message" in custom_parameters:
+                prompt = custom_parameters["prompt"]
+                first_message = custom_parameters["first_message"]
+                initialConfig = {
+                    "type": "conversation_initiation_client_data",
+                    "conversation_config_override": {
+                        "agent": {
+                            "prompt": {
+                                "prompt": prompt
+                            },
+                            "first_message": first_message
+                        }
+                    },
+                }
+                print("Sending initial config override to ElevenLabs:", json.dumps(initialConfig))
+                try:
+                    if self.websocket.application_state == WebSocketState.CONNECTED:
+                        await self.websocket.send_text(json.dumps(initialConfig))
+                except (WebSocketDisconnect, RuntimeError):
+                    pass
         elif event_type == "media" and self.input_callback:
             audio_data = base64.b64decode(data["media"]["payload"])
             self.input_callback(audio_data)

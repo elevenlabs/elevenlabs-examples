@@ -67,18 +67,15 @@ async def handle_outbound_call_twiml(request: Request):
     
     response = VoiceResponse()
     connect = Connect()
-    stream = Stream(
-        url=f"wss://{request.base_url.hostname}/outbound-media-stream"
-    )
-    stream.parameter(
-        name="prompt",
-        value=prompt
-    ).parameter(
-        name="first_message",
-        value=first_message
-    )
+    stream = Stream(url=f"wss://{request.base_url.hostname}/outbound-media-stream")
+    stream.parameter(name="prompt", value=prompt)
+    stream.parameter(name="first_message", value=first_message)
     connect.append(stream)
     response.append(connect)
+    
+    # Print the TwiML response
+    print("[TwiML] Generated response:", str(response))
+    
     return HTMLResponse(content=str(response), media_type="application/xml")
 
 @router.websocket("/outbound-media-stream")
@@ -95,14 +92,6 @@ async def handle_outbound_media_stream(websocket: WebSocket):
         # Get parameters from the start message
         start_message = await websocket.receive_text()
         print("[Server] Received start message:", start_message)
-        start_data = json.loads(start_message)
-        custom_params = start_data.get("start", {}).get("customParameters", {})
-        
-        prompt = custom_params.get("prompt", "you are a gary from the phone store")
-        first_message = custom_params.get("first_message", "hey there! how can I help you today?")
-
-        print("[Server] Starting outbound conversation with prompt:", prompt)
-        print("[Server] First message:", first_message)
 
         conversation = Conversation(
             client=eleven_labs_client,
@@ -110,17 +99,7 @@ async def handle_outbound_media_stream(websocket: WebSocket):
             requires_auth=True,
             audio_interface=audio_interface,
             callback_agent_response=lambda text: print(f"[Agent] {text}"),
-            callback_user_transcript=lambda text: print(f"[User] {text}"),
-            config=ConversationConfig(
-                conversation_config_override={
-                    "agent": {
-                        "prompt": {
-                            "prompt": prompt
-                        },
-                        "first_message": first_message
-                    }
-                }
-            )
+            callback_user_transcript=lambda text: print(f"[User] {text}")
         )
 
         conversation.start_session()
