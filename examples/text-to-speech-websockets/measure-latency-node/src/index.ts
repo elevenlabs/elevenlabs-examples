@@ -100,6 +100,7 @@ async function textToSpeechInputStreaming(text: string, config: Config): Promise
       if (typeof firstByteTime === 'undefined') {
         throw new Error('Unable to measure latencies, please check your network connection and API key');
       }
+      console.log(`Time to the end of response: ${elapsedMilliseconds} ms`);
       resolve({
         firstByteTime,
         elapsedTime: elapsedMilliseconds,
@@ -128,6 +129,7 @@ export async function measureLatencies(config: Config) {
   const averageElapsedTime =
     results.reduce((acc, curr) => acc + curr.elapsedTime, 0) / results.length;
   console.log(`\nAverage first byte time: ${averageFirstByteTime} ms`);
+  console.log(`Average elapsed time: ${averageElapsedTime} ms`);
 
   return results;
 }
@@ -160,9 +162,22 @@ async function main() {
       type: 'string',
       description: 'Base URL for the API - defaults to api.elevenlabs.io',
       demandOption: false
+    },
+    numOfTrials: {
+      alias: 'n',
+      type: 'number',
+      description: 'Number of measurements',
+      demandOption: false,
+      default: 5
     }
   })
   .demandCommand(1, 'You need to provide the API key')
+  .check((argv) => {
+    if (argv.numOfTrials > 0) {
+        return true;
+    }
+    throw new Error(`Number of measurements MUST be positive number (provided: ${argv.numOfTrials})`)
+  })
   .parseSync();
 
   const config = {
@@ -170,7 +185,7 @@ async function main() {
     model: argv.model || 'eleven_turbo_v2',
     voiceId: argv.voiceId || 'Xb7hH8MSUJpSbSDYk0k2',
     baseUrl: argv.baseUrl || 'api.elevenlabs.io',
-    numOfTrials: 5
+    numOfTrials: argv.numOfTrials
   } satisfies Config;
 
   console.log('Using model:', config.model);
