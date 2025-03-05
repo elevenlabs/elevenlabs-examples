@@ -47,8 +47,8 @@ policy = "per_worker"
 ```
 
 <Note>
-  When running with `per_worker` policy, Function won't auto-reload on edits. You will need to
-  manually restart it by running `supabase functions serve`.
+  When running with `per_worker` policy, Supabase Edge Functions won't auto-reload on edits. You will need to
+  manually restart them by running `supabase functions serve`.
 </Note>
 
 ## Run locally
