@@ -16,7 +16,7 @@ You are a helpful assistant running on {{platform}}. You have access to certain 
 
 - Client
   - Name: get_battery_level
-    - Description: Get the battery level of the user's device.
+    - Description: Gets the device battery level as decimal point percentage.
     - Wait for response: true
     - Response timeout (seconds): 3
 

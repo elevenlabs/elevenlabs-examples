@@ -14,7 +14,7 @@ export default function App() {
         <DOMComponent
           platform={Platform.OS}
           dom={{
-            style: { width: 300, height: 100 },
+            style: { width: 300, height: 300 },
           }}
         />
         <StatusBar style="auto" />
@@ -30,6 +30,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   content: {
+    height: 300,
     alignItems: "center",
     justifyContent: "center",
     padding: 20,

@@ -1,6 +1,6 @@
 "use dom";
 import * as Battery from "expo-battery";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useConversation } from "@11labs/react";
 
 async function requestMicrophonePermission() {
@@ -15,16 +15,19 @@ async function requestMicrophonePermission() {
 }
 
 export default function DOMComponent({
-  dom,
   platform,
 }: {
-  dom: import("expo/dom").DOMProps;
+  dom?: import("expo/dom").DOMProps;
   platform: string;
 }) {
+  const [message, setMessage] = useState("");
   const conversation = useConversation({
     onConnect: () => console.log("Connected"),
     onDisconnect: () => console.log("Disconnected"),
-    onMessage: message => console.log("Message:", message),
+    onMessage: message => {
+      console.log("Message:", message);
+      setMessage(JSON.stringify(message, null, 2));
+    },
     onError: error => console.error("Error:", error),
   });
   const startConversation = useCallback(async () => {
@@ -67,7 +70,7 @@ export default function DOMComponent({
   }, [conversation]);
 
   return (
-    <div>
+    <div style={{ width: 300, height: 300 }}>
       <button
         disabled={conversation !== null && conversation.status === "connected"}
         onClick={startConversation}
@@ -80,6 +83,7 @@ export default function DOMComponent({
       >
         End conversation
       </button>
+      <pre style={{ whiteSpace: "pre-wrap" }}>{message}</pre>
     </div>
   );
 }
