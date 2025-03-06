@@ -1,6 +1,6 @@
 "use dom";
-import { useState } from "react";
-import { Conversation } from "@11labs/client";
+import { useState, useCallback } from "react";
+import { useConversation } from "@11labs/react";
 
 async function requestMicrophonePermission() {
   try {
@@ -14,56 +14,45 @@ async function requestMicrophonePermission() {
 }
 
 export default function DOMComponent({}: { dom: import("expo/dom").DOMProps }) {
-  const [conversation, setConversation] = useState<Conversation | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-
-  async function startConversation() {
-    const hasPermission = await requestMicrophonePermission();
-    if (!hasPermission) {
-      alert("No permission");
-      return;
+  const conversation = useConversation({
+    onConnect: () => console.log("Connected"),
+    onDisconnect: () => console.log("Disconnected"),
+    onMessage: message => console.log("Message:", message),
+    onError: error => console.error("Error:", error),
+  });
+  const startConversation = useCallback(async () => {
+    try {
+      // Request microphone permission
+      const hasPermission = await requestMicrophonePermission();
+      if (!hasPermission) {
+        alert("No permission");
+        return;
+      }
+      //   const signedUrl = await getSignedUrl(); TODO
+      // Start the conversation with your agent
+      await conversation.startSession({
+        agentId: "m114rDL9DWlf0cdw68ut", // Replace with your agent ID
+      });
+    } catch (error) {
+      console.error("Failed to start conversation:", error);
     }
-    //   const signedUrl = await getSignedUrl();
-    const conversation = await Conversation.startSession({
-      agentId: "m114rDL9DWlf0cdw68ut",
-      onConnect: () => {
-        setIsConnected(true);
-        setIsSpeaking(true);
-      },
-      onDisconnect: () => {
-        setIsConnected(false);
-        setIsSpeaking(false);
-      },
-      onError: error => {
-        console.log(error);
-        alert("An error occurred during the conversation");
-      },
-      onModeChange: ({ mode }) => {
-        setIsSpeaking(mode === "speaking");
-      },
-    });
-    setConversation(conversation);
-  }
+  }, [conversation]);
 
-  async function endConversation() {
-    if (!conversation) {
-      return;
-    }
+  const stopConversation = useCallback(async () => {
     await conversation.endSession();
-    setConversation(null);
-  }
+  }, [conversation]);
+
   return (
     <div>
       <button
-        disabled={conversation !== null && isConnected}
+        disabled={conversation !== null && conversation.status === "connected"}
         onClick={startConversation}
       >
         Start conversation
       </button>
       <button
-        disabled={conversation === null && !isConnected}
-        onClick={endConversation}
+        disabled={conversation === null || conversation.status !== "connected"}
+        onClick={stopConversation}
       >
         End conversation
       </button>

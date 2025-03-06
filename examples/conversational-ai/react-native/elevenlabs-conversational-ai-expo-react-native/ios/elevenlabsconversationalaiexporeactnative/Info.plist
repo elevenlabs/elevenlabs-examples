@@ -31,12 +31,6 @@
           <string>com.anonymous.elevenlabs-conversational-ai-expo-react-native</string>
         </array>
       </dict>
-      <dict>
-        <key>CFBundleURLSchemes</key>
-        <array>
-          <string>exp+elevenlabs-conversational-ai-expo-react-native</string>
-        </array>
-      </dict>
     </array>
     <key>CFBundleVersion</key>
     <string>1</string>
@@ -52,7 +46,7 @@
       <true/>
     </dict>
     <key>NSMicrophoneUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your microphone.</string>
+    <string>This app uses the microphone to record audio.</string>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
     <key>UIRequiredDeviceCapabilities</key>
