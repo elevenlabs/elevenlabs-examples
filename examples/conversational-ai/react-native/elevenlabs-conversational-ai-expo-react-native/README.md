@@ -21,18 +21,19 @@
 }
 ```
 
-3. `npx expo install expo-dev-client` // needed?
+## Install dependencies
+
+```bash
+npx expo install @11labs/react
+npx expo install expo-dev-client # tunnel support
+npx expo install react-native-webview # DOM components support
+npx expo install react-dom react-native-web @expo/metro-runtime # RN web support
+```
+
+## Run the app
 
 4. `npx expo prebuild --clean`
 
 5. `npx expo start --tunnel`
 
 6. `npx expo run:ios --device`
-
-## Install dependencies
-
-```bash
-npx expo install @11labs/react
-npx expo install react-native-webview # DOM components support
-npx expo install react-dom react-native-web @expo/metro-runtime # RN web support
-```
