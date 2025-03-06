@@ -1,5 +1,6 @@
 "use dom";
-import { useState, useCallback } from "react";
+import * as Battery from "expo-battery";
+import { useCallback } from "react";
 import { useConversation } from "@11labs/react";
 
 async function requestMicrophonePermission() {
@@ -13,7 +14,13 @@ async function requestMicrophonePermission() {
   }
 }
 
-export default function DOMComponent({}: { dom: import("expo/dom").DOMProps }) {
+export default function DOMComponent({
+  dom,
+  platform,
+}: {
+  dom: import("expo/dom").DOMProps;
+  platform: string;
+}) {
   const conversation = useConversation({
     onConnect: () => console.log("Connected"),
     onDisconnect: () => console.log("Disconnected"),
@@ -30,8 +37,25 @@ export default function DOMComponent({}: { dom: import("expo/dom").DOMProps }) {
       }
       //   const signedUrl = await getSignedUrl(); TODO
       // Start the conversation with your agent
+      console.log("calling startSession");
       await conversation.startSession({
-        agentId: "m114rDL9DWlf0cdw68ut", // Replace with your agent ID
+        agentId: "GGEF0NH4DWv6fAEtCBar", // Replace with your agent ID
+        dynamicVariables: {
+          platform,
+        },
+        clientTools: {
+          logMessage: async ({ message }) => {
+            console.log(message);
+          },
+          get_battery_level: async () => {
+            const batteryLevel = await Battery.getBatteryLevelAsync();
+            console.log("batteryLevel", batteryLevel);
+            if (batteryLevel === -1) {
+              return "Error: Device does not support retrieving the battery level.";
+            }
+            return batteryLevel;
+          },
+        },
       });
     } catch (error) {
       console.error("Failed to start conversation:", error);
