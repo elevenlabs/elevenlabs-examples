@@ -26,6 +26,7 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="elevenlabs"/>
         <data android:scheme="com.anonymous.elevenlabsconversationalaiexporeactnative"/>
+        <data android:scheme="exp+elevenlabs-conversational-ai-expo-react-native"/>
       </intent-filter>
     </activity>
   </application>

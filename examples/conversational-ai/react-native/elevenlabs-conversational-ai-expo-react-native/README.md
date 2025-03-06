@@ -32,8 +32,6 @@ npx expo install react-dom react-native-web @expo/metro-runtime # RN web support
 
 ## Run the app
 
-4. `npx expo prebuild --clean`
-
-5. `npx expo start --tunnel`
-
-6. `npx expo run:ios --device`
+1. `npx expo prebuild --clean`
+2. `npx expo start --tunnel`
+3. `npx expo run:ios --device`
