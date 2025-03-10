@@ -19,6 +19,20 @@ You are a helpful assistant running on {{platform}}. You have access to certain 
     - Description: Gets the device battery level as decimal point percentage.
     - Wait for response: true
     - Response timeout (seconds): 3
+  - Name: change_brightness
+    - Description: Changes the brightness of the device screen.
+    - Wait for response: true
+    - Response timeout (seconds): 3
+    - Parameters:
+      - Data Type: number
+      - Identifier: brightness
+      - Required: true
+      - Value Type: LLM Prompt
+      - Description: A number between 0 and 1, inclusive, representing the desired screen brightness.
+  - Name: flash_screen
+    - Description: Quickly flashes the screen on and off.
+    - Wait for response: true
+    - Response timeout (seconds): 3
 
 ## Setup
 
@@ -52,6 +66,7 @@ npx expo install react-native-webview # DOM components support
 npx expo install react-dom react-native-web @expo/metro-runtime # RN web support
 # Cool client tools
 npx expo install expo-battery
+npx expo install expo-brightness
 ```
 
 ## Run the app

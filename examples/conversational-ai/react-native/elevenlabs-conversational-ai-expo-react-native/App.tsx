@@ -1,8 +1,9 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, SafeAreaView } from "react-native";
 import { Platform } from "react-native";
+import tools from "./utils/tools";
 
-import DOMComponent from "./components/ConvAI";
+import ConvAiDOMComponent from "./components/ConvAI";
 
 export default function App() {
   return (
@@ -11,8 +12,11 @@ export default function App() {
         <Text>
           ElevenLabs Conversational AI with Expo React Native DOM Components!
         </Text>
-        <DOMComponent
+        <ConvAiDOMComponent
           platform={Platform.OS}
+          get_battery_level={tools.get_battery_level}
+          change_brightness={tools.change_brightness}
+          flash_screen={tools.flash_screen}
           dom={{
             style: { width: 300, height: 300 },
           }}

@@ -19,7 +19,8 @@
     "@expo/metro-runtime": "~4.0.1",
     "react-native-webview": "13.12.5",
     "expo-dev-client": "~5.0.12",
-    "expo-battery": "~9.0.2"
+    "expo-battery": "~9.0.2",
+    "expo-brightness": "~13.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

@@ -1,7 +1,7 @@
 "use dom";
-import * as Battery from "expo-battery";
 import { useCallback, useState } from "react";
 import { useConversation } from "@11labs/react";
+import tools from "../utils/tools";
 
 async function requestMicrophonePermission() {
   try {
@@ -14,11 +14,17 @@ async function requestMicrophonePermission() {
   }
 }
 
-export default function DOMComponent({
+export default function ConvAiDOMComponent({
   platform,
+  get_battery_level,
+  change_brightness,
+  flash_screen,
 }: {
   dom?: import("expo/dom").DOMProps;
   platform: string;
+  get_battery_level: typeof tools.get_battery_level;
+  change_brightness: typeof tools.change_brightness;
+  flash_screen: typeof tools.flash_screen;
 }) {
   const [message, setMessage] = useState("");
   const conversation = useConversation({
@@ -50,14 +56,9 @@ export default function DOMComponent({
           logMessage: async ({ message }) => {
             console.log(message);
           },
-          get_battery_level: async () => {
-            const batteryLevel = await Battery.getBatteryLevelAsync();
-            console.log("batteryLevel", batteryLevel);
-            if (batteryLevel === -1) {
-              return "Error: Device does not support retrieving the battery level.";
-            }
-            return batteryLevel;
-          },
+          get_battery_level,
+          change_brightness,
+          flash_screen,
         },
       });
     } catch (error) {
