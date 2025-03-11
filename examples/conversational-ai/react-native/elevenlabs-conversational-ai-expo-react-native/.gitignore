@@ -34,3 +34,9 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# android - don't track as it's a demo app
+android/*
+
+#ios - don't track as it's a demo app
+ios/*
