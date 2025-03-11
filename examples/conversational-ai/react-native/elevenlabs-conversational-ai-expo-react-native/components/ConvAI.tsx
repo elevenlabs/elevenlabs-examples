@@ -1,6 +1,9 @@
 "use dom";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useConversation } from "@11labs/react";
+import { View, Pressable, StyleSheet } from "react-native";
+import type { Message } from "../components/ChatMessage";
+import { Mic } from "lucide-react-native";
 import tools from "../utils/tools";
 
 async function requestMicrophonePermission() {
@@ -19,20 +22,20 @@ export default function ConvAiDOMComponent({
   get_battery_level,
   change_brightness,
   flash_screen,
+  onMessage,
 }: {
   dom?: import("expo/dom").DOMProps;
   platform: string;
   get_battery_level: typeof tools.get_battery_level;
   change_brightness: typeof tools.change_brightness;
   flash_screen: typeof tools.flash_screen;
+  onMessage: (message: Message) => void;
 }) {
-  const [message, setMessage] = useState("");
   const conversation = useConversation({
     onConnect: () => console.log("Connected"),
     onDisconnect: () => console.log("Disconnected"),
     onMessage: message => {
-      console.log("Message:", message);
-      setMessage(JSON.stringify(message, null, 2));
+      onMessage(message);
     },
     onError: error => console.error("Error:", error),
   });
@@ -71,20 +74,70 @@ export default function ConvAiDOMComponent({
   }, [conversation]);
 
   return (
-    <div style={{ width: 300, height: 300 }}>
-      <button
-        disabled={conversation !== null && conversation.status === "connected"}
-        onClick={startConversation}
+    <div style={{ width: 120, height: 120 }}>
+      <Pressable
+        style={[
+          styles.callButton,
+          conversation.status === "connected" && styles.callButtonActive,
+        ]}
+        onPress={
+          conversation.status === "disconnected"
+            ? startConversation
+            : stopConversation
+        }
       >
-        Start conversation
-      </button>
-      <button
-        disabled={conversation === null || conversation.status !== "connected"}
-        onClick={stopConversation}
-      >
-        End conversation
-      </button>
-      <pre style={{ whiteSpace: "pre-wrap" }}>{message}</pre>
+        <View
+          style={[
+            styles.buttonInner,
+            conversation.status === "connected" && styles.buttonInnerActive,
+          ]}
+        >
+          <Mic
+            size={32}
+            color="#E2E8F0"
+            strokeWidth={1.5}
+            style={styles.buttonIcon}
+          />
+        </View>
+      </Pressable>
     </div>
   );
 }
+
+const styles = StyleSheet.create({
+  callButton: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 24,
+  },
+  callButtonActive: {
+    backgroundColor: "rgba(239, 68, 68, 0.2)",
+  },
+  buttonInner: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#3B82F6",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#3B82F6",
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 5,
+  },
+  buttonInnerActive: {
+    backgroundColor: "#EF4444",
+    shadowColor: "#EF4444",
+  },
+  buttonIcon: {
+    transform: [{ translateY: 2 }],
+  },
+});

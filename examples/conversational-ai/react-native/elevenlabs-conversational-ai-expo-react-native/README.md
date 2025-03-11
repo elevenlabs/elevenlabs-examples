@@ -1,4 +1,6 @@
-## Conversational AI agent configuration
+## Cross-platform Conversational AI agent with ElevenLabs and Expo React Native DOM Components
+
+This example uses [ElevenLabs Conversational AI](https://elevenlabs.io/conversational-ai), running the [React SDK](https://elevenlabs.io/docs/conversational-ai/libraries/react) within [Expo DOM Components](https://docs.expo.dev/guides/dom-components/) to make the agent work across web, iOS, and Android.
 
 ### First message
 
