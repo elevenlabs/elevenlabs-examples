@@ -74,33 +74,31 @@ export default function ConvAiDOMComponent({
   }, [conversation]);
 
   return (
-    <div style={{ width: 120, height: 120 }}>
-      <Pressable
+    <Pressable
+      style={[
+        styles.callButton,
+        conversation.status === "connected" && styles.callButtonActive,
+      ]}
+      onPress={
+        conversation.status === "disconnected"
+          ? startConversation
+          : stopConversation
+      }
+    >
+      <View
         style={[
-          styles.callButton,
-          conversation.status === "connected" && styles.callButtonActive,
+          styles.buttonInner,
+          conversation.status === "connected" && styles.buttonInnerActive,
         ]}
-        onPress={
-          conversation.status === "disconnected"
-            ? startConversation
-            : stopConversation
-        }
       >
-        <View
-          style={[
-            styles.buttonInner,
-            conversation.status === "connected" && styles.buttonInnerActive,
-          ]}
-        >
-          <Mic
-            size={32}
-            color="#E2E8F0"
-            strokeWidth={1.5}
-            style={styles.buttonIcon}
-          />
-        </View>
-      </Pressable>
-    </div>
+        <Mic
+          size={32}
+          color="#E2E8F0"
+          strokeWidth={1.5}
+          style={styles.buttonIcon}
+        />
+      </View>
+    </Pressable>
   );
 }
 

@@ -13,7 +13,6 @@ import {
 } from "@expo-google-fonts/inter";
 
 export default function App() {
-  const [isCallActive, setIsCallActive] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
 
   const [fontsLoaded] = useFonts({
@@ -63,18 +62,18 @@ export default function App() {
             </View>
           </View>
         </View>
-        <ConvAiDOMComponent
-          platform={Platform.OS}
-          get_battery_level={tools.get_battery_level}
-          change_brightness={tools.change_brightness}
-          flash_screen={tools.flash_screen}
-          onMessage={message => {
-            setMessages(prev => [message, ...prev]);
-          }}
-          dom={{
-            style: { width: 120, height: 120 },
-          }}
-        />
+        <View style={styles.domComponentContainer}>
+          <ConvAiDOMComponent
+            dom={{ style: styles.domComponent }}
+            platform={Platform.OS}
+            get_battery_level={tools.get_battery_level}
+            change_brightness={tools.change_brightness}
+            flash_screen={tools.flash_screen}
+            onMessage={message => {
+              setMessages(prev => [message, ...prev]);
+            }}
+          />
+        </View>
       </View>
 
       <View style={styles.chatContainer}>
@@ -151,6 +150,17 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     overflow: "hidden",
     fontFamily: "Inter-Regular",
+  },
+  domComponentContainer: {
+    width: 120,
+    height: 120,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 24,
+  },
+  domComponent: {
+    width: 120,
+    height: 120,
   },
   chatContainer: {
     flex: 1,

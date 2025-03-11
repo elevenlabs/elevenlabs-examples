@@ -10,10 +10,10 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		274E867F46F54F599AB253A2 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EE67874B8884FFFB241CE40 /* noop-file.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		8B0EF5F9579A440BA1F939D8 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 775AF5CA252D4E58A2AD1237 /* noop-file.swift */; };
 		96905EF65AED1B983A6B3ABC /* libPods-elevenlabsconversationalaiexporeactnative.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58EEBF8E8E6FB1BC6CAF49B5 /* libPods-elevenlabsconversationalaiexporeactnative.a */; };
-		A7413BDC4871988EBADB8B0F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3B160C39862ED690E34CFF9F /* PrivacyInfo.xcprivacy */; };
+		A6A9C8DF9668FD64744F55AA /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3C820370E55A5137AA3B859A /* PrivacyInfo.xcprivacy */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 /* End PBXBuildFile section */
@@ -25,15 +25,15 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = elevenlabsconversationalaiexporeactnative/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = elevenlabsconversationalaiexporeactnative/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = elevenlabsconversationalaiexporeactnative/main.m; sourceTree = "<group>"; };
-		3B160C39862ED690E34CFF9F /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = elevenlabsconversationalaiexporeactnative/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		5843F6747A494E04954E0B6B /* elevenlabsconversationalaiexporeactnative-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "elevenlabsconversationalaiexporeactnative-Bridging-Header.h"; path = "elevenlabsconversationalaiexporeactnative/elevenlabsconversationalaiexporeactnative-Bridging-Header.h"; sourceTree = "<group>"; };
+		3C820370E55A5137AA3B859A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = elevenlabsconversationalaiexporeactnative/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58EEBF8E8E6FB1BC6CAF49B5 /* libPods-elevenlabsconversationalaiexporeactnative.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-elevenlabsconversationalaiexporeactnative.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C2E3173556A471DD304B334 /* Pods-elevenlabsconversationalaiexporeactnative.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-elevenlabsconversationalaiexporeactnative.debug.xcconfig"; path = "Target Support Files/Pods-elevenlabsconversationalaiexporeactnative/Pods-elevenlabsconversationalaiexporeactnative.debug.xcconfig"; sourceTree = "<group>"; };
-		775AF5CA252D4E58A2AD1237 /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "elevenlabsconversationalaiexporeactnative/noop-file.swift"; sourceTree = "<group>"; };
 		7A4D352CD337FB3A3BF06240 /* Pods-elevenlabsconversationalaiexporeactnative.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-elevenlabsconversationalaiexporeactnative.release.xcconfig"; path = "Target Support Files/Pods-elevenlabsconversationalaiexporeactnative/Pods-elevenlabsconversationalaiexporeactnative.release.xcconfig"; sourceTree = "<group>"; };
+		9EE67874B8884FFFB241CE40 /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "elevenlabsconversationalaiexporeactnative/noop-file.swift"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = elevenlabsconversationalaiexporeactnative/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F10287A8EDEA40CD9ECEAD65 /* elevenlabsconversationalaiexporeactnative-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "elevenlabsconversationalaiexporeactnative-Bridging-Header.h"; path = "elevenlabsconversationalaiexporeactnative/elevenlabsconversationalaiexporeactnative-Bridging-Header.h"; sourceTree = "<group>"; };
 		FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-elevenlabsconversationalaiexporeactnative/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -59,9 +59,9 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				775AF5CA252D4E58A2AD1237 /* noop-file.swift */,
-				5843F6747A494E04954E0B6B /* elevenlabsconversationalaiexporeactnative-Bridging-Header.h */,
-				3B160C39862ED690E34CFF9F /* PrivacyInfo.xcprivacy */,
+				9EE67874B8884FFFB241CE40 /* noop-file.swift */,
+				F10287A8EDEA40CD9ECEAD65 /* elevenlabsconversationalaiexporeactnative-Bridging-Header.h */,
+				3C820370E55A5137AA3B859A /* PrivacyInfo.xcprivacy */,
 			);
 			name = elevenlabsconversationalaiexporeactnative;
 			sourceTree = "<group>";
@@ -147,13 +147,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "elevenlabsconversationalaiexporeactnative" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				CD207AE2A6AAA48FC8A21639 /* [Expo] Configure project */,
+				AC28BBB23C5C77EC6A2068FC /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				1D373139C84D3B8DCCAA7551 /* [CP] Embed Pods Frameworks */,
+				1D52E63AE9A62CB5644AFB50 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -205,7 +205,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				A7413BDC4871988EBADB8B0F /* PrivacyInfo.xcprivacy in Resources */,
+				A6A9C8DF9668FD64744F55AA /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -249,7 +249,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		1D373139C84D3B8DCCAA7551 /* [CP] Embed Pods Frameworks */ = {
+		1D52E63AE9A62CB5644AFB50 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -303,7 +303,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-elevenlabsconversationalaiexporeactnative/Pods-elevenlabsconversationalaiexporeactnative-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		CD207AE2A6AAA48FC8A21639 /* [Expo] Configure project */ = {
+		AC28BBB23C5C77EC6A2068FC /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -332,7 +332,7 @@
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */,
-				8B0EF5F9579A440BA1F939D8 /* noop-file.swift in Sources */,
+				274E867F46F54F599AB253A2 /* noop-file.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
