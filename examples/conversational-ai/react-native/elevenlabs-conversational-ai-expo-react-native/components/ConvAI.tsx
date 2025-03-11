@@ -51,7 +51,7 @@ export default function ConvAiDOMComponent({
       // Start the conversation with your agent
       console.log("calling startSession");
       await conversation.startSession({
-        agentId: "GGEF0NH4DWv6fAEtCBar", // Replace with your agent ID
+        agentId: "YOUR_AGENT_ID", // Replace with your agent ID
         dynamicVariables: {
           platform,
         },
