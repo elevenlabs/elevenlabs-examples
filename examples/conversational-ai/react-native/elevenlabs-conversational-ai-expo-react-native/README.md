@@ -6,7 +6,7 @@ This example uses [ElevenLabs Conversational AI](https://elevenlabs.io/conversat
 
 ## ElevenLabs Agent Configuration
 
-Head over to your [ElevenLabs App](https://elevenlabs.io/app/conversational-ai/agents) and create a new blank agent. Set up the following configuration in your newly created agent:
+Head over to the [ElevenLabs App](https://elevenlabs.io/app/conversational-ai/agents) and create a new blank agent. Set up the following configuration in your newly created agent:
 
 ### First message
 
