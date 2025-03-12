@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "node",
   "scripts": {
     "start": "ts-node src/index.ts"

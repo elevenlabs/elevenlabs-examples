@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es2016",
-    "module": "CommonJS",
+    "target": "es2017",
+    "module": "ESNext",
     "jsx": "react",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
