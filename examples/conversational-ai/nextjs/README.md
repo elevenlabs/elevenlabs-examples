@@ -24,5 +24,5 @@ bun dev
 
 ## Learn More
 
-- [Conversational AI Tutorial](https://elevenlabs.io/docs/product/introduction)
+- [Conversational AI Quickstart](https://elevenlabs.io/docs/conversational-ai/quickstart)
 - [Conversational AI SDK](https://elevenlabs.io/docs/libraries/conversational-ai-sdk-js)
