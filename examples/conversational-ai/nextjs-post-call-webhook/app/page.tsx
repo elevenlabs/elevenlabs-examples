@@ -11,13 +11,20 @@ import { ChevronRight, Mic } from "lucide-react";
 
 import { useConversation } from "@11labs/react";
 
+async function getSignedUrl(): Promise<string> {
+  const response = await fetch("/api/signed-url");
+  if (!response.ok) {
+    throw Error("Failed to get signed url");
+  }
+  const data = await response.json();
+  return data.signedUrl;
+}
+
 export default function Home() {
   const [currentStep, setCurrentStep] = useState<
     "initial" | "training" | "voice" | "email" | "ready"
   >("initial");
-  const [activeTab, setActiveTab] = useState<"file" | "text" | "websites">(
-    "file"
-  );
+  const [activeTab, setActiveTab] = useState<"file" | "websites">("file");
   const [fileData, setFileData] = useState<File[]>([]);
   const [textData, setTextData] = useState("");
   const [websiteUrls, setWebsiteUrls] = useState<string[]>([""]);
@@ -37,8 +44,9 @@ export default function Home() {
       // Request microphone permission
       await navigator.mediaDevices.getUserMedia({ audio: true });
       // Start the conversation with your agent
+      const signedUrl = await getSignedUrl();
       const convId = await conversation.startSession({
-        agentId: "mBpQ3lns7md0867m7UbX", // Replace with your agent ID
+        signedUrl,
         dynamicVariables: {
           user_name: userName,
         },
@@ -105,7 +113,7 @@ export default function Home() {
                 placeholder="Enter your name"
                 className="bg-gray-800 border-gray-700 text-white"
                 value={userName}
-                onChange={(e) => setUserName(e.target.value)}
+                onChange={e => setUserName(e.target.value)}
                 required
               />
             </div>
@@ -149,17 +157,6 @@ export default function Home() {
                   </button>
                   <button
                     className={`py-2 px-4 ${
-                      activeTab === "text"
-                        ? "border-b-2 border-purple-500 text-white"
-                        : "text-gray-400 hover:text-gray-200"
-                    }`}
-                    onClick={() => setActiveTab("text")}
-                    type="button"
-                  >
-                    Text
-                  </button>
-                  <button
-                    className={`py-2 px-4 ${
                       activeTab === "websites"
                         ? "border-b-2 border-purple-500 text-white"
                         : "text-gray-400 hover:text-gray-200"
@@ -187,7 +184,7 @@ export default function Home() {
                           type="file"
                           multiple
                           className="hidden"
-                          onChange={(e) => {
+                          onChange={e => {
                             const files = Array.from(e.target.files || []);
                             setFileData(files);
                           }}
@@ -256,25 +253,6 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className={activeTab === "text" ? "block" : "hidden"}>
-                    <div className="space-y-4">
-                      <Label
-                        htmlFor="text-input"
-                        className="text-sm text-gray-400"
-                      >
-                        Enter Text
-                      </Label>
-                      <textarea
-                        id="text-input"
-                        name="text-input"
-                        className="w-full h-40 bg-gray-800 border-gray-700 rounded-lg p-3 text-white"
-                        placeholder="Paste or type your knowledge base content here..."
-                        value={textData}
-                        onChange={(e) => setTextData(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
                   <div
                     className={activeTab === "websites" ? "block" : "hidden"}
                   >
@@ -289,7 +267,7 @@ export default function Home() {
                             placeholder="https://example.com/docs"
                             className="bg-gray-800 border-gray-700 text-white"
                             value={url}
-                            onChange={(e) =>
+                            onChange={e =>
                               updateWebsiteUrl(index, e.target.value)
                             }
                           />
@@ -363,7 +341,7 @@ export default function Home() {
                     placeholder="you@example.com"
                     className="bg-gray-800 border-gray-700 text-white"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={e => setEmail(e.target.value)}
                     required
                   />
                   <p className="text-sm text-gray-400">

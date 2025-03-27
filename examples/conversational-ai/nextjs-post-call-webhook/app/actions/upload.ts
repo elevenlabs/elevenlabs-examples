@@ -1,24 +1,14 @@
 "use server";
 import { redirect } from "next/navigation";
+import { ElevenLabsClient } from "elevenlabs";
+import { Redis } from "@upstash/redis";
 
-const createKnowledgeBaseEntry = async (form: FormData) => {
-  const url = "https://api.elevenlabs.io/v1/convai/knowledge-base";
+// Initialize Redis
+const redis = Redis.fromEnv();
 
-  const options: { [key: string]: any } = {
-    method: "POST",
-    headers: { "xi-api-key": process.env.ELEVENLABS_API_KEY },
-  };
-  options.body = form;
-
-  try {
-    const response = await fetch(url, options);
-    const data = await response.json();
-    console.log(data);
-    return { data, error: null };
-  } catch (error) {
-    return { data: null, error };
-  }
-};
+const elevenLabsClient = new ElevenLabsClient({
+  apiKey: process.env.ELEVENLABS_API_KEY,
+});
 
 export async function uploadFormData(formData: FormData) {
   const knowledgeBaseIds: string[] = [];
@@ -33,24 +23,30 @@ export async function uploadFormData(formData: FormData) {
   // Create knowledge base entries
   // Loop trhough files and create knowledge base entries
   for (const file of files) {
-    const form = new FormData();
-    form.append("file", file);
-    const response = await createKnowledgeBaseEntry(form);
-    if (response.data) {
-      knowledgeBaseIds.push(response.data.id);
+    const response = await elevenLabsClient.conversationalAi.addToKnowledgeBase(
+      { file }
+    );
+    if (response.id) {
+      knowledgeBaseIds.push(response.id);
     }
   }
   // Append all urls
   for (const url of urls) {
-    const form = new FormData();
-    form.append("url", url);
-    const response = await createKnowledgeBaseEntry(form);
-    if (response.data) {
-      knowledgeBaseIds.push(response.data.id);
+    const response = await elevenLabsClient.conversationalAi.addToKnowledgeBase(
+      { url: url as string }
+    );
+    if (response.id) {
+      knowledgeBaseIds.push(response.id);
     }
   }
+  console.log({ knowledgeBaseIds });
 
   // Store knowledge base IDs and conversation ID in database.
+  const redisRes = await redis.set(
+    conversationId as string,
+    JSON.stringify(knowledgeBaseIds)
+  );
+  console.log({ redisRes });
 
   redirect("/success");
 }
