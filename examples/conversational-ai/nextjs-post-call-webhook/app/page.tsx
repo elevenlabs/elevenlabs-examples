@@ -361,6 +361,18 @@ export default function Home() {
             </div>
           </div>
         </form>
+
+        <div className="text-center mt-8 text-sm text-gray-500">
+          Powered by{" "}
+          <a
+            href="https://elevenlabs.io/conversational-ai"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-gray-400 transition-colors underline"
+          >
+            ElevenLabs ConversationalAI
+          </a>
+        </div>
       </div>
     </main>
   );
