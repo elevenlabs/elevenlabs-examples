@@ -13,7 +13,7 @@ export const LANGUAGES = [
     code: "en",
     name: "English",
     firstSentence:
-      "Ho, ho, ho! Merry Christmas, my friend. Tell me, what is your name?",
+      "AAAHHHHHHHH!!!!!!!! Yippeek eye yay, motherfucker!! What's up?",
   },
   {
     code: "ar",

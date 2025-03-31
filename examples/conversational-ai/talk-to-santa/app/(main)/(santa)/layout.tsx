@@ -32,7 +32,7 @@ export default function Layout({
       <div
         className="absolute inset-0 z-[-2]"
         style={{
-          background: `url('/assets/background.webp')`,
+          background: `url('/assets/background_new.png')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

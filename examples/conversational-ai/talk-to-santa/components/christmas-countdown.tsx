@@ -46,7 +46,7 @@ export const ChristmasCountdown = () => {
       transition={{ type: "spring", bounce: 0.25 }}
       className="fixed top-0 left-1/2 z-50 overflow-hidden"
     >
-      <div
+      {/* <div
         className="rounded-b-2xl bg-white/5 backdrop-blur-[16px] shadow-2xl p-4"
         style={{
           border: "4px solid transparent",
@@ -92,7 +92,7 @@ export const ChristmasCountdown = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </motion.div>
   );
 };

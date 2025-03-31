@@ -91,7 +91,7 @@ export function CallButton({
       >
         <div className="absolute left-3 top-1/2 -translate-y-1/2">
           <Image
-            src="/assets/santa.webp"
+            src="/assets/Call_Rocky.png"
             alt="Santa"
             className="rounded-full"
             width={48}
@@ -101,7 +101,7 @@ export function CallButton({
         </div>
         {!isCalling && (
           <>
-            <span className="text-lg ml-10 font-semibold">Call Santa</span>
+            <span className="text-lg ml-10 font-semibold">Call Rocky</span>
           </>
         )}
         {isCalling && (

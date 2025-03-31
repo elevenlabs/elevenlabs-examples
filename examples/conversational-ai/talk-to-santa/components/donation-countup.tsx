@@ -33,7 +33,7 @@ export const DonationCountup = () => {
       transition={{ type: "spring", bounce: 0 }}
       className="fixed top-0 right-0 z-50"
     >
-      <div
+      {/* <div
         className="bg-white/5 backdrop-blur-[16px] shadow-2xl p-0 sm:p-4 border-l-[4px] border-b-[4px] sm:border-[4px] sm:border-transparent sm:border-r-0"
         style={{
           borderImage:
@@ -77,7 +77,7 @@ export const DonationCountup = () => {
             </div>
           </motion.div>
         </div>
-      </div>
+      </div> */}
     </motion.div>
   );
 };

@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: any): Promise<Metadata> {
     name.length > 0 ? `${possessiveForm} Letter to Santa` : "My Letter to Santa"
   } | Talk to Santa| By Elevenlabs`;
 
-  const description = "Call Santa, powered by ElevenLabs Conversational AI.";
+  const description = "Call Santa, powered by ElLabs Conversational AI.";
 
   const metadata: Metadata = {
     title,

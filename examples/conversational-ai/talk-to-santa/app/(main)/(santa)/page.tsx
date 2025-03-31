@@ -379,7 +379,7 @@ export default function Page() {
               animate={{ opacity: 1, y: 0 }}
             >
               <Image
-                src="/assets/santa.webp"
+                src="/assets/Call_Rocky.png"
                 alt="Santa"
                 width={128}
                 height={128}
@@ -437,34 +437,34 @@ export default function Page() {
           >
             {isVideoEnabled && (
               <>
-                <Button
+                {/* <Button
                   variant="default"
                   className="px-4 py-2 rounded-full border-emerald-500 border-2 hover:bg-emerald-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
                   onClick={() => endCall()}
                 >
                   Save Card with Video
                   <VideoIcon className="w-4 h-4" />
-                </Button>
+                </Button> */}
 
-                <Button
+                {/* <Button
                   variant="default"
                   className="px-4 py-2 rounded-full border-blue-500 border-2 hover:bg-blue-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
                   onClick={() => endCall(false)}
                 >
                   Save Card without Video
                   <VideoOffIcon className="w-4 h-4" />
-                </Button>
+                </Button> */}
               </>
             )}
             {!isVideoEnabled && (
               <>
-                <Button
+                {/* <Button
                   variant="default"
                   className="px-4 py-2 rounded-full border-blue-500 border-2 hover:bg-blue-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
                   onClick={() => endCall(false)}
                 >
                   Save Card
-                </Button>
+                </Button> */}
               </>
             )}
             <Button
@@ -475,7 +475,7 @@ export default function Page() {
                 window.location.reload();
               }}
             >
-              Restart
+              HangUp
             </Button>
           </div>
         )}
