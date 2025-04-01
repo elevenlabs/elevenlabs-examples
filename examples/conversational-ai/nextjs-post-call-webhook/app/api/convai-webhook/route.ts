@@ -3,9 +3,13 @@ import type { NextRequest } from "next/server";
 import crypto from "crypto";
 import { ElevenLabsClient } from "elevenlabs";
 import { Redis } from "@upstash/redis";
+import { Resend } from "resend";
+import { EmailTemplate } from "@/components/email/post-call-webhook-email";
 
 // Initialize Redis
 const redis = Redis.fromEnv();
+// Initialize Resend
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const elevenLabsClient = new ElevenLabsClient({
   apiKey: process.env.ELEVENLABS_API_KEY,
@@ -73,6 +77,12 @@ export async function POST(req: NextRequest) {
         console.log("Agent created", { agent: agent.agent_id });
         // Send email to user
         console.log("Sending email to", redisRes.email);
+        await resend.emails.send({
+          from: process.env.RESEND_FROM_EMAIL!,
+          to: redisRes.email,
+          subject: "Your Conversational AI agent is ready to chat!",
+          react: EmailTemplate({ agentId: agent.agent_id }),
+        });
       } catch (error) {
         console.error(error);
         return NextResponse.json({ error }, { status: 500 });
