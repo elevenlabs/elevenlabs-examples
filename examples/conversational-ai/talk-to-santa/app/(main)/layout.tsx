@@ -18,8 +18,8 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://talktosanta.io"),
-  title: "Talk to Santa | ElevenLabs",
-  description: "Talk to Santa, powered by ElevenLbs Conversational AI.",
+  title: "Talk to Rocky",
+  description: "Talk to Rocky",
   keywords: [
     "Santa Claus",
     "AI Santa",
@@ -33,8 +33,8 @@ export const metadata: Metadata = {
     "Conversational AI",
   ],
   openGraph: {
-    title: "Talk to Santa | ElevenLabs",
-    description: "Talk to Santa, powered by Elevenabs Conversational AI.",
+    title: "Talk to Rocky",
+    description: "Talk to Rocky",
     images: [
       {
         url: "/assets/og-image.jpg",
@@ -45,13 +45,13 @@ export const metadata: Metadata = {
     ],
     type: "website",
     locale: "en_US",
-    siteName: "Talk to Santa",
+    siteName: "Talk to Rocky",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Talk to Santa | ElevenLabs",
+    title: "Talk to Rocky",
     description:
-      "Experience a real-time conversation with Santa Claus, powered by EleveLabs Conversational AI.",
+      "Experience a real-time conversation with Rocky, powered by EleveLabs Conversational AI.",
     images: ["/assets/og-image.jpg"],
     creator: "@elevenlabsio",
   },

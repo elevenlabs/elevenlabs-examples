@@ -4,7 +4,6 @@ import {
   getAgentConversation,
   getAgentConversationAudio,
 } from "@/app/(main)/(santa)/actions/actions";
-import { christmasFont } from "@/components/custom-fonts";
 import {
   Card,
   CardContent,
@@ -85,7 +84,7 @@ export function UserCard({
         "p-[10px]",
         "mt-32 sm:mt-40",
         "bg-[repeating-linear-gradient(45deg,#ff0000_0px,#ff0000_10px,#ffffff_10px,#ffffff_20px)]",
-        christmasFont.className
+        ""
       )}
     >
       <Card className="bg-white backdrop-blur-sm rounded-lg">
