@@ -1,26 +1,12 @@
 "use client";
 
-import { getConversationCount } from "@/app/(main)/(santa)/actions/actions";
-import { christmasFont } from "@/components/custom-fonts";
-import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export const DonationCountup = () => {
-  const [conversationCount, setConversationCount] = useState<number>(0);
-
-  const donationPerConversation = 2;
-  const maxDonation = 11000;
-  const totalDonation = Math.min(
-    conversationCount * donationPerConversation,
-    maxDonation
-  );
-  const isMaxDonationReached = totalDonation >= maxDonation;
-
   useEffect(() => {
     const fetchConversationCount = async () => {
-      const data = await getConversationCount({});
-      setConversationCount(data?.data?.count || 0);
+      
     };
 
     fetchConversationCount();

@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useConversation } from "@11labs/react";
 import { motion } from "framer-motion";
-import { VideoIcon, VideoOffIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -437,34 +436,14 @@ export default function Page() {
           >
             {isVideoEnabled && (
               <>
-                {/* <Button
-                  variant="default"
-                  className="px-4 py-2 rounded-full border-emerald-500 border-2 hover:bg-emerald-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
-                  onClick={() => endCall()}
-                >
-                  Save Card with Video
-                  <VideoIcon className="w-4 h-4" />
-                </Button> */}
+                {}
 
-                {/* <Button
-                  variant="default"
-                  className="px-4 py-2 rounded-full border-blue-500 border-2 hover:bg-blue-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
-                  onClick={() => endCall(false)}
-                >
-                  Save Card without Video
-                  <VideoOffIcon className="w-4 h-4" />
-                </Button> */}
+                {}
               </>
             )}
             {!isVideoEnabled && (
               <>
-                {/* <Button
-                  variant="default"
-                  className="px-4 py-2 rounded-full border-blue-500 border-2 hover:bg-blue-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
-                  onClick={() => endCall(false)}
-                >
-                  Save Card
-                </Button> */}
+                {}
               </>
             )}
             <Button

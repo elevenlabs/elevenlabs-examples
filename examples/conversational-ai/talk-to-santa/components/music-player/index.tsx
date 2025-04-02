@@ -1,9 +1,5 @@
 "use client";
 
-import { Vinyl } from "@/components/music-player/vinyl";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { SkipForward } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 const TRACKS = [
@@ -20,14 +16,12 @@ const TRACKS = [
 ];
 
 export function MusicPlayer() {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-  const [volume, setVolume] = useState([0.5]);
+  //const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTrackIndex] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     audioRef.current = new Audio(TRACKS[currentTrackIndex].url);
-    audioRef.current.volume = volume[0];
 
     return () => {
       audioRef.current?.pause();
@@ -35,47 +29,7 @@ export function MusicPlayer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTrackIndex]);
 
-  const togglePlay = () => {
-    if (isPlaying) {
-      audioRef.current?.pause();
-    } else {
-      audioRef.current?.play();
-    }
-    setIsPlaying(!isPlaying);
-  };
 
-  const togglePlayMobile = () => {
-    if (isPlaying) {
-      audioRef.current?.pause();
-    } else {
-      if (audioRef.current) {
-        audioRef.current.volume = 0.1;
-        audioRef.current.play();
-      }
-    }
-    setIsPlaying(!isPlaying);
-  };
-
-  const nextTrack = () => {
-    const wasPlaying = isPlaying;
-    audioRef.current?.pause();
-    setCurrentTrackIndex(prev => (prev + 1) % TRACKS.length);
-    setIsPlaying(false);
-
-    if (wasPlaying) {
-      setTimeout(() => {
-        audioRef.current?.play();
-        setIsPlaying(true);
-      }, 0);
-    }
-  };
-
-  const handleVolumeChange = (newVolume: number[]) => {
-    setVolume(newVolume);
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume[0];
-    }
-  };
 
   return (
     <>

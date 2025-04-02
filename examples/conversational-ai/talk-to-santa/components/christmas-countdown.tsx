@@ -1,17 +1,17 @@
 "use client";
 
-import { christmasFont } from "@/components/custom-fonts";
-import { cn } from "@/lib/utils";
+// import { christmasFont } from "@/components/custom-fonts";
+// import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 export const ChristmasCountdown = () => {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
+  // const [setTimeLeft] = useState({
+  //   days: 0,
+  //   hours: 0,
+  //   minutes: 0,
+  //   seconds: 0,
+  // });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -21,12 +21,12 @@ export const ChristmasCountdown = () => {
       const difference = christmas.getTime() - now.getTime();
 
       if (difference > 0) {
-        setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((difference / 1000 / 60) % 60),
-          seconds: Math.floor((difference / 1000) % 60),
-        });
+        // setTimeLeft({
+        //   days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        //   hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        //   minutes: Math.floor((difference / 1000 / 60) % 60),
+        //   seconds: Math.floor((difference / 1000) % 60),
+        // });
         setIsLoading(false);
       }
     };

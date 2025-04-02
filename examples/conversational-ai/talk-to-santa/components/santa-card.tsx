@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { Mail, VideoIcon, VideoOffIcon } from "lucide-react";
+import { VideoIcon, VideoOffIcon } from "lucide-react";
 
 interface SantaCardProps {
   name: string | null;
