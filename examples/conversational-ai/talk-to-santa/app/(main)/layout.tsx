@@ -37,10 +37,10 @@ export const metadata: Metadata = {
     description: "Talk to Rocky",
     images: [
       {
-        url: "/assets/og-image.jpg",
+        url: "/assets/Call_Rocky.png",
         width: 1200,
         height: 630,
-        alt: "Interactive AI Santa Claus Experience by ElevenLabs",
+        alt: "Interactive AI Rocky",
       },
     ],
     type: "website",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     title: "Talk to Rocky",
     description:
       "Experience a real-time conversation with Rocky, powered by EleveLabs Conversational AI.",
-    images: ["/assets/og-image.jpg"],
+    images: ["/assets/Call_Rocky.png"],
     creator: "@elevenlabsio",
   },
   robots: {
