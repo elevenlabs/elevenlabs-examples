@@ -13,7 +13,7 @@ export const LANGUAGES = [
     code: "en",
     name: "English",
     firstSentence:
-      "AAAHHHHHHHH!!!!!!!! Yippeek eye yay, mother clucker!! What's up Sofia?",
+      "AAAHHHHHHHH!!!!!!!! Yippeek eye yay, mother clucker!! What's up Sofia? You don don face!!!!",
   },
   {
     code: "ar",
