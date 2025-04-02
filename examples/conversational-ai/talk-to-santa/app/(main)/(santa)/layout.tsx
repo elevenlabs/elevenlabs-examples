@@ -30,13 +30,9 @@ export default function Layout({
       </main>
 
       <div
-        className="absolute inset-0 z-[-2]"
-        style={{
-          background: `url('/assets/background_new.png')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+        className="absolute inset-0 z-[-2] bg-[url('/assets/background_new.png')] bg-cover bg-[center_10%] md:bg-center"
       />
+
       <div className="absolute inset-0 z-[-1]">
         <Snowfall />
       </div>
