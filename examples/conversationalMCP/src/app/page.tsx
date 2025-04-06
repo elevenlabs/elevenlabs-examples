@@ -264,7 +264,7 @@ export default function Home() {
         
         // Add each MCP tool as a client tool
         Object.entries(allTools).forEach(([serverName, tools]) => {
-          tools.forEach(tool => {
+          tools.forEach((tool: Tool) => {
             const toolFunction = async (args: any) => {
               try {
                 const result = await mcpClientRef.current?.makeRequest(serverName, tool.name, args);
@@ -357,59 +357,65 @@ export default function Home() {
 
   return (
     <div 
-      className={`min-h-screen transition-all duration-700 ${isConfigured ? 'bg-cover bg-center' : 'bg-white'}`}
+      className={`min-h-screen transition-all duration-700 flex items-center justify-center ${isConfigured ? 'bg-cover bg-center' : 'bg-gradient-to-br from-blue-50 to-indigo-100'}`}
       style={isConfigured ? { backgroundImage: 'url(/landing_image.png)' } : {}}
     >
       {!isConfigured ? (
-        <div className="p-8 flex flex-col items-center">
-          <h1 className="text-2xl font-bold mb-8">ConversationalMCP</h1>
+        <div className="w-full max-w-2xl p-8">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-gray-800 mb-2">ConversationalMCP</h1>
+          </div>
           
-          <div className="w-full max-w-2xl bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold mb-4">Upload MCP Servers Configuration</h2>
+          <div className="bg-white rounded-xl shadow-xl p-8">
+            <h2 className="text-2xl font-semibold mb-6 text-gray-700">Upload MCP Servers Configuration</h2>
             
             <form onSubmit={handleSubmit}>
-              <div className={`border-2 border-dashed ${configLoaded ? 'border-green-300 bg-green-50' : 'border-gray-300'} rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors`}>
+              <label 
+                htmlFor="file-upload" 
+                className={`flex flex-col items-center justify-center border-2 border-dashed ${configLoaded ? 'border-green-400 bg-green-50' : 'border-gray-300 hover:border-blue-400 bg-gray-50'} rounded-lg p-8 text-center cursor-pointer transition-colors mb-6`}
+              >
+                <svg className={`w-12 h-12 mb-3 ${configLoaded ? 'text-green-500' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg> 
+                
                 {configLoaded ? (
-                  <p className="text-green-600 mb-2">MCP Configuration Loaded Successfully</p>
+                  <>
+                    <p className="text-lg font-medium text-green-700 mb-2">Configuration Loaded!</p>
+                    <p className="text-sm text-green-600">Ready to start the conversation.</p>
+                  </>
                 ) : (
-                  <p className="text-gray-600 mb-2">Drag and drop your JSON file here, or click to select</p>
+                  <>
+                    <p className="text-lg font-medium text-gray-700 mb-1">Click or drag file to this area to upload</p>
+                    <p className="text-sm text-gray-500">Please upload your `mcp_servers.json` file</p>
+                  </>
                 )}
                 <input 
                   type="file" 
                   accept=".json" 
-                  className={`w-full opacity-0 absolute inset-0 cursor-pointer ${configLoaded ? 'pointer-events-none' : ''}`}
+                  className="sr-only"
                   id="file-upload"
                   onChange={handleFileUpload}
                   disabled={configLoaded || isLoading}
                 />
-                <button 
-                  type="button"
-                  className={`${configLoaded ? 'bg-green-500' : 'bg-blue-500'} text-white px-4 py-2 rounded-md ${configLoaded ? 'hover:bg-green-600' : 'hover:bg-blue-600'} mt-2`}
-                  disabled={configLoaded || isLoading}
-                >
-                  {configLoaded ? 'Configuration Loaded' : 'Select File'}
-                </button>
-              </div>
+              </label>
               
               {configLoaded && (
-                <div className="mt-6">
-                  <h3 className="font-medium mb-2">Server Configuration Preview</h3>
-                  <pre className="bg-gray-100 p-4 rounded-md overflow-auto max-h-60">
+                <div className="mb-6">
+                  <h3 className="font-medium mb-2 text-gray-600">Server Configuration Preview:</h3>
+                  <pre className="bg-gray-100 p-4 rounded-md overflow-auto max-h-48 text-sm border border-gray-200">
                     {configPreview}
                   </pre>
                 </div>
               )}
               
               {error && (
-                <div className="mt-4 p-3 bg-red-50 rounded-md border border-red-200 text-red-700">
-                  {error}
+                <div className="mb-6 p-4 bg-red-100 rounded-lg border border-red-300 text-red-800 text-sm">
+                  <span className="font-medium">Error:</span> {error}
                 </div>
               )}
               
-              <div className="mt-6 flex justify-end">
+              <div className="mt-8 flex justify-center">
                 <button
                   type="submit"
-                  className={`px-6 py-2 rounded-md ${isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
+                  className={`px-8 py-3 rounded-lg font-semibold text-white transition-colors ${isLoading ? 'bg-gray-400 cursor-not-allowed' : configLoaded ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-400 cursor-not-allowed'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
                   disabled={!configLoaded || isLoading}
                 >
                   {isLoading ? 'Setting up MCP servers...' : 'Start Conversation'}
@@ -417,6 +423,9 @@ export default function Home() {
               </div>
             </form>
           </div>
+          <p className="text-center text-gray-500 text-sm mt-8">
+            Built with ❤️ by <a href="https://elevenlabs.io" className="text-indigo-600 hover:underline">ElevenLabs</a>
+          </p>
         </div>
       ) : null}
     </div>
