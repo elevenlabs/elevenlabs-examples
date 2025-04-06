@@ -36,10 +36,6 @@ class MCPClient {
           inputSchema: tool.inputSchema,
         };
       });
-      console.log(
-        "Connected to server with tools:",
-        this.tools.map(({ name }) => name)
-      );
       return this.tools;
     } catch (e) {
       console.log("Failed to connect to MCP server: ", e);
@@ -53,23 +49,6 @@ class MCPClient {
       arguments: toolArgs,
     });
     return result.content;
-  }
-}
-
-const mcp = {
-  "mcpServers": {
-    "ElevenLabs": {
-      "command": "/Users/angelogiacco/.nvm/versions/node/v20.18.1/bin/node",
-      "args": [
-        "/Users/angelogiacco/.nvm/versions/node/v20.18.1/bin/npx", 
-        "-y", 
-        "@angelogiacco/elevenlabs-mcp-server"
-      ],
-      "env": {
-        "ELEVENLABS_API_KEY": process.env.ELEVENLABS_API_KEY || "",
-        "PATH": process.env.PATH || ""
-      }
-    }
   }
 }
 

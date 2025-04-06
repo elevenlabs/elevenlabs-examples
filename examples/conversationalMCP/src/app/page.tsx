@@ -17,17 +17,12 @@ interface Tool {
   inputSchema: any;
 }
 
-// Define params for client tools
 interface RedirectToDocsParams { path: string; }
 interface RedirectToEmailParams { subject: string; body: string; }
-interface RedirectToSupportFormParams { subject: string; description: string; extraInfo: string; }
-interface RedirectToExternalURLParams { url: string; }
-interface MCPRequestParams { serverName: string; endpoint: string; data: any; }
 interface ElevenLabsCallEvent extends Event { 
   detail: { config: { clientTools: any } } 
 }
 
-// MCPClient class to interact with API
 class MCPClient {
   private config: MCPConfig;
   private serverTools: Record<string, Tool[]> = {};
@@ -200,10 +195,10 @@ export default function Home() {
 
   // Inject ElevenLabs widget when configured
   useEffect(() => {
-    if (!isConfigured) return;
-    
+    if (!isConfigured || !mcpClientRef.current) return; // Ensure client exists
+
     const ID = 'elevenlabs-convai-widget-60993087-3f3e-482d-9570-cc373770addc';
-    
+
     function injectElevenLabsWidget() {
       // Check if the widget is already loaded
       if (document.getElementById(ID)) {
@@ -216,19 +211,42 @@ export default function Home() {
       script.type = 'text/javascript';
       document.head.appendChild(script);
 
+      // --- Prepare dynamic variables ---
+      const allTools = mcpClientRef.current!.getTools(); // We know client exists here
+      const formattedMcpTools: Record<string, { description: string; inputSchema: any }> = {};
+
+      Object.entries(allTools).forEach(([serverName, tools]) => {
+        tools.forEach((tool: Tool) => {
+          formattedMcpTools[`${serverName}_${tool.name}`] = {
+            description: tool.description,
+            inputSchema: tool.inputSchema,
+          };
+        });
+      });
+
+      // Stringify the tools object itself before placing it in dynamicVariables
+      const dynamicVariables = {
+        mcp_tools: JSON.stringify(formattedMcpTools) 
+      };
+      // Now stringify the outer object containing the stringified tools
+      const dynamicVariablesString = JSON.stringify(dynamicVariables);
+      console.log("dynamicVariablesString being sent:", dynamicVariablesString);
+      // --- End dynamic variables preparation ---
+
+
       // Create the wrapper and widget
       const wrapper = document.createElement('div');
       wrapper.className = 'widget-wrapper fade-in';
 
       const widget = document.createElement('elevenlabs-convai') as HTMLElement;
       widget.id = ID;
-      widget.setAttribute('agent-id', 'UsGMYWKZCf6BeTMuzdb8');
+      widget.setAttribute('agent-id', 'UsGMYWKZCf6BeTMuzdb8'); // Replace with your actual agent ID if different
       widget.setAttribute('variant', 'full');
+      widget.setAttribute('dynamic-variables', dynamicVariablesString); // Set the dynamic variables
 
       // Add resize listener for mobile detection
-      window.addEventListener('resize', () => {
-        updateWidgetVariant(widget);
-      });
+      const resizeHandler = () => updateWidgetVariant(widget); // Store handler for removal
+      window.addEventListener('resize', resizeHandler);
 
       function updateWidgetVariant(widget: HTMLElement) {
         const isMobile = window.innerWidth <= 640; // Common mobile breakpoint
@@ -251,52 +269,28 @@ export default function Home() {
       }
 
       // Listen for the widget's "call" event to inject client tools
-      widget.addEventListener('elevenlabs-convai:call', (event: Event) => {
+      const callEventHandler = (event: Event) => {
         if (!mcpClientRef.current) return;
-        
+
         const customEvent = event as ElevenLabsCallEvent;
-        const allTools = mcpClientRef.current.getTools();
-        
-        // Create dynamic client tools from MCP server tools
-        const dynamicTools: Record<string, Function> = {};
-        
-        // Add each MCP tool as a client tool
-        Object.entries(allTools).forEach(([serverName, tools]) => {
-          tools.forEach((tool: Tool) => {
-            const toolFunction = async (args: any) => {
-              try {
-                const result = await mcpClientRef.current?.makeRequest(serverName, tool.name, args);
-                return { result };
-              } catch (error) {
-                return { error: (error as Error).message };
-              }
-            };
-            
-            // Register tool with server prefix to avoid name collisions
-            dynamicTools[`${serverName}_${tool.name}`] = toolFunction;
-          });
-        });
-        
+
+        const callMcpToolHandler = async ({ mcp_server_name, mcp_tool_name, args }: { mcp_server_name: string; mcp_tool_name: string; args: any }) => {
+          if (!mcpClientRef.current) {
+            return { error: "MCP client not available." };
+          }
+          try {
+            console.log("calling mcp tool", mcp_server_name, mcp_tool_name, args);
+            const result = await mcpClientRef.current.makeRequest(mcp_server_name, mcp_tool_name, args);
+            return { result };
+          } catch (error) {
+            return { error: (error as Error).message };
+          }
+        };
+
         // Add standard navigation tools
         customEvent.detail.config.clientTools = {
-          ...dynamicTools,
-          
-          // Standard navigation tools
-          redirectToDocs: ({ path }: RedirectToDocsParams) => {
-            const router = window?.next?.router;
-            if (router) {
-              router.push(path);
-            }
-          },
-          redirectToEmailSupport: ({ subject, body }: RedirectToEmailParams) => {
-            const encodedSubject = encodeURIComponent(subject);
-            const encodedBody = encodeURIComponent(body);
-            window.open(
-              `mailto:team@elevenlabs.io?subject=${encodedSubject}&body=${encodedBody}`,
-              '_blank'
-            );
-          },
-          
+          call_mcp_tool: callMcpToolHandler,
+
           // Basic MCP utility tools
           mcpGetServerNames: () => {
             if (!mcpClientRef.current) {
@@ -315,12 +309,14 @@ export default function Home() {
             return { tools };
           }
         };
-      });
+      };
+      widget.addEventListener('elevenlabs-convai:call', callEventHandler);
+
 
       // Initialize widget with current viewport and color theme
       updateWidgetVariant(widget);
       updateWidgetColors(widget);
-      
+
       // Attach widget to the DOM
       wrapper.appendChild(widget);
       document.body.appendChild(wrapper);
@@ -331,13 +327,13 @@ export default function Home() {
     // Cleanup function
     return () => {
       const widget = document.getElementById(ID);
-      if (widget && widget.parentElement) {
-        document.body.removeChild(widget.parentElement);
+      if (widget) {
+          if (widget.parentElement) {
+              document.body.removeChild(widget.parentElement);
+          }
       }
-      
-      window.removeEventListener('resize', () => {});
     };
-  }, [isConfigured]);
+  }, [isConfigured]); 
 
   return (
     <div 
