@@ -1,21 +1,110 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { spawn } from "child_process";
 
+// Define interfaces for the MCP configuration
+interface MCPServerConfig {
+  command: string;
+  args: string[];
+  env: Record<string, string>;
+}
 
 interface MCPConfig {
   mcpServers: Record<string, MCPServerConfig>;
 }
 
+interface Tool {
+  name: string;
+  description: string;
+  inputSchema: any;
+}
+
+// Define params for client tools
+interface RedirectToDocsParams { path: string; }
+interface RedirectToEmailParams { subject: string; body: string; }
+interface RedirectToSupportFormParams { subject: string; description: string; extraInfo: string; }
+interface RedirectToExternalURLParams { url: string; }
+interface MCPRequestParams { serverName: string; endpoint: string; data: any; }
+interface ElevenLabsCallEvent extends Event { 
+  detail: { config: { clientTools: any } } 
+}
+
+// MCPClient class to interact with API
 class MCPClient {
   private config: MCPConfig;
-  private servers: Map<string, { process: any, url: string }> = new Map();
+  private serverTools: Record<string, Tool[]> = {};
   
   constructor(config: MCPConfig) {
     this.config = config;
   }
   
+  setServerTools(tools: Record<string, Tool[]>) {
+    this.serverTools = tools;
+  }
+  
+  getServerNames() {
+    return Object.keys(this.config.mcpServers);
+  }
+  
+  getServerConfig(name: string) {
+    return this.config.mcpServers[name];
+  }
+  
+  getTools(serverName?: string) {
+    if (serverName) {
+      return this.serverTools[serverName] || [];
+    }
+    return this.serverTools;
+  }
+  
+  async makeRequest(serverName: string, toolName: string, args: any) {
+    try {
+      const response = await fetch('/api/tools', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'execute',
+          serverName,
+          toolName,
+          args
+        })
+      });
+      
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to execute tool');
+      }
+      
+      return data.result;
+    } catch (error) {
+      console.error('Error executing tool:', error);
+      throw error;
+    }
+  }
+  
+  async configure() {
+    try {
+      const response = await fetch('/api/tools', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'configure',
+          config: this.config
+        })
+      });
+      
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to configure MCP servers');
+      }
+      
+      this.setServerTools(data.tools);
+      return data;
+    } catch (error) {
+      console.error('Error configuring MCP servers:', error);
+      throw error;
+    }
+  }
 }
 
 // Add window.next declaration
@@ -33,11 +122,14 @@ export default function Home() {
   const [config, setConfig] = useState<MCPConfig>({ mcpServers: {} });
   const [configLoaded, setConfigLoaded] = useState(false);
   const [configPreview, setConfigPreview] = useState("{\n  \"mcpServers\": {}\n}");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isConfigured, setIsConfigured] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const mcpClientRef = useRef<MCPClient | null>(null);
 
+  // Handle JSON file upload
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (configLoaded) {
-      // parse the file that was uploaded and set the con
       return; // Prevent changes after initial configuration is loaded
     }
 
@@ -71,23 +163,48 @@ export default function Home() {
         // Set config and create MCP client
         setConfig(parsedConfig);
         setConfigPreview(JSON.stringify(parsedConfig, null, 2));
-        
-        const client = new MCPClient(parsedConfig);
-        mcpClientRef.current = client;
-        
         setConfigLoaded(true);
       } catch (error) {
         console.error('Error parsing MCP configuration:', error);
-        alert(`Error parsing MCP configuration: ${(error as Error).message}`);
+        setError(`Error parsing MCP configuration: ${(error as Error).message}`);
       }
     };
     reader.readAsText(file);
   };
 
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!configLoaded) {
+      setError('Please upload a configuration file first');
+      return;
+    }
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const client = new MCPClient(config);
+      mcpClientRef.current = client;
+      
+      // Configure MCP servers via API
+      await client.configure();
+      
+      // Set configured state to trigger UI change
+      setIsConfigured(true);
+    } catch (error) {
+      console.error('Error configuring MCP servers:', error);
+      setError(`Error configuring MCP servers: ${(error as Error).message}`);
+      setIsLoading(false);
+    }
+  };
+
+  // Inject ElevenLabs widget when configured
   useEffect(() => {
+    if (!isConfigured) return;
+    
     const ID = 'elevenlabs-convai-widget-60993087-3f3e-482d-9570-cc373770addc';
-    // Create a reference to the observer for cleanup
-    let mutationObserver: MutationObserver | null = null;
     
     function injectElevenLabsWidget() {
       // Check if the widget is already loaded
@@ -103,7 +220,7 @@ export default function Home() {
 
       // Create the wrapper and widget
       const wrapper = document.createElement('div');
-      wrapper.className = 'desktop';
+      wrapper.className = 'widget-wrapper fade-in';
 
       const widget = document.createElement('elevenlabs-convai') as HTMLElement;
       widget.id = ID;
@@ -137,8 +254,36 @@ export default function Home() {
 
       // Listen for the widget's "call" event to inject client tools
       widget.addEventListener('elevenlabs-convai:call', (event: Event) => {
+        if (!mcpClientRef.current) return;
+        
         const customEvent = event as ElevenLabsCallEvent;
+        const allTools = mcpClientRef.current.getTools();
+        
+        // Create dynamic client tools from MCP server tools
+        const dynamicTools: Record<string, Function> = {};
+        
+        // Add each MCP tool as a client tool
+        Object.entries(allTools).forEach(([serverName, tools]) => {
+          tools.forEach(tool => {
+            const toolFunction = async (args: any) => {
+              try {
+                const result = await mcpClientRef.current?.makeRequest(serverName, tool.name, args);
+                return { result };
+              } catch (error) {
+                return { error: (error as Error).message };
+              }
+            };
+            
+            // Register tool with server prefix to avoid name collisions
+            dynamicTools[`${serverName}_${tool.name}`] = toolFunction;
+          });
+        });
+        
+        // Add standard navigation tools
         customEvent.detail.config.clientTools = {
+          ...dynamicTools,
+          
+          // Standard navigation tools
           redirectToDocs: ({ path }: RedirectToDocsParams) => {
             const router = window?.next?.router;
             if (router) {
@@ -168,33 +313,22 @@ export default function Home() {
             window.open(url, '_blank', 'noopener,noreferrer');
           },
           
-          // MCP-specific client tools
+          // Basic MCP utility tools
           mcpGetServerNames: () => {
             if (!mcpClientRef.current) {
               return { error: "MCP configuration not loaded" };
             }
             return { servers: mcpClientRef.current.getServerNames() };
           },
-          mcpGetServerConfig: (name: string) => {
+          mcpGetServerTools: (serverName: string) => {
             if (!mcpClientRef.current) {
               return { error: "MCP configuration not loaded" };
             }
-            const serverConfig = mcpClientRef.current.getServerConfig(name);
-            if (!serverConfig) {
-              return { error: `Server ${name} not found` };
+            const tools = mcpClientRef.current.getTools(serverName);
+            if (!tools || tools.length === 0) {
+              return { error: `No tools found for server ${serverName}` };
             }
-            return { config: serverConfig };
-          },
-          mcpMakeRequest: async ({ serverName, endpoint, data }: MCPRequestParams) => {
-            if (!mcpClientRef.current) {
-              return { error: "MCP configuration not loaded" };
-            }
-            try {
-              const result = await mcpClientRef.current.makeRequest(serverName, endpoint, data);
-              return { result };
-            } catch (error) {
-              return { error: (error as Error).message };
-            }
+            return { tools };
           }
         };
       });
@@ -208,11 +342,7 @@ export default function Home() {
       document.body.appendChild(wrapper);
     }
 
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', injectElevenLabsWidget);
-    } else {
-      injectElevenLabsWidget();
-    }
+    injectElevenLabsWidget();
 
     // Cleanup function
     return () => {
@@ -223,55 +353,72 @@ export default function Home() {
       
       window.removeEventListener('resize', () => {});
     };
-  }, []);
+  }, [isConfigured]);
 
   return (
-    <div className="min-h-screen p-8 flex flex-col items-center">
-      <h1 className="text-2xl font-bold mb-8">ConversationalMCP</h1>
-      
-      <div className="w-full max-w-2xl bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Upload MCP Servers Configuration</h2>
-        <div className={`border-2 border-dashed ${configLoaded ? 'border-green-300 bg-green-50' : 'border-gray-300'} rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors`}>
-          {configLoaded ? (
-            <p className="text-green-600 mb-2">MCP Configuration Loaded Successfully</p>
-          ) : (
-            <p className="text-gray-600 mb-2">Drag and drop your JSON file here, or click to select</p>
-          )}
-          <input 
-            type="file" 
-            accept=".json" 
-            className={`w-full opacity-0 absolute inset-0 cursor-pointer ${configLoaded ? 'pointer-events-none' : ''}`}
-            id="file-upload"
-            onChange={handleFileUpload}
-            disabled={configLoaded}
-          />
-          <button 
-            className={`${configLoaded ? 'bg-green-500' : 'bg-blue-500'} text-white px-4 py-2 rounded-md ${configLoaded ? 'hover:bg-green-600' : 'hover:bg-blue-600'} mt-2`}
-            disabled={configLoaded}
-          >
-            {configLoaded ? 'Configuration Loaded' : 'Select File'}
-          </button>
-        </div>
-        
-        <div className="mt-6">
-          <h3 className="font-medium mb-2">Server Configuration Preview</h3>
-          <pre className="bg-gray-100 p-4 rounded-md overflow-auto max-h-60">
-            {configPreview}
-          </pre>
-        </div>
-        
-        {configLoaded && serverStatus && (
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-blue-700">
-              {serverStatus}
-            </p>
-            <p className="text-sm text-blue-600 mt-2">
-              Refresh the page to upload a different configuration.
-            </p>
-
+    <div 
+      className={`min-h-screen transition-all duration-700 ${isConfigured ? 'bg-cover bg-center' : 'bg-white'}`}
+      style={isConfigured ? { backgroundImage: 'url(/landing_image.png)' } : {}}
+    >
+      {!isConfigured ? (
+        <div className="p-8 flex flex-col items-center">
+          <h1 className="text-2xl font-bold mb-8">ConversationalMCP</h1>
+          
+          <div className="w-full max-w-2xl bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 className="text-xl font-semibold mb-4">Upload MCP Servers Configuration</h2>
+            
+            <form onSubmit={handleSubmit}>
+              <div className={`border-2 border-dashed ${configLoaded ? 'border-green-300 bg-green-50' : 'border-gray-300'} rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors`}>
+                {configLoaded ? (
+                  <p className="text-green-600 mb-2">MCP Configuration Loaded Successfully</p>
+                ) : (
+                  <p className="text-gray-600 mb-2">Drag and drop your JSON file here, or click to select</p>
+                )}
+                <input 
+                  type="file" 
+                  accept=".json" 
+                  className={`w-full opacity-0 absolute inset-0 cursor-pointer ${configLoaded ? 'pointer-events-none' : ''}`}
+                  id="file-upload"
+                  onChange={handleFileUpload}
+                  disabled={configLoaded || isLoading}
+                />
+                <button 
+                  type="button"
+                  className={`${configLoaded ? 'bg-green-500' : 'bg-blue-500'} text-white px-4 py-2 rounded-md ${configLoaded ? 'hover:bg-green-600' : 'hover:bg-blue-600'} mt-2`}
+                  disabled={configLoaded || isLoading}
+                >
+                  {configLoaded ? 'Configuration Loaded' : 'Select File'}
+                </button>
+              </div>
+              
+              {configLoaded && (
+                <div className="mt-6">
+                  <h3 className="font-medium mb-2">Server Configuration Preview</h3>
+                  <pre className="bg-gray-100 p-4 rounded-md overflow-auto max-h-60">
+                    {configPreview}
+                  </pre>
+                </div>
+              )}
+              
+              {error && (
+                <div className="mt-4 p-3 bg-red-50 rounded-md border border-red-200 text-red-700">
+                  {error}
+                </div>
+              )}
+              
+              <div className="mt-6 flex justify-end">
+                <button
+                  type="submit"
+                  className={`px-6 py-2 rounded-md ${isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
+                  disabled={!configLoaded || isLoading}
+                >
+                  {isLoading ? 'Setting up MCP servers...' : 'Start Conversation'}
+                </button>
+              </div>
+            </form>
           </div>
-        )}
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 }

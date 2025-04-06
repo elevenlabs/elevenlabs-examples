@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import dotenv from "dotenv";
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 
-// Store active MCP clients by server name
-const mcpClients: Record<string, MCPClient> = {};
+interface ServerConfig {
+  command: string;
+  args: string[];
+  env: Record<string, string>;
+}
 
 class MCPClient {
   private mcp: Client;
@@ -15,7 +19,7 @@ class MCPClient {
     this.mcp = new Client({ name: "mcp-client-cli", version: "1.0.0" });
   }
 
-  async connectToServer(command: string, args: string[], env?: Record<string, string>) {
+  async connectToServer(command: string, args: string[], env: Record<string, string>) {
     try {
       this.transport = new StdioClientTransport({
         command,
@@ -52,23 +56,30 @@ class MCPClient {
   }
 }
 
+const mcp = {
+  "mcpServers": {
+    "ElevenLabs": {
+      "command": "/Users/angelogiacco/.nvm/versions/node/v20.18.1/bin/node",
+      "args": [
+        "/Users/angelogiacco/.nvm/versions/node/v20.18.1/bin/npx", 
+        "-y", 
+        "@angelogiacco/elevenlabs-mcp-server"
+      ],
+      "env": {
+        "ELEVENLABS_API_KEY": process.env.ELEVENLABS_API_KEY || "",
+        "PATH": process.env.PATH || ""
+      }
+    }
+  }
+}
+
+const mcpClients: Record<string, MCPClient> = {};
+
 export async function GET(request: NextRequest) {
   try {
-    const allTools: Record<string, Tool[]> = {};
-    
-    if (Object.keys(mcpClients).length === 0) {
-      return NextResponse.json({ 
-        message: "No MCP servers configured. Please configure servers first.",
-        tools: {} 
-      });
-    }
-    
-    // Return tools grouped by server name
-    for (const [serverName, client] of Object.entries(mcpClients)) {
-      allTools[serverName] = client.tools;
-    }
-    
-    return NextResponse.json({ tools: allTools });
+    const mcpClient = new MCPClient();
+    await mcpClient.connectToServer(mcp.mcpServers.ElevenLabs.command, mcp.mcpServers.ElevenLabs.args, mcp.mcpServers.ElevenLabs.env);
+    return NextResponse.json({ tools: mcpClient.tools });
   } catch (error) {
     console.error('API error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
@@ -89,13 +100,10 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
-
       
-      
-      // Initialize clients for each server
       const toolsByServer: Record<string, Tool[]> = {};
       
-      for (const [serverName, serverConfig] of Object.entries(mcpServers)) {
+      for (const [serverName, serverConfig] of Object.entries(mcpServers) as [string, ServerConfig][]) {
         try {
           // Validate server config
           if (!serverConfig.command) {
@@ -147,11 +155,12 @@ export async function POST(request: NextRequest) {
         );
       }
       
+      // Get the client for this server
       const client = mcpClients[serverName];
       if (!client) {
         return NextResponse.json(
-          { error: `Server ${serverName} not found or not initialized` },
-          { status: 404 }
+          { error: `Server ${serverName} is not configured. Call 'configure' action first.` },
+          { status: 400 }
         );
       }
       

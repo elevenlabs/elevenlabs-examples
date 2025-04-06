@@ -1,12 +1,15 @@
 {
   "mcpServers": {
     "ElevenLabs": {
-      "command": "/opt/homebrew/Caskroom/miniconda/base/bin/python",
+      "command": "/Users/angelogiacco/.nvm/versions/node/v20.18.1/bin/node",
       "args": [
-        "/Users/angelogiacco/Documents/Code/experiments/elevenlabs-mcp-server/elevenlabs_mcp/server.py"
+        "/Users/angelogiacco/.nvm/versions/node/v20.18.1/bin/npx",
+        "-y",
+        "@angelogiacco/elevenlabs-mcp-server"
       ],
       "env": {
-        "ELEVENLABS_API_KEY": "sk_85a1db65281a153d4540ea3b8ea9a271d304211456db9e12"
+        "ELEVENLABS_API_KEY": "api-key-here",
+        "PATH": "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/angelogiacco/.nvm/versions/node/v20.18.1/bin"
       }
     }
   }

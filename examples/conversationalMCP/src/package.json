@@ -1,7 +1,8 @@
 {
-  "name": "src",
+  "name": "conversational-mcp",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",

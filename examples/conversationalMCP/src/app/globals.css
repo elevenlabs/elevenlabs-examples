@@ -24,3 +24,22 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Widget styles */
+.widget-wrapper {
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out;
+}
+
+.fade-in {
+  opacity: 1;
+}
+
+/* Handle background image transition */
+.bg-cover {
+  background-size: cover;
+}
+
+.bg-center {
+  background-position: center;
+}
