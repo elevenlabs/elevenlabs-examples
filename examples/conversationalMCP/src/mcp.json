@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "ElevenLabs": {
+      "command": "/opt/homebrew/Caskroom/miniconda/base/bin/python",
+      "args": [
+        "/Users/angelogiacco/Documents/Code/experiments/elevenlabs-mcp-server/elevenlabs_mcp/server.py"
+      ],
+      "env": {
+        "ELEVENLABS_API_KEY": "sk_85a1db65281a153d4540ea3b8ea9a271d304211456db9e12"
+      }
+    }
+  }
+}
