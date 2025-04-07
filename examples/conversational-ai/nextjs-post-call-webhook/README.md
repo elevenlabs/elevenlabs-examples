@@ -11,7 +11,7 @@ pnpm dev
 
 ## Conversational AI agent configuration
 
-First, create a new AI agent from the "Blank Template".
+Navigate to the [Conversational AI Agent settings](https://elevenlabs.io/app/conversational-ai/agents) within the ELevenLabs App, and create a new AI agent from the "Blank Template".
 
 ### First message
 
@@ -66,6 +66,17 @@ Always call the `set_ui_state` tool when moving between steps!
 - Identifier: voice_description
 - Description: Based on the description of the voice the user wants the agent to have, generate a concise description of the voice including the age, accent, tone, and character if available.
 
-## Post call webhook
+## Post-call webhook
 
-### Send email with Resend
+[Post-call webhooks](https://elevenlabs.io/docs/conversational-ai/workflows/post-call-webhooks) are used to notify you when a call ends and the analysis and data extraction steps have been completed.
+
+In this example the, the post-call webhook does a bunch of steps, namely
+
+1. Create a custom voice design based on the `voice_description`.
+2. Create a conversational AI agent for the users based on the `agent_description` they provided.
+3. Retrieve the knowledge base documents from the conversation state stored in Redis and attach the knowledge base to the agent.
+4. Send an email to the user to notify them that their custom conversational AI agent is ready to chat.
+
+## Conclusion
+
+[ElevenLabs Conversational AI](https://elevenlabs.io/conversational-ai) is a powerful platform for building advanced voice agent uses cases, complete with data collection and analysis.
