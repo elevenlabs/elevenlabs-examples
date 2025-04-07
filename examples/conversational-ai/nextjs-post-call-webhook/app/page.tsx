@@ -86,6 +86,13 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md mx-auto">
+        <div className="mb-8 flex justify-right">
+          <img
+            src="/elevenlabs-logo-white.svg"
+            alt="ElevenLabs Logo"
+            className="h-12 w-auto"
+          />
+        </div>
         <div className={currentStep === "initial" ? "block" : "hidden"}>
           <div className="space-y-8">
             <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent">
