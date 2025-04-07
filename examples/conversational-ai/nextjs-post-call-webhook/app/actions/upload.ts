@@ -18,12 +18,9 @@ export async function uploadFormData(formData: FormData) {
     name: string;
   }> = [];
   const files = formData.getAll("file-upload") as File[];
-  const text = formData.get("text-input");
   const email = formData.get("email-input");
   const urls = formData.getAll("url-input");
   const conversationId = formData.get("conversation-id");
-
-  console.log({ files, text, email, urls, conversationId });
 
   after(async () => {
     // Upload files as background job
@@ -56,7 +53,6 @@ export async function uploadFormData(formData: FormData) {
         });
       }
     }
-    console.log({ knowledgeBase });
 
     // Store knowledge base IDs and conversation ID in database.
     const redisRes = await redis.set(

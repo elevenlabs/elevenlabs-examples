@@ -1,4 +1,6 @@
-# Conversational AI agent design tool
+# Data Collection and Analysis with Conversational AI in Next.js
+
+Collect and analyse data in post-call webhooks using Conversational AI and Next.js.
 
 ## Run locally
 

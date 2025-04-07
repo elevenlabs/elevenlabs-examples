@@ -26,7 +26,6 @@ export default function Home() {
   >("initial");
   const [activeTab, setActiveTab] = useState<"file" | "websites">("file");
   const [fileData, setFileData] = useState<File[]>([]);
-  const [textData, setTextData] = useState("");
   const [websiteUrls, setWebsiteUrls] = useState<string[]>([""]);
   const [email, setEmail] = useState("");
   const [userName, setUserName] = useState("");
@@ -71,7 +70,6 @@ export default function Home() {
   }, [conversation]);
 
   const handleEmailSubmit = () => {
-    console.log("submitting");
     stopConversation();
   };
 
@@ -83,11 +81,6 @@ export default function Home() {
     const updatedUrls = [...websiteUrls];
     updatedUrls[index] = value;
     setWebsiteUrls(updatedUrls);
-  };
-
-  const handleCall = () => {
-    console.log("Initiating call with AI Agent");
-    // Implement call functionality here
   };
 
   return (

@@ -28,10 +28,7 @@ export async function POST(req: NextRequest) {
 
   if (event.type === "post_call_transcription") {
     const { conversation_id, analysis, agent_id } = event.data;
-    console.log(
-      "post_call_transcription",
-      JSON.stringify({ agent_id, conversation_id, analysis }, null, 2)
-    );
+
     if (
       agent_id === process.env.ELEVENLABS_AGENT_ID &&
       analysis.evaluation_criteria_results.all_data_provided?.result ===
@@ -54,7 +51,7 @@ export async function POST(req: NextRequest) {
             generated_voice_id: voicePreview.previews[0].generated_voice_id,
           }
         );
-        console.log({ voicePreview, voice });
+
         // Get the knowledge base from redis
         const redisRes = await getRedisDataWithRetry(conversation_id);
         if (!redisRes) throw new Error("Conversation data not found!");
@@ -96,7 +93,6 @@ export async function POST(req: NextRequest) {
 const constructWebhookEvent = async (req: NextRequest, secret?: string) => {
   const body = await req.text();
   const signature_header = req.headers.get("ElevenLabs-Signature");
-  console.log(signature_header);
 
   if (!signature_header) {
     return { event: null, error: "Missing signature header" };
@@ -126,7 +122,7 @@ const constructWebhookEvent = async (req: NextRequest, secret?: string) => {
 
   const digest =
     "v0=" + crypto.createHmac("sha256", secret).update(message).digest("hex");
-  console.log({ digest, signature });
+
   if (signature !== digest) {
     return { event: null, error: "Invalid signature" };
   }
