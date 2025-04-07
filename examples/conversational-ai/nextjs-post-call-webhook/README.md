@@ -54,13 +54,13 @@ Always call the `set_ui_state` tool when moving between steps!
 
 ## Data collection
 
-1. agent_description
+1. `agent_description`
 
 - Data type: string
 - Identifier: agent_description
 - Description: Based on the description about the agent the user is looking to design, generate a prompt that can be used to train a model to act as the agent.
 
-2. voice_description
+2. `voice_description`
 
 - Data type: string
 - Identifier: voice_description
