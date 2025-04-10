@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   title: "Design your Conversational AI Agent | ElevenLabs",
   description: "Design your custom Conversational AI Agent using your voice.",
   generator: "v0.dev",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
   openGraph: {
     title: "Design your Conversational AI Agent | ElevenLabs",
     description: "Design your custom Conversational AI Agent using your voice.",
