@@ -20,7 +20,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const secret = process.env.ELEVENLABS_CONVAI_WEBHOOK_SECRET; // Add this to your env variables
+  const secret = process.env.ELEVENLABS_CONVAI_WEBHOOK_SECRET;
   const { event, error } = await constructWebhookEvent(req, secret);
   if (error) {
     return NextResponse.json({ error: error }, { status: 401 });
@@ -37,12 +37,10 @@ export async function POST(req: NextRequest) {
     ) {
       try {
         // Design the voice
-        // @ts-ignore https://github.com/elevenlabs/elevenlabs-js/issues/161
         const voicePreview = await elevenLabsClient.textToVoice.createPreviews({
           voice_description:
             analysis.data_collection_results.voice_description.value,
           text: "The night air carried whispers of betrayal, thick as London fog. I adjusted my cufflinks - after all, even spies must maintain appearances, especially when the game is afoot.",
-          // seed: conversation_id,
         });
         const voice = await elevenLabsClient.textToVoice.createVoiceFromPreview(
           {

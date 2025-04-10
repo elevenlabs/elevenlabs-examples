@@ -70,12 +70,22 @@ Always call the `set_ui_state` tool when moving between steps!
 
 [Post-call webhooks](https://elevenlabs.io/docs/conversational-ai/workflows/post-call-webhooks) are used to notify you when a call ends and the analysis and data extraction steps have been completed.
 
-In this example the, the post-call webhook does a bunch of steps, namely
+In this example the, the post-call webhook does a couple of steps, namely:
 
 1. Create a custom voice design based on the `voice_description`.
 2. Create a conversational AI agent for the users based on the `agent_description` they provided.
 3. Retrieve the knowledge base documents from the conversation state stored in Redis and attach the knowledge base to the agent.
 4. Send an email to the user to notify them that their custom conversational AI agent is ready to chat.
+
+When running locally, you will need a tool like [ngrok](https://ngrok.com/) to expose your local server to the internet.
+
+```bash
+ngrok http 3000
+```
+
+Navigate to the [Conversational AI settings](https://elevenlabs.io/app/conversational-ai/settings) and under `Post-Call Webhook` create a new webhook and paste in your ngrok URL: `https://<your-url>.ngrok-free.app/api/convai-webhook`.
+
+After saving the webhook, you will receive a webhooks secret. Make sure to store this secret securely as you will need to set it in your `.env` file later.
 
 ## Conclusion
 
