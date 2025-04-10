@@ -118,15 +118,26 @@ export default function Home() {
               />
             </div>
 
-            <Button
-              type="button"
-              onClick={startConversation}
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-6"
-              disabled={!userName.trim() || conversation.status === "connected"}
-            >
-              <span>Start</span>
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </Button>
+            {conversation.status === "connected" ? (
+              <Button
+                type="button"
+                onClick={() => setCurrentStep("training")}
+                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-6"
+              >
+                <span>Next</span>
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                onClick={startConversation}
+                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-6"
+                disabled={!userName.trim()}
+              >
+                <span>Start</span>
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
 
@@ -291,6 +302,24 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+              <div className="flex gap-4 mt-8">
+                <Button
+                  type="button"
+                  onClick={() => setCurrentStep("initial")}
+                  className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-6"
+                >
+                  <ChevronRight className="mr-2 h-4 w-4 rotate-180" />
+                  <span>Back</span>
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => setCurrentStep("voice")}
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-6"
+                >
+                  <span>Next</span>
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -317,6 +346,24 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
+              </div>
+              <div className="flex gap-4 mt-8">
+                <Button
+                  type="button"
+                  onClick={() => setCurrentStep("training")}
+                  className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-6"
+                >
+                  <ChevronRight className="mr-2 h-4 w-4 rotate-180" />
+                  <span>Back</span>
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => setCurrentStep("email")}
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-6"
+                >
+                  <span>Next</span>
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
               </div>
             </div>
           </div>
@@ -350,13 +397,23 @@ export default function Home() {
                     so.
                   </p>
                 </div>
-                <Button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-6"
-                >
-                  <span>Send Instructions</span>
-                  <ChevronRight className="ml-2 h-4 w-4" />
-                </Button>
+                <div className="flex gap-4 mt-8">
+                  <Button
+                    type="button"
+                    onClick={() => setCurrentStep("voice")}
+                    className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-6"
+                  >
+                    <ChevronRight className="mr-2 h-4 w-4 rotate-180" />
+                    <span>Back</span>
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-6"
+                  >
+                    <span>Send Instructions</span>
+                    <ChevronRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
