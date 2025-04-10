@@ -83,7 +83,7 @@ When running locally, you will need a tool like [ngrok](https://ngrok.com/) to e
 ngrok http 3000
 ```
 
-Navigate to the [Conversational AI settings](https://elevenlabs.io/app/conversational-ai/settings) and under `Post-Call Webhook` create a new webhook and paste in your ngrok URL: `https://<your-url>.ngrok-free.app/api/convai-webhook`.
+Navigate to the [Conversational AI settings](https://elevenlabs.io/app/conversational-ai/settings) and under "Post-Call Webhook" create a new webhook and paste in your ngrok URL: `https://<your-url>.ngrok-free.app/api/convai-webhook`.
 
 After saving the webhook, you will receive a webhooks secret. Make sure to store this secret securely as you will need to set it in your `.env` file later.
 
