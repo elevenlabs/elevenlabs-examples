@@ -427,7 +427,7 @@ export default function Home() {
             rel="noopener noreferrer"
             className="hover:text-gray-400 transition-colors underline"
           >
-            ElevenLabs ConversationalAI
+            ElevenLabs Conversational AI
           </a>
         </div>
       </div>
