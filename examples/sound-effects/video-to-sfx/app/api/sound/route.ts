@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 import {
   VideoToSFXRequestBody,
   VideoToSFXResponseBody,
-} from "@/app/api/interface";
+} from "@/app/api/sound/interface";
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import { Ratelimit } from "@upstash/ratelimit";
@@ -53,16 +53,17 @@ const generateSoundEffect = async (
 };
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.GEMINI_API_KEY,
+  baseURL: process.env.GEMINI_API_BASE_URL,
 });
 
 const isCaptionSafeForWork = async (caption: string): Promise<boolean> => {
-  if (!process.env.OPENAI_API_KEY) {
+  if (!process.env.GEMINI_API_KEY) {
     throw new Error("No API key");
   }
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gemini-2.0-flash",
     messages: [
       {
         role: "user",
@@ -95,11 +96,11 @@ const isCaptionSafeForWork = async (caption: string): Promise<boolean> => {
 const generateCaptionForImage = async (
   imagesBase64: string[]
 ): Promise<string> => {
-  if (!process.env.OPENAI_API_KEY) {
+  if (!process.env.GEMINI_API_KEY) {
     throw new Error("No API key");
   }
   const response = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gemini-2.0-flash",
     messages: [
       {
         role: "user",
