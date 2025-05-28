@@ -10,7 +10,7 @@
     "start:python": "npm run build && uvicorn backend.server:app --reload --port 3000"
   },
   "dependencies": {
-    "@11labs/client": "latest",
+    "@elevenlabs/client": "latest",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2"

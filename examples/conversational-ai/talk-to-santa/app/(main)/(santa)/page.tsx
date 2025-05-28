@@ -10,7 +10,7 @@ import { Orb } from "@/components/orb";
 import { SantaCard } from "@/components/santa-card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useConversation } from "@11labs/react";
+import { useConversation } from "@elevenlabs/react";
 import { motion } from "framer-motion";
 import { VideoIcon, VideoOffIcon } from "lucide-react";
 import { useRouter } from "next/navigation";

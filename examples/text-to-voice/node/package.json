@@ -5,12 +5,12 @@
     "start": "ts-node src/index.ts"
   },
   "dependencies": {
-    "elevenlabs": "^1.54.0"
+    "@elevenlabs/elevenlabs-js": "^2.1.0"
   },
   "devDependencies": {
     "dotenv": "^16.4.5",
-    "typescript": "^5.4.2",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.2"
   },
   "keywords": [
     "elevenlabs"
