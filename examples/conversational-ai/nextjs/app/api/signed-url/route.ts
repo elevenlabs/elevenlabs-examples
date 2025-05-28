@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ElevenLabsClient } from "elevenlabs";
+import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 
 export async function GET() {
   const agentId = process.env.AGENT_ID;
@@ -8,10 +8,10 @@ export async function GET() {
   }
   try {
     const client = new ElevenLabsClient();
-    const response = await client.conversationalAi.getSignedUrl({
-      agent_id: agentId,
+    const response = await client.conversationalAi.conversations.getSignedUrl({
+      agentId,
     });
-    return NextResponse.json({ signedUrl: response.signed_url });
+    return NextResponse.json({ signedUrl: response.signedUrl });
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json(

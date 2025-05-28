@@ -24,7 +24,7 @@ if ELEVENLABS_API_KEY is None:
     print("Missing API KEY")
     raise Exception("MIssing API KEY")
 
-client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
+elevenlabs = ElevenLabs(api_key=ELEVENLABS_API_KEY)
 
 app = Flask(__name__)
 CORS(app)
@@ -47,7 +47,7 @@ def process_video(id: str, filename: str):
 def upload_dubbing(id: str, source: str, target: str) -> str:
     f = open(f"data/{id}/raw.mp4", "rb")
 
-    response = client.dubbing.dub_a_video_or_an_audio_file(
+    response = elevenlabs.dubbing.create(
         mode="automatic",
         target_lang=target,
         source_lang=source if source != "detect" else None,
@@ -60,7 +60,7 @@ def upload_dubbing(id: str, source: str, target: str) -> str:
 
 
 def get_metadata(dubbing_id: str):
-    response = client.dubbing.get_dubbing_project_metadata(dubbing_id)
+    response = elevenlabs.dubbing.get(dubbing_id)
     print(response)
 
     return {
@@ -72,7 +72,7 @@ def get_metadata(dubbing_id: str):
 
 def download_dub(id: str, dubbing_id: str, language_code: str):
     with open(f"data/{id}/{language_code}.mp4", "wb") as w:
-        for chunk in client.dubbing.get_dubbed_file(dubbing_id, language_code):
+        for chunk in elevenlabs.dubbing.audio.get(dubbing_id, language_code):
             w.write(chunk)
 
 

@@ -1,6 +1,6 @@
 # 🎄 Talk to Santa
 
-[talktosanta.io](https://talktosanta.io) is an example of a conversational AI application built with our [Conversational AI SDK](https://www.npmjs.com/package/@11labs/react).
+[talktosanta.io](https://talktosanta.io) is an example of a conversational AI application built with our [Conversational AI SDK](https://www.npmjs.com/package/@elevenlabs/react).
 
 ## Prerequisites
 

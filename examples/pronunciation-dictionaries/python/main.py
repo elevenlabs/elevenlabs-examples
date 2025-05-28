@@ -29,35 +29,35 @@ def main():
         print("Missing API KEY")
         return
 
-    client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
+    elevenlabs = ElevenLabs(api_key=ELEVENLABS_API_KEY)
 
     model = "eleven_turbo_v2"
 
     with open("dictionary.pls", "rb") as f:
         # this dictionary changes how tomato is pronounced
-        pronunciation_dictionary = client.pronunciation_dictionary.add_from_file(
+        pronunciation_dictionary = elevenlabs.pronunciation_dictionaries.create_from_file(
             file=f.read(), name="example"
         )
 
-    dictionary = client.pronunciation_dictionary.get(
+    dictionary = elevenlabs.pronunciation_dictionaries.get(
         pronunciation_dictionary_id=pronunciation_dictionary.id
     )
     print("dictionary name", dictionary.name)
 
     print("-- initial rules --")
     print_rules(
-        client, pronunciation_dictionary.id, pronunciation_dictionary.version_id
+        elevenlabs, pronunciation_dictionary.id, pronunciation_dictionary.version_id
     )
 
-    audio_1 = client.generate(
+    audio_1 = elevenlabs.text_to_speech.convert(
         text="Without the dictionary: tomato",
-        voice="Alice",
+        voice="9BWtsMINqrJLrRacOk9x",
         model=model,
     )
 
-    audio_2 = client.generate(
+    audio_2 = elevenlabs.text_to_speech.convert(
         text="With the dictionary: tomato",
-        voice="Alice",
+        voice="9BWtsMINqrJLrRacOk9x",
         model=model,
         pronunciation_dictionary_locators=[
             PronunciationDictionaryVersionLocator(
@@ -68,7 +68,7 @@ def main():
     )
 
     pronunciation_dictionary_rules_removed = (
-        client.pronunciation_dictionary.remove_rules_from_the_pronunciation_dictionary(
+        elevenlabs.pronunciation_dictionaries.rules.remove(
             pronunciation_dictionary_id=pronunciation_dictionary.id,
             rule_strings=["tomato", "Tomato"],
         )
@@ -77,14 +77,14 @@ def main():
     print("\n\n-- removed rule --\n\n")
 
     print_rules(
-        client,
+        elevenlabs,
         pronunciation_dictionary_rules_removed.id,
         pronunciation_dictionary_rules_removed.version_id,
     )
 
-    audio_3 = client.generate(
+    audio_3 = elevenlabs.text_to_speech.convert(
         text="With the rule removed: tomato",
-        voice="Alice",
+        voice="9BWtsMINqrJLrRacOk9x",
         model=model,
         pronunciation_dictionary_locators=[
             PronunciationDictionaryVersionLocator(
@@ -97,7 +97,7 @@ def main():
     print(pronunciation_dictionary.id)
 
     pronunciation_dictionary_rules_added = (
-        client.pronunciation_dictionary.add_rules_to_the_pronunciation_dictionary(
+        elevenlabs.pronunciation_dictionaries.rules.add(
             pronunciation_dictionary_id=pronunciation_dictionary_rules_removed.id,
             rules=[
                 PronunciationDictionaryRule_Phoneme(
@@ -119,14 +119,14 @@ def main():
     print("\n\n-- added rule --\n\n")
 
     print_rules(
-        client,
+        elevenlabs,
         pronunciation_dictionary_rules_added.id,
         pronunciation_dictionary_rules_added.version_id,
     )
 
-    audio_4 = client.generate(
+    audio_4 = elevenlabs.text_to_speech.convert(
         text="With the rule added again: tomato",
-        voice="Alice",
+        voice="9BWtsMINqrJLrRacOk9x",
         model=model,
         pronunciation_dictionary_locators=[
             PronunciationDictionaryVersionLocator(

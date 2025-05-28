@@ -1,13 +1,18 @@
 # ElevenLabs - Bun
 
-To install dependencies:
+1. Clone this repo
+2. `cd elevenlabs-examples/examples/text-to-speech/bun`
+3. Setup the environment variables
+   - `cp .env.example .env`
+   - Fill in the values
+4. Install the dependencies
 
-```bash
-bun install
-```
+   ```bash
+   bun install # install the dependencies
+   ```
 
-To run:
+5. Run the script
 
-```bash
-bun dev
-```
+   ```bash
+   bun dev
+   ```
