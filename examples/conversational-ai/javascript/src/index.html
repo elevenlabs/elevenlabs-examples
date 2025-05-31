@@ -1,23 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ElevenLabs Conversational AI Demo</title>
-    <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
     <div class="container">
-        <h1>ElevenLabs Conversational AI Demo</h1>
-        <div class="status-container">
-            <div id="connectionStatus" class="status">Disconnected</div>
-            <div id="speakingStatus" class="speaking-status">Agent Silent</div>
+      <h1>ElevenLabs Conversational AI Demo</h1>
+      <div class="status-container">
+        <div id="connectionStatus" class="status">Disconnected</div>
+        <div id="speakingStatus" class="speaking-status">Agent Silent</div>
+      </div>
+
+      <div
+        id="deviceSelectorContainer"
+        class="device-selector"
+        style="display: none"
+      >
+        <div class="device-option">
+          <label for="audioDeviceSelector">Select Microphone:</label>
+          <select id="audioDeviceSelector" class="select-device">
+            <option value="">Default Microphone</option>
+            <!-- Options will be populated dynamically -->
+          </select>
         </div>
-        <div class="controls">
-            <button id="startButton" class="button">Start Conversation</button>
-            <button id="endButton" class="button" disabled>End Conversation</button>
+
+        <div class="device-option">
+          <label for="speakerDeviceSelector">Select Speaker:</label>
+          <select id="speakerDeviceSelector" class="select-device">
+            <option value="">Default Speaker</option>
+            <!-- Options will be populated dynamically -->
+          </select>
         </div>
+      </div>
+
+      <div
+        id="deviceStatusContainer"
+        class="device-status-container"
+        style="display: none"
+      >
+        <div id="microphoneStatus" class="device-status">
+          Active Microphone: Default
+        </div>
+        <div id="speakerStatus" class="device-status">
+          Active Speaker: Default
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="startButton" class="button">Start Conversation</button>
+        <button id="endButton" class="button" disabled>End Conversation</button>
+      </div>
     </div>
     <script src="/static/bundle.js"></script>
-</body>
+  </body>
 </html>
