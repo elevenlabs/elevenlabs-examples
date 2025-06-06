@@ -124,8 +124,9 @@ fastify.register(async fastifyInstance => {
   fastifyInstance.get(
     "/outbound-media-stream",
     { websocket: true },
-    (ws, req) => {
+    (connection, req) => {
       console.info("[Server] Twilio connected to outbound media stream");
+      const ws = connection.socket;
 
       // Variables to track the call
       let streamSid = null;
