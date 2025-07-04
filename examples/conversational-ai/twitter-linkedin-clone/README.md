@@ -54,6 +54,23 @@ The parallel processing saves time - research happens in the background while yo
 4. **Open Your Browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
+## Deploy
+
+Deploy your own Twitter AI Twin Creator with one click:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Felevenlabs%2Felevenlabs-examples%2Ftree%2Fmain%2Fexamples%2Fconversational-ai%2Ftwitter-linkedin-clone&env=PPLX_API_KEY,ELEVENLABS_API_KEY,OPENAI_API_KEY&envDescription=Required%20API%20keys%20for%20Perplexity%2C%20ElevenLabs%2C%20and%20OpenAI&envLink=https%3A%2F%2Fgithub.com%2Felevenlabs%2Felevenlabs-examples%2Ftree%2Fmain%2Fexamples%2Fconversational-ai%2Ftwitter-linkedin-clone%23api-keys-required&project-name=twitter-ai-twin&repository-name=twitter-ai-twin&demo-title=Twitter%20AI%20Twin%20Creator&demo-description=Create%20AI%20twins%20of%20Twitter%20profiles%20with%20voice%20cloning&demo-url=https%3A%2F%2Ftwitter-ai-twin.vercel.app)
+
+### Deploy Configuration
+
+When deploying, you'll need to:
+
+1. Set the **Root Directory** to `examples/conversational-ai/twitter-linkedin-clone`
+2. Provide your API keys for:
+   - `PPLX_API_KEY` - [Get Perplexity API Key](https://docs.perplexity.ai/guides/getting-started)
+   - `ELEVENLABS_API_KEY` - [Get ElevenLabs API Key](https://elevenlabs.io)
+   - `OPENAI_API_KEY` - [Get OpenAI API Key](https://platform.openai.com)
+3. The build settings should be automatically detected for Next.js
+
 ## API Keys Required
 
 ### Perplexity API
