@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface VoiceRecorderProps {
   onRecordingComplete: (audioBlob: Blob) => void;
@@ -25,7 +27,7 @@ export default function VoiceRecorder({
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
 
-      mediaRecorder.ondataavailable = (event) => {
+      mediaRecorder.ondataavailable = event => {
         if (event.data.size > 0) {
           chunksRef.current.push(event.data);
         }
@@ -35,7 +37,7 @@ export default function VoiceRecorder({
         const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
         onRecordingComplete(audioBlob);
         setIsComplete(true);
-        stream.getTracks().forEach((track) => track.stop());
+        stream.getTracks().forEach(track => track.stop());
       };
 
       mediaRecorder.start();
@@ -44,7 +46,7 @@ export default function VoiceRecorder({
 
       // Start timer
       timerRef.current = setInterval(() => {
-        setRecordingTime((prev) => prev + 1);
+        setRecordingTime(prev => prev + 1);
       }, 1000);
     } catch (error) {
       console.error("Error accessing microphone:", error);
@@ -71,14 +73,14 @@ export default function VoiceRecorder({
   if (isComplete) {
     return (
       <div className="text-center py-4">
-        <div className="text-4xl mb-3">🎤</div>
-        <h3 className="text-lg font-bold text-black mb-1">
+        <div className="text-3xl sm:text-4xl mb-3">🎤</div>
+        <h3 className="text-base sm:text-lg font-bold mb-1">
           Recording Complete!
         </h3>
-        <p className="text-black text-sm">
+        <p className="text-muted-foreground text-xs sm:text-sm">
           Successfully recorded {formatTime(recordingTime)} of audio
         </p>
-        <p className="text-green-600 font-medium mt-1 text-sm">
+        <p className="text-green-600 font-medium mt-1 text-xs sm:text-sm">
           ✓ Voice sample ready for cloning
         </p>
       </div>
@@ -87,56 +89,91 @@ export default function VoiceRecorder({
 
   return (
     <div className="py-4">
-      {/* Text box at top */}
-      <div className="bg-gray-50 border rounded-lg p-4 mb-8 text-left max-w-2xl mx-auto">
-        <p className="text-black leading-relaxed">
-          &quot;Hi, I&apos;m @{username}. I&apos;m excited to create my voice
-          clone that sounds just like me. This technology is fascinating because
-          it captures not just what I say, but how I say it. The way I speak, my
-          pace, my tone - all of these unique characteristics make up my voice.
-          I wonder what conversations I&apos;ll have through my voice clone.
-          Will it feel like talking to myself? Or will it be like hearing a
-          digital version of me for the first time? Either way, this is an
-          interesting experiment in understanding how AI can replicate human
-          speech patterns and create engaging conversations that feel natural
-          and authentic. The quality of this recording will directly impact how
-          realistic my AI twin sounds, so I want to speak clearly and
-          naturally.&quot;
-        </p>
-      </div>
+      {/* Text box - only show when recording */}
+      {isRecording && (
+        <Card className="mb-6 sm:mb-8 max-w-2xl mx-auto">
+          <CardContent className="p-4 sm:p-6">
+            <p className="leading-relaxed text-xs sm:text-sm">
+              &quot;Hi, I&apos;m @{username}. I&apos;m excited to create my
+              voice clone that sounds just like me. This technology is
+              fascinating because it captures not just what I say, but how I say
+              it. The way I speak, my pace, my tone, my inflection patterns, and
+              even the subtle pauses I take between words - all of these unique
+              characteristics make up my voice signature. I wonder what
+              conversations I&apos;ll have through my voice clone. Will it feel
+              like talking to myself? Or will it be like hearing a digital
+              version of me for the first time? Either way, this is an
+              interesting experiment in understanding how AI can replicate human
+              speech patterns and create engaging conversations that feel
+              natural and authentic. The quality of this recording will directly
+              impact how realistic my AI twin sounds, so I want to speak clearly
+              and naturally, expressing my personality through my voice. Voice
+              cloning technology has come so far in recent years. It&apos;s
+              amazing how artificial intelligence can now analyze the unique
+              acoustic properties of someone&apos;s voice and recreate it with
+              remarkable accuracy. When I think about it, our voices are
+              incredibly complex instruments. They carry not just the words we
+              speak, but our emotions, our cultural background, our personality,
+              and even hints about our current mood or state of mind. Every
+              person has a distinctive vocal fingerprint that&apos;s as unique
+              as their physical appearance. The process of voice cloning
+              involves sophisticated algorithms that study the frequency
+              patterns, resonance, and rhythmic characteristics of my speech.
+              These AI systems can identify the subtle nuances that make my
+              voice uniquely mine - perhaps the way I emphasize certain
+              syllables, or how my voice rises and falls during different types
+              of sentences. It&apos;s like creating a digital DNA of my vocal
+              cords, tongue placement, and breathing patterns. I&apos;m curious
+              about the applications this technology might have. Beyond just
+              creating conversational AI agents, voice cloning could help
+              preserve voices for future generations, assist people who have
+              lost their ability to speak, or even help content creators produce
+              audio in multiple languages while maintaining their unique vocal
+              identity. The possibilities seem endless, and I&apos;m excited to
+              be part of this technological advancement. As I record this
+              sample, I&apos;m trying to include a variety of sentence
+              structures, emotional tones, and speaking speeds. I want to give
+              the AI system as much information as possible about how I
+              naturally communicate.&quot;
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Recording status in center */}
       {isRecording && (
         <div className="text-center mb-4">
-          <div className="text-2xl font-mono text-red-600 mb-1">
+          <div className="text-xl sm:text-2xl font-mono text-destructive mb-1">
             {formatTime(recordingTime)}
           </div>
-          <div className="text-black text-sm">🔴 Recording in progress...</div>
+          <div className="text-xs sm:text-sm">🔴 Recording in progress...</div>
         </div>
       )}
 
       {/* Bottom section with title/description on left and button on right */}
-      <div className="flex justify-between items-end max-w-2xl mx-auto">
-        <div className="flex items-center">
-          <div className="text-3xl mr-3">🎤</div>
-          <div>
-            <h2 className="text-lg font-bold text-black">Record Your Voice</h2>
-            <p className="text-gray-600 text-sm">
-              Read the text above naturally
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 max-w-2xl mx-auto">
+        <div className="flex items-center justify-center sm:justify-start">
+          <div className="text-2xl sm:text-3xl mr-3">🎤</div>
+          <div className="text-center sm:text-left">
+            <h2 className="text-base sm:text-lg font-bold">
+              Record Your Voice
+            </h2>
+            <p className="text-muted-foreground text-xs sm:text-sm">
+              {isRecording
+                ? "Read the text above naturally"
+                : "Click to start recording (2 minutes needed)"}
             </p>
           </div>
         </div>
 
-        <button
+        <Button
           onClick={isRecording ? stopRecording : startRecording}
-          className={`px-6 py-3 cursor-pointer rounded-lg font-medium transition-colors ${
-            isRecording
-              ? "bg-red-600 hover:bg-red-700 text-white"
-              : "bg-blue-600 hover:bg-blue-700 text-white"
-          }`}
+          variant={isRecording ? "destructive" : "default"}
+          size="lg"
+          className="w-full sm:w-auto"
         >
           {isRecording ? "Stop Recording" : "Start Recording"}
-        </button>
+        </Button>
       </div>
     </div>
   );

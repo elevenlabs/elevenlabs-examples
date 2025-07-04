@@ -21,11 +21,11 @@ export const useVoice = () => {
   };
 
   const setVoiceId = (voiceId: string) => {
-    setVoiceState((prev) => ({ ...prev, voiceId }));
+    setVoiceState(prev => ({ ...prev, voiceId }));
   };
 
   const setVoiceError = (error: string) => {
-    setVoiceState((prev) => ({ ...prev, error }));
+    setVoiceState(prev => ({ ...prev, error }));
   };
 
   return {

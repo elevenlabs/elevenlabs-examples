@@ -1,6 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   const [profileInput, setProfileInput] = useState("");
@@ -48,29 +59,97 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-6">
-      <div className="max-w-md w-full text-center">
-        <h1 className="text-4xl font-bold mb-8 text-black">AI Twin Creator</h1>
+    <div className="w-full max-w-3xl mx-auto space-y-6">
+      <Card className="bg-white/80 backdrop-blur-[16px] shadow-xl border border-gray-200/50">
+        <CardHeader className="space-y-1 pb-4">
+          <CardTitle className="text-xl sm:text-2xl font-semibold">
+            Create Your AI Twin
+          </CardTitle>
+          <CardDescription className="text-sm sm:text-base">
+            Transform any social media profile into an AI conversation partner
+            using ElevenLabs&apos;{" "}
+            <Link
+              href="https://elevenlabs.io/docs/api-reference/conversational-ai"
+              rel="noopener noreferrer"
+              target="_blank"
+              className="font-medium text-primary underline underline-offset-4 hover:text-primary/80 transition-colors"
+            >
+              Conversational AI
+            </Link>{" "}
+            and voice cloning technology
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-2">
+          <form onSubmit={handleSubmit} className="grid gap-4">
+            <div className="grid gap-2">
+              <div className="relative">
+                <Input
+                  id="profile-input"
+                  placeholder="Enter Twitter username or LinkedIn profile URL"
+                  value={profileInput}
+                  onChange={e => setProfileInput(e.target.value)}
+                  className="text-sm sm:text-base h-10 sm:h-11"
+                />
+              </div>
+            </div>
+            <Button
+              type="submit"
+              disabled={!profileInput.trim()}
+              className="w-full h-10 sm:h-11 text-sm sm:text-base"
+            >
+              Create AI Twin
+            </Button>
+            <QuickLinks />
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <input
-            type="text"
-            value={profileInput}
-            onChange={(e) => setProfileInput(e.target.value)}
-            placeholder="Enter Twitter username or LinkedIn profile URL"
-            className="w-full px-4 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-black placeholder-gray-500 text-lg"
-          />
-          <button
-            type="submit"
-            disabled={!profileInput.trim()}
-            className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg hover:bg-blue-700 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed text-lg font-medium"
-          >
-            Create AI Twin
-          </button>
-        </form>
+function QuickLinks() {
+  const profiles = [
+    {
+      handle: "ahmedkhaleel04",
+      name: "Ahmed Khaleel",
+    },
+    {
+      handle: "vic_weller",
+      name: "Victoria Weller",
+    },
+    {
+      handle: "ammaar",
+      name: "Ammaar Reshi",
+    },
+    {
+      handle: "LukeHarries_",
+      name: "Luke Harries",
+    },
+  ];
 
-        <div className="text-black text-center mt-8 space-y-2">
-          <p>Create an AI voice clone from social profiles</p>
+  return (
+    <div className="mt-4">
+      <p className="text-xs sm:text-sm text-gray-500 mb-3">
+        Try these examples:
+      </p>
+      <div className="overflow-x-auto -mx-2 px-2">
+        <div className="flex space-x-3 pb-2">
+          {profiles.map(profile => (
+            <Link
+              key={profile.handle}
+              href={`/${profile.handle}`}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "flex-none flex flex-col items-start p-3 h-auto gap-0.5 hover:bg-gray-50 transition-colors"
+              )}
+              prefetch={true}
+            >
+              <span className="font-medium text-gray-900 text-sm">
+                @{profile.handle}
+              </span>
+              <span className="text-gray-600 text-xs">{profile.name}</span>
+            </Link>
+          ))}
         </div>
       </div>
     </div>

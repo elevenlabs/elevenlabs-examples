@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ResearchState, ProfileInfo } from "@/types/profile";
 import { getProfilePrompt } from "@/utils/profileUtils";
 
@@ -13,8 +13,18 @@ export const useResearch = (profileInfo: ProfileInfo) => {
     error: null,
   });
 
+  // Use a ref to track if research is already running
+  const isRunningRef = useRef(false);
+
   useEffect(() => {
+    // Prevent multiple simultaneous runs
+    if (isRunningRef.current) {
+      return;
+    }
+
     const runCompleteResearch = async () => {
+      isRunningRef.current = true;
+
       try {
         // Phase 1: Profile Analysis (0-25%)
         setResearchState({
@@ -52,10 +62,10 @@ export const useResearch = (profileInfo: ProfileInfo) => {
           throw new Error("No profile content received");
         }
 
-        setResearchState((prev) => ({ ...prev, progress: 25 }));
+        setResearchState(prev => ({ ...prev, progress: 25 }));
 
         // Phase 2: Topic Analysis (25-40%)
-        setResearchState((prev) => ({
+        setResearchState(prev => ({
           ...prev,
           phase: "topics",
           progress: 25,
@@ -75,10 +85,10 @@ export const useResearch = (profileInfo: ProfileInfo) => {
         }
 
         const topicsData = await topicsResponse.json();
-        setResearchState((prev) => ({ ...prev, progress: 40 }));
+        setResearchState(prev => ({ ...prev, progress: 40 }));
 
         // Phase 3: Targeted Research (40-70%)
-        setResearchState((prev) => ({
+        setResearchState(prev => ({
           ...prev,
           phase: "research",
           progress: 40,
@@ -98,10 +108,10 @@ export const useResearch = (profileInfo: ProfileInfo) => {
         }
 
         const researchData = await researchResponse.json();
-        setResearchState((prev) => ({ ...prev, progress: 70 }));
+        setResearchState(prev => ({ ...prev, progress: 70 }));
 
         // Phase 4: Knowledge Base Creation (70-100%)
-        setResearchState((prev) => ({
+        setResearchState(prev => ({
           ...prev,
           phase: "knowledge",
           progress: 70,
@@ -133,11 +143,13 @@ export const useResearch = (profileInfo: ProfileInfo) => {
         });
       } catch (error) {
         console.error("Research error:", error);
-        setResearchState((prev) => ({
+        setResearchState(prev => ({
           ...prev,
           error: error instanceof Error ? error.message : "Research failed",
           isComplete: false,
         }));
+      } finally {
+        isRunningRef.current = false;
       }
     };
 

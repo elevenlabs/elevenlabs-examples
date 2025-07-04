@@ -116,7 +116,7 @@ Be extremely specific and factual. This information will be used to answer detai
 
     // Compile all research into a structured format
     const compiledResearch = researchResults
-      .map((result) => {
+      .map(result => {
         return `
 ### TOPIC: ${result.topic}
 **Why this matters:** ${result.reason || "Key conversation topic"}
