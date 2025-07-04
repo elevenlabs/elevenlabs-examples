@@ -114,12 +114,12 @@ function QuickLinks() {
       name: "Ahmed Khaleel",
     },
     {
-      handle: "vic_weller",
-      name: "Victoria Weller",
+      handle: "thorwebdev",
+      name: "Thor 雷神",
     },
     {
-      handle: "ammaar",
-      name: "Ammaar Reshi",
+      handle: "louisjoejordan",
+      name: "Louis Jordan",
     },
     {
       handle: "LukeHarries_",
@@ -128,28 +128,36 @@ function QuickLinks() {
   ];
 
   return (
-    <div className="mt-4">
-      <p className="text-xs sm:text-sm text-gray-500 mb-3">
+    <div className="mt-3 sm:mt-4">
+      <p className="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3 px-1">
         Try these examples:
       </p>
-      <div className="overflow-x-auto -mx-2 px-2">
-        <div className="flex space-x-3 pb-2">
+      <div className="overflow-x-auto -mx-3 sm:-mx-2 px-3 sm:px-2 scrollbar-hide">
+        <div className="flex space-x-2 sm:space-x-3 pb-3 sm:pb-2">
           {profiles.map(profile => (
             <Link
               key={profile.handle}
               href={`/${profile.handle}`}
               className={cn(
                 buttonVariants({ variant: "outline" }),
-                "flex-none flex flex-col items-start p-3 h-auto gap-0.5 hover:bg-gray-50 transition-colors"
+                "flex-none flex flex-col items-start p-2.5 sm:p-3 h-auto gap-0.5 hover:bg-gray-50 transition-colors min-w-[140px] sm:min-w-[160px] touch-manipulation"
               )}
               prefetch={true}
             >
-              <span className="font-medium text-gray-900 text-sm">
+              <span className="font-medium text-gray-900 text-xs sm:text-sm">
                 @{profile.handle}
               </span>
-              <span className="text-gray-600 text-xs">{profile.name}</span>
+              <span className="text-gray-600 text-[10px] sm:text-xs">
+                {profile.name}
+              </span>
             </Link>
           ))}
+        </div>
+      </div>
+      <div className="flex justify-center mt-2 sm:hidden">
+        <div className="flex space-x-1">
+          <div className="w-16 h-0.5 bg-gray-300 rounded-full"></div>
+          <div className="w-6 h-0.5 bg-gray-200 rounded-full"></div>
         </div>
       </div>
     </div>

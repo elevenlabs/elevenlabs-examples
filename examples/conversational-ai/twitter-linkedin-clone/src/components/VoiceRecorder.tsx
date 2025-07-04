@@ -72,12 +72,12 @@ export default function VoiceRecorder({
 
   if (isComplete) {
     return (
-      <div className="text-center py-4">
-        <div className="text-3xl sm:text-4xl mb-3">🎤</div>
-        <h3 className="text-base sm:text-lg font-bold mb-1">
+      <div className="text-center py-3 sm:py-4">
+        <div className="text-2xl sm:text-3xl lg:text-4xl mb-2 sm:mb-3">🎤</div>
+        <h3 className="text-sm sm:text-base lg:text-lg font-bold mb-1">
           Recording Complete!
         </h3>
-        <p className="text-muted-foreground text-xs sm:text-sm">
+        <p className="text-muted-foreground text-xs sm:text-sm px-4">
           Successfully recorded {formatTime(recordingTime)} of audio
         </p>
         <p className="text-green-600 font-medium mt-1 text-xs sm:text-sm">
@@ -88,12 +88,12 @@ export default function VoiceRecorder({
   }
 
   return (
-    <div className="py-4">
+    <div className="py-3 sm:py-4">
       {/* Text box - only show when recording */}
       {isRecording && (
-        <Card className="mb-6 sm:mb-8 max-w-2xl mx-auto">
-          <CardContent className="p-4 sm:p-6">
-            <p className="leading-relaxed text-xs sm:text-sm">
+        <Card className="mb-4 sm:mb-6 lg:mb-8 max-w-2xl mx-auto bg-white/60 backdrop-blur-[12px] shadow-lg border border-gray-200/40">
+          <CardContent className="p-3 sm:p-4 lg:p-6 max-h-[40vh] sm:max-h-[50vh] overflow-y-auto scrollbar-hide">
+            <p className="leading-relaxed text-[11px] sm:text-xs lg:text-sm text-gray-700">
               &quot;Hi, I&apos;m @{username}. I&apos;m excited to create my
               voice clone that sounds just like me. This technology is
               fascinating because it captures not just what I say, but how I say
@@ -142,23 +142,25 @@ export default function VoiceRecorder({
 
       {/* Recording status in center */}
       {isRecording && (
-        <div className="text-center mb-4">
-          <div className="text-xl sm:text-2xl font-mono text-destructive mb-1">
+        <div className="text-center mb-3 sm:mb-4">
+          <div className="text-lg sm:text-xl lg:text-2xl font-mono text-destructive mb-1">
             {formatTime(recordingTime)}
           </div>
-          <div className="text-xs sm:text-sm">🔴 Recording in progress...</div>
+          <div className="text-[10px] sm:text-xs lg:text-sm animate-pulse">
+            🔴 Recording in progress...
+          </div>
         </div>
       )}
 
       {/* Bottom section with title/description on left and button on right */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 max-w-2xl mx-auto">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 sm:gap-4 max-w-2xl mx-auto">
         <div className="flex items-center justify-center sm:justify-start">
-          <div className="text-2xl sm:text-3xl mr-3">🎤</div>
+          <div className="text-xl sm:text-2xl lg:text-3xl mr-2 sm:mr-3">🎤</div>
           <div className="text-center sm:text-left">
-            <h2 className="text-base sm:text-lg font-bold">
+            <h2 className="text-sm sm:text-base lg:text-lg font-bold">
               Record Your Voice
             </h2>
-            <p className="text-muted-foreground text-xs sm:text-sm">
+            <p className="text-muted-foreground text-[10px] sm:text-xs lg:text-sm">
               {isRecording
                 ? "Read the text above naturally"
                 : "Click to start recording (2 minutes needed)"}
@@ -170,7 +172,7 @@ export default function VoiceRecorder({
           onClick={isRecording ? stopRecording : startRecording}
           variant={isRecording ? "destructive" : "default"}
           size="lg"
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto h-10 sm:h-11 px-4 sm:px-6 text-sm sm:text-base touch-manipulation"
         >
           {isRecording ? "Stop Recording" : "Start Recording"}
         </Button>
