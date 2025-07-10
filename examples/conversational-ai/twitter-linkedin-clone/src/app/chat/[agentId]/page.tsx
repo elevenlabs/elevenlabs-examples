@@ -44,9 +44,6 @@ export default function ChatPage({
             Look for the chat widget in the bottom-right corner to begin talking
             with your AI twin.
           </p>
-          <div className="text-xs sm:text-sm text-muted-foreground/80">
-            The conversation will start automatically when you click the widget.
-          </div>
         </CardContent>
       </Card>
 
