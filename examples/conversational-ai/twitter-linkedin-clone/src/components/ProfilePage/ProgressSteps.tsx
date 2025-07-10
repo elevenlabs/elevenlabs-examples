@@ -1,5 +1,6 @@
 "use client";
 
+import { Mic, Search, Bot, Check } from "lucide-react";
 import {
   ResearchState,
   VoiceState,
@@ -35,7 +36,11 @@ export const ProgressSteps = ({
                 : "bg-primary/10 text-primary border-primary/20"
             }`}
           >
-            {voiceState.isRecorded ? "✓" : "🎤"}
+            {voiceState.isRecorded ? (
+              <Check className="w-5 h-5 sm:w-6 sm:h-6" />
+            ) : (
+              <Mic className="w-5 h-5 sm:w-6 sm:h-6" />
+            )}
           </div>
           <div className="ml-3 sm:ml-4">
             <div className="text-base sm:text-lg font-semibold whitespace-nowrap">
@@ -60,7 +65,11 @@ export const ProgressSteps = ({
                   : "bg-muted text-muted-foreground border-muted-foreground/20"
             }`}
           >
-            {researchState.isComplete ? "✓" : "🔍"}
+            {researchState.isComplete ? (
+              <Check className="w-5 h-5 sm:w-6 sm:h-6" />
+            ) : (
+              <Search className="w-5 h-5 sm:w-6 sm:h-6" />
+            )}
           </div>
           <div className="ml-3 sm:ml-4">
             <div className="text-base sm:text-lg font-semibold">
@@ -93,7 +102,11 @@ export const ProgressSteps = ({
                   : "bg-muted text-muted-foreground border-muted-foreground/20"
             }`}
           >
-            {agentState.agentId ? "✓" : "🤖"}
+            {agentState.agentId ? (
+              <Check className="w-5 h-5 sm:w-6 sm:h-6" />
+            ) : (
+              <Bot className="w-5 h-5 sm:w-6 sm:h-6" />
+            )}
           </div>
           <div className="ml-3 sm:ml-4">
             <div className="text-base sm:text-lg font-semibold whitespace-nowrap">

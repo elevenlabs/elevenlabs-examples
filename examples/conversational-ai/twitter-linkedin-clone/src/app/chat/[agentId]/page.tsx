@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { BackgroundWave } from "@/components/background-wave";
 import ElevenLabsWidgetFixed from "@/components/ElevenLabsWidgetFixed";
 
 export default function ChatPage({
@@ -19,7 +18,9 @@ export default function ChatPage({
     <div className="w-full max-w-2xl mx-auto space-y-4 sm:space-y-6 px-3 sm:px-4">
       {/* Header */}
       <div className="text-center space-y-3 sm:space-y-4">
-        <h1 className="text-2xl sm:text-3xl font-bold">Voice Conversation</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+          Voice Conversation
+        </h1>
         <Link href="/">
           <Button
             variant="outline"
@@ -51,8 +52,6 @@ export default function ChatPage({
 
       {/* ElevenLabs Widget (renders in bottom-right corner) */}
       <ElevenLabsWidgetFixed agentId={agentId} />
-
-      <BackgroundWave />
     </div>
   );
 }

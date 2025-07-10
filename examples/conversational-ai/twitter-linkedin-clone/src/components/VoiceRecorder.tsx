@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { Mic, Circle, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -73,15 +74,18 @@ export default function VoiceRecorder({
   if (isComplete) {
     return (
       <div className="text-center py-3 sm:py-4">
-        <div className="text-2xl sm:text-3xl lg:text-4xl mb-2 sm:mb-3">🎤</div>
+        <div className="text-2xl sm:text-3xl lg:text-4xl mb-2 sm:mb-3 flex justify-center">
+          <Mic className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-primary" />
+        </div>
         <h3 className="text-sm sm:text-base lg:text-lg font-bold mb-1">
           Recording Complete!
         </h3>
         <p className="text-muted-foreground text-xs sm:text-sm px-4">
           Successfully recorded {formatTime(recordingTime)} of audio
         </p>
-        <p className="text-green-600 font-medium mt-1 text-xs sm:text-sm">
-          ✓ Voice sample ready for cloning
+        <p className="text-green-600 font-medium mt-1 text-xs sm:text-sm flex items-center justify-center gap-1">
+          <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+          Voice sample ready for cloning
         </p>
       </div>
     );
@@ -146,8 +150,9 @@ export default function VoiceRecorder({
           <div className="text-lg sm:text-xl lg:text-2xl font-mono text-destructive mb-1">
             {formatTime(recordingTime)}
           </div>
-          <div className="text-[10px] sm:text-xs lg:text-sm animate-pulse">
-            🔴 Recording in progress...
+          <div className="text-[10px] sm:text-xs lg:text-sm animate-pulse flex items-center justify-center gap-1">
+            <Circle className="w-2 h-2 sm:w-3 sm:h-3 fill-destructive text-destructive" />
+            Recording in progress...
           </div>
         </div>
       )}
@@ -155,7 +160,6 @@ export default function VoiceRecorder({
       {/* Bottom section with title/description on left and button on right */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 sm:gap-4 max-w-2xl mx-auto">
         <div className="flex items-center justify-center sm:justify-start">
-          <div className="text-xl sm:text-2xl lg:text-3xl mr-2 sm:mr-3">🎤</div>
           <div className="text-center sm:text-left">
             <h2 className="text-sm sm:text-base lg:text-lg font-bold">
               Record Your Voice

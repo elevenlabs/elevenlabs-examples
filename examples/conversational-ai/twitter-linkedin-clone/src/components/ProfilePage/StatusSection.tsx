@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Sparkles, Check } from "lucide-react";
 import { ResearchState, VoiceState, AgentCreationState } from "@/types/profile";
 import VoiceRecorder from "@/components/VoiceRecorder";
 import { Button } from "@/components/ui/button";
@@ -72,14 +73,16 @@ export const StatusSection = ({
   if (agentState.agentId) {
     return (
       <div className="text-center py-8 sm:py-12">
-        <div className="text-5xl sm:text-6xl mb-4 sm:mb-6">🎉</div>
+        <div className="text-5xl sm:text-6xl mb-4 sm:mb-6 flex justify-center">
+          <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 text-primary" />
+        </div>
         <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
           AI Twin Ready!
         </h2>
         <div className="mb-4 sm:mb-6">
           <div className="flex items-center justify-center gap-3 sm:gap-4">
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-lg sm:text-xl font-bold">
-              ✓
+              <Check className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div className="text-left">
               <h3 className="font-medium text-sm sm:text-base">
