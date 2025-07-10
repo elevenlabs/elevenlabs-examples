@@ -68,7 +68,7 @@ export default function Home() {
           <CardDescription className="text-base sm:text-base leading-relaxed">
             Use ElevenLabs&apos;{" "}
             <Link
-              href="https://elevenlabs.io/docs/api-reference/conversational-ai"
+              href="https://elevenlabs.io/conversational-ai"
               rel="noopener noreferrer"
               target="_blank"
               className="font-medium text-primary underline underline-offset-4 hover:text-primary/80 transition-colors"
