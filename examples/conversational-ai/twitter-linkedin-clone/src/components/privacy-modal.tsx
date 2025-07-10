@@ -1,7 +1,6 @@
 "use client";
 
 import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface PrivacyModalProps {
   isOpen: boolean;
@@ -37,8 +36,8 @@ export function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
 
           <div className="bg-gray-50 rounded-lg p-4 sm:p-5 space-y-4">
             <p className="text-gray-700 leading-relaxed">
-              By clicking 'Create AI Twin,' and each time I interact with this
-              AI agent, I confirm that:
+              By clicking &lsquo;Create AI Twin,&rsquo; and each time I interact
+              with this AI agent, I confirm that:
             </p>
 
             <ul className="space-y-3 text-gray-700">
