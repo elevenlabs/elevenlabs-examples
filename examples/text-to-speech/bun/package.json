@@ -6,14 +6,14 @@
     "dev": "bun run --watch index.ts"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.536.0",
-    "@google-cloud/storage": "^7.9.0",
-    "elevenlabs": "^0.2.0"
+    "@aws-sdk/client-s3": "^3.817.0",
+    "@elevenlabs/elevenlabs-js": "^2.1.0",
+    "@google-cloud/storage": "^7.16.0"
   },
   "devDependencies": {
     "@types/bun": "latest"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.4.2"
   }
 }

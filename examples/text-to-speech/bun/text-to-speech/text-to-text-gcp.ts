@@ -1,4 +1,4 @@
-import { ElevenLabsClient } from 'elevenlabs';
+import { ElevenLabsClient } from '@elevenlabs/elevenlabs-js';
 import { Storage } from '@google-cloud/storage';
 
 const elevenlabs = new ElevenLabsClient();
@@ -20,10 +20,10 @@ export const createAudioFromTextToGcp = async (
 };
 
 const createAudioFileFromText = async (text: string, output: string) => {
-  const audio = await elevenlabs.generate({
-    voice: 'Rachel',
-    model_id: 'eleven_multilingual_v2',
+  const audio = await elevenlabs.textToSpeech.convert('JBFqnCBsd6RMkjVDRZzb', {
     text,
+    modelId: 'eleven_multilingual_v2',
+    outputFormat: 'mp3_44100_128',
   });
 
   const chunks = [];

@@ -1,6 +1,6 @@
 "use dom";
 import { useCallback } from "react";
-import { useConversation } from "@11labs/react";
+import { useConversation } from "@elevenlabs/react";
 import { View, Pressable, StyleSheet } from "react-native";
 import type { Message } from "../components/ChatMessage";
 import { Mic } from "lucide-react-native";

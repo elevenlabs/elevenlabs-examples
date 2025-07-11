@@ -16,7 +16,7 @@ if not ELEVENLABS_API_KEY:
         "Please set the API key in your environment variables."
     )
 
-client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
+elevenlabs = ElevenLabs(api_key=ELEVENLABS_API_KEY)
 
 
 def create_dub_from_url(
@@ -36,7 +36,7 @@ def create_dub_from_url(
         Optional[str]: The file path of the dubbed file or None if operation failed.
     """
 
-    response = client.dubbing.dub_a_video_or_an_audio_file(
+    response = elevenlabs.dubbing.create(
         source_url=source_url,
         target_lang=target_language,
         mode="automatic",

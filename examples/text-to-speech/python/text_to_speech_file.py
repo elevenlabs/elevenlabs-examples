@@ -12,7 +12,7 @@ ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
 if not ELEVENLABS_API_KEY:
     raise ValueError("ELEVENLABS_API_KEY environment variable not set")
 
-client = ElevenLabs(
+elevenlabs = ElevenLabs(
     api_key=ELEVENLABS_API_KEY,
 )
 
@@ -32,7 +32,7 @@ def text_to_speech_file(text: str) -> str:
         str: The file path where the audio file has been saved.
     """
     # Calling the text_to_speech conversion API with detailed parameters
-    response = client.text_to_speech.convert(
+    response = elevenlabs.text_to_speech.convert(
         voice_id="pNInz6obpgDQGcFmaJgB",  # Adam pre-made voice
         optimize_streaming_latency="0",
         output_format="mp3_22050_32",

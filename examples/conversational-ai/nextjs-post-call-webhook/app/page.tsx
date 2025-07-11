@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ChevronRight, Mic } from "lucide-react";
 
-import { useConversation } from "@11labs/react";
+import { useConversation } from "@elevenlabs/react";
 
 async function getSignedUrl(): Promise<string> {
   const response = await fetch("/api/signed-url");
