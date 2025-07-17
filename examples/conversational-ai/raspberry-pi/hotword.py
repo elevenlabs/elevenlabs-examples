@@ -103,7 +103,7 @@ while True:
                 
             frame = mic_stream.getFrame()
             result = eleven_hw.scoreFrame(frame)
-            if result == None:
+            if result is None:
                 #no voice activity
                 continue
             if result["match"]:
