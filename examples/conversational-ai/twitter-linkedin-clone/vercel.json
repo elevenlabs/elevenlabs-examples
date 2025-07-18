@@ -1,0 +1,18 @@
+{
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm build",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "functions": {
+    "src/app/api/elevenlabs/agent/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/targeted-research/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/perplexity/route.ts": {
+      "maxDuration": 60
+    }
+  }
+}
