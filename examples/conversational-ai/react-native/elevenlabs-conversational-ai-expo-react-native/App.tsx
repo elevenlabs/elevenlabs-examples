@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Keyboard,
   TouchableWithoutFeedback,
+  Platform,
 } from "react-native";
 import { TextInput } from "react-native";
 import { ElevenLabsProvider, useConversation } from "@elevenlabs/react-native";
@@ -14,9 +15,15 @@ import type {
   ConversationEvent,
   Role,
 } from "@elevenlabs/react-native";
+import tools from "./utils/tools";
 
 const ConversationScreen = () => {
   const conversation = useConversation({
+    clientTools: {
+      get_battery_level: tools.get_battery_level,
+      change_brightness: tools.change_brightness,
+      flash_screen: tools.flash_screen,
+    },
     onConnect: ({ conversationId }: { conversationId: string }) => {
       console.log("✅ Connected to conversation", conversationId);
     },
@@ -68,6 +75,9 @@ const ConversationScreen = () => {
     try {
       await conversation.startSession({
         agentId: process.env.EXPO_PUBLIC_AGENT_ID,
+        dynamicVariables: {
+          platform: Platform.OS,
+        },
       });
     } catch (error) {
       console.error("Failed to start conversation:", error);
