@@ -1,54 +1,93 @@
-## Cross-platform Conversational AI agent with ElevenLabs and Expo React Native DOM Components
+# ElevenLabs React Native Example
 
-This example uses [ElevenLabs Conversational AI](https://elevenlabs.io/conversational-ai), running the [React SDK](https://elevenlabs.io/docs/conversational-ai/libraries/react) within [Expo DOM Components](https://docs.expo.dev/guides/dom-components/) to make the agent work across web, iOS, and Android.
+A minimal React Native Expo app demonstrating the ElevenLabs React Native SDK for voice conversations.
 
-- Read the detailed cookbook [here](https://elevenlabs.io/docs/cookbooks/conversational-ai/expo-react-native).
+## Prerequisites
 
-## ElevenLabs Agent Configuration
+- Node.js 20+
+- iOS and Android simulators
 
-Head over to the [ElevenLabs App](https://elevenlabs.io/app/conversational-ai/agents) and create a new blank agent. Set up the following configuration in your newly created agent:
+## Setup
 
-### First message
-
-```
-Hi there, woah, so cool that I'm running on {{platform}}. What can I help you with?
-```
-
-### System prompt
-
-```
-You are a helpful assistant running on {{platform}}. You have access to certain tools that allow you to check the user device battery level and change the display brightness. Use these tools if the user asks about them. Otherwise, just answer the question.
+```bash
+# Create a .env file in the root of the project
+cp .env.example .env
 ```
 
-### Client Tools
+Follow the ElevenLabs Conversational AI [quickstart guide](https://elevenlabs.io/docs/conversational-ai/quickstart) to create an agent and set your agent ID in the `.env` file.
 
-- Name: get_battery_level
-  - Description: Gets the device battery level as decimal point percentage.
-  - Wait for response: true
-  - Response timeout (seconds): 3
-- Name: change_brightness
-  - Description: Changes the brightness of the device screen.
-  - Wait for response: true
-  - Response timeout (seconds): 3
-  - Parameters:
-    - Data Type: number
-    - Identifier: brightness
-    - Required: true
-    - Value Type: LLM Prompt
-    - Description: A number between 0 and 1, inclusive, representing the desired screen brightness.
-- Name: flash_screen
-  - Description: Quickly flashes the screen on and off.
-  - Wait for response: true
-  - Response timeout (seconds): 3
+### Security consideration
 
-## Install dependencies
+This example uses a public agent ID for demonstration purposes. In a production app, you should generate a short lived signed URL in a secure server-side environment, see our [docs](https://elevenlabs.io/docs/conversational-ai/customization/authentication).
+
+## Installation
+
+Install dependencies:
+
+`npx expo install @elevenlabs/react-native @livekit/react-native @livekit/react-native-webrtc @config-plugins/react-native-webrtc @livekit/react-native-expo-plugin @livekit/react-native-expo-plugin livekit-client`
+
+Note: If you're running into an issue with peer dependencies, please add a .npmrc file in the root of the project with the following content: `legacy-peer-deps=true`.
 
 ```bash
 npm install
 ```
 
-## Run the app
+## Development Build
 
-1. `npx expo prebuild --clean`
-2. `npx expo start --tunnel`
-3. `npx expo run:ios --device`
+Prebuild, required for native dependencies:
+
+```bash
+npx expo prebuild
+```
+
+## Running the App
+
+**Important**: This app requires a development build and cannot run in Expo Go due to WebRTC native dependencies.
+
+### Start the Expo server in tunnel mode
+
+```bash
+npx expo start --tunnel
+```
+
+### iOS
+
+```bash
+## Build your native iOS project (this will install CocoaPods)
+npx expo run:ios --device
+```
+
+### Android
+
+```bash
+## Build your native Android project
+npx expo run:android
+```
+
+## Simulators
+
+When running on a simulator, make sure to adjust the audio settings so the agent can correctly hear you.
+
+## iOS
+
+In the I/O menu, make sure you've set the correct audio input and output devices. Also increase the volume as it defaults to 0.
+
+![iOS Settings](assets/ios-settings.png)
+
+## Android
+
+In the Extended Controls panel, enable "Virtual microphone uses host audio input".
+
+![Android Settings](assets/android-settings.png)
+
+## Web
+
+Note that React Native Web is currently not supported. For web implementations please use the [ElevenLabs React SDK](https://elevenlabs.io/docs/conversational-ai/libraries/react).
+
+## Troubleshooting
+
+- Make sure you're using development builds, not Expo Go
+- Ensure all dependencies are installed with `npm install`
+- For iOS, run `cd ios && pod install` if needed
+- Check that your development environment is set up correctly for React Native
+- Use a physical device rather than simulators

@@ -1,177 +1,424 @@
-import { StatusBar } from "expo-status-bar";
-import { View, Text, StyleSheet, ScrollView, SafeAreaView } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { ChatMessage, Message } from "./components/ChatMessage";
-import { useState } from "react";
-import { Platform } from "react-native";
-import tools from "./utils/tools";
-import ConvAiDOMComponent from "./components/ConvAI";
+import React, { useState } from "react";
 import {
-  useFonts,
-  Inter_400Regular,
-  Inter_700Bold,
-} from "@expo-google-fonts/inter";
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Keyboard,
+  TouchableWithoutFeedback,
+} from "react-native";
+import { TextInput } from "react-native";
+import { ElevenLabsProvider, useConversation } from "@elevenlabs/react-native";
+import type {
+  ConversationStatus,
+  ConversationEvent,
+  Role,
+} from "@elevenlabs/react-native";
 
-export default function App() {
-  const [messages, setMessages] = useState<Message[]>([]);
-
-  const [fontsLoaded] = useFonts({
-    "Inter-Regular": Inter_400Regular,
-    "Inter-Bold": Inter_700Bold,
+const ConversationScreen = () => {
+  const conversation = useConversation({
+    onConnect: ({ conversationId }: { conversationId: string }) => {
+      console.log("✅ Connected to conversation", conversationId);
+    },
+    onDisconnect: (details: string) => {
+      console.log("❌ Disconnected from conversation", details);
+    },
+    onError: (message: string, context?: Record<string, unknown>) => {
+      console.error("❌ Conversation error:", message, context);
+    },
+    onMessage: ({
+      message,
+      source,
+    }: {
+      message: ConversationEvent;
+      source: Role;
+    }) => {
+      console.log(`💬 Message from ${source}:`, message);
+    },
+    onModeChange: ({ mode }: { mode: "speaking" | "listening" }) => {
+      console.log(`🔊 Mode: ${mode}`);
+    },
+    onStatusChange: ({ status }: { status: ConversationStatus }) => {
+      console.log(`📡 Status: ${status}`);
+    },
+    onCanSendFeedbackChange: ({
+      canSendFeedback,
+    }: {
+      canSendFeedback: boolean;
+    }) => {
+      console.log(`🔊 Can send feedback: ${canSendFeedback}`);
+    },
   });
 
-  if (!fontsLoaded) {
-    return null;
-  }
+  const [isStarting, setIsStarting] = useState(false);
+  const [textInput, setTextInput] = useState("");
+
+  const handleSubmitText = () => {
+    if (textInput.trim()) {
+      conversation.sendUserMessage(textInput.trim());
+      setTextInput("");
+      Keyboard.dismiss();
+    }
+  };
+
+  const startConversation = async () => {
+    if (isStarting) return;
+
+    setIsStarting(true);
+    try {
+      await conversation.startSession({
+        agentId: process.env.EXPO_PUBLIC_AGENT_ID,
+      });
+    } catch (error) {
+      console.error("Failed to start conversation:", error);
+    } finally {
+      setIsStarting(false);
+    }
+  };
+
+  const endConversation = async () => {
+    try {
+      await conversation.endSession();
+    } catch (error) {
+      console.error("Failed to end conversation:", error);
+    }
+  };
+
+  const getStatusColor = (status: ConversationStatus): string => {
+    switch (status) {
+      case "connected":
+        return "#10B981";
+      case "connecting":
+        return "#F59E0B";
+      case "disconnected":
+        return "#EF4444";
+      default:
+        return "#6B7280";
+    }
+  };
+
+  const getStatusText = (status: ConversationStatus): string => {
+    return status[0].toUpperCase() + status.slice(1);
+  };
+
+  const canStart = conversation.status === "disconnected" && !isStarting;
+  const canEnd = conversation.status === "connected";
 
   return (
-    <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={["#0F172A", "#1E293B"]}
-        style={StyleSheet.absoluteFill}
-      />
-
-      <View style={styles.topContent}>
-        <Text style={styles.description}>
-          Cross-platform conversational AI agents with ElevenLabs and Expo React
-          Native.
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <View style={styles.container}>
+        <Text style={styles.title}>ElevenLabs React Native Example</Text>
+        <Text style={styles.subtitle}>
+          Remember to set the agentId in the .env file!
         </Text>
 
-        <View style={styles.toolsList}>
-          <Text style={styles.toolsTitle}>Available Client Tools:</Text>
-          <View style={styles.toolItem}>
-            <Text style={styles.toolText}>Get battery level</Text>
-            <View style={styles.platformTags}>
-              <Text style={styles.platformTag}>web</Text>
-              <Text style={styles.platformTag}>ios</Text>
-              <Text style={styles.platformTag}>android</Text>
-            </View>
-          </View>
-          <View style={styles.toolItem}>
-            <Text style={styles.toolText}>Change screen brightness</Text>
-            <View style={styles.platformTags}>
-              <Text style={styles.platformTag}>ios</Text>
-              <Text style={styles.platformTag}>android</Text>
-            </View>
-          </View>
-          <View style={styles.toolItem}>
-            <Text style={styles.toolText}>Flash screen</Text>
-            <View style={styles.platformTags}>
-              <Text style={styles.platformTag}>ios</Text>
-              <Text style={styles.platformTag}>android</Text>
-            </View>
-          </View>
-        </View>
-        <View style={styles.domComponentContainer}>
-          <ConvAiDOMComponent
-            dom={{ style: styles.domComponent }}
-            platform={Platform.OS}
-            get_battery_level={tools.get_battery_level}
-            change_brightness={tools.change_brightness}
-            flash_screen={tools.flash_screen}
-            onMessage={message => {
-              setMessages(prev => [message, ...prev]);
-            }}
+        <View style={styles.statusContainer}>
+          <View
+            style={[
+              styles.statusDot,
+              { backgroundColor: getStatusColor(conversation.status) },
+            ]}
           />
+          <Text style={styles.statusText}>
+            {getStatusText(conversation.status)}
+          </Text>
         </View>
-      </View>
 
-      <View style={styles.chatContainer}>
-        <ScrollView
-          style={styles.messagesList}
-          contentContainerStyle={styles.messagesContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {messages.map((message, index) => (
-            <ChatMessage key={index} message={message} />
-          ))}
-        </ScrollView>
+        {/* Speaking Indicator */}
+        {conversation.status === "connected" && (
+          <View style={styles.speakingContainer}>
+            <View
+              style={[
+                styles.speakingDot,
+                {
+                  backgroundColor: conversation.isSpeaking
+                    ? "#8B5CF6"
+                    : "#D1D5DB",
+                },
+              ]}
+            />
+            <Text
+              style={[
+                styles.speakingText,
+                { color: conversation.isSpeaking ? "#8B5CF6" : "#9CA3AF" },
+              ]}
+            >
+              {conversation.isSpeaking ? "🎤 AI Speaking" : "👂 AI Listening"}
+            </Text>
+          </View>
+        )}
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[
+              styles.button,
+              styles.startButton,
+              !canStart && styles.disabledButton,
+            ]}
+            onPress={startConversation}
+            disabled={!canStart}
+          >
+            <Text style={styles.buttonText}>
+              {isStarting ? "Starting..." : "Start Conversation"}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.button,
+              styles.endButton,
+              !canEnd && styles.disabledButton,
+            ]}
+            onPress={endConversation}
+            disabled={!canEnd}
+          >
+            <Text style={styles.buttonText}>End Conversation</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Feedback Buttons */}
+        {conversation.status === "connected" &&
+          conversation.canSendFeedback && (
+            <View style={styles.feedbackContainer}>
+              <Text style={styles.feedbackLabel}>How was that response?</Text>
+              <View style={styles.feedbackButtons}>
+                <TouchableOpacity
+                  style={[styles.button, styles.likeButton]}
+                  onPress={() => conversation.sendFeedback(true)}
+                >
+                  <Text style={styles.buttonText}>👍 Like</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, styles.dislikeButton]}
+                  onPress={() => conversation.sendFeedback(false)}
+                >
+                  <Text style={styles.buttonText}>👎 Dislike</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+        {/* Text Input and Messaging */}
+        {conversation.status === "connected" && (
+          <View style={styles.messagingContainer}>
+            <Text style={styles.messagingLabel}>Send Text Message</Text>
+            <TextInput
+              style={styles.textInput}
+              value={textInput}
+              onChangeText={text => {
+                setTextInput(text);
+                // Prevent agent from interrupting while user is typing
+                if (text.length > 0) {
+                  conversation.sendUserActivity();
+                }
+              }}
+              placeholder="Type your message or context... (Press Enter to send)"
+              multiline
+              onSubmitEditing={handleSubmitText}
+              returnKeyType="send"
+              blurOnSubmit={true}
+            />
+            <View style={styles.messageButtons}>
+              <TouchableOpacity
+                style={[styles.button, styles.messageButton]}
+                onPress={handleSubmitText}
+                disabled={!textInput.trim()}
+              >
+                <Text style={styles.buttonText}>💬 Send Message</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.contextButton]}
+                onPress={() => {
+                  if (textInput.trim()) {
+                    conversation.sendContextualUpdate(textInput.trim());
+                    setTextInput("");
+                    Keyboard.dismiss();
+                  }
+                }}
+                disabled={!textInput.trim()}
+              >
+                <Text style={styles.buttonText}>📝 Send Context</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       </View>
-      <StatusBar style="light" />
-    </SafeAreaView>
+    </TouchableWithoutFeedback>
+  );
+};
+
+export default function App() {
+  return (
+    <ElevenLabsProvider>
+      <ConversationScreen />
+    </ElevenLabsProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  topContent: {
-    paddingTop: 40,
-    paddingHorizontal: 24,
+    justifyContent: "center",
     alignItems: "center",
-  },
-  description: {
-    fontFamily: "Inter-Regular",
-    fontSize: 16,
-    color: "#E2E8F0",
-    textAlign: "center",
-    maxWidth: 300,
-    lineHeight: 24,
-    marginBottom: 24,
-  },
-  toolsList: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 16,
+    backgroundColor: "#F3F4F6",
     padding: 20,
-    width: "100%",
-    maxWidth: 400,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: "#1F2937",
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#6B7280",
+    marginBottom: 32,
+  },
+  statusContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 24,
+  },
+  statusDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 8,
+  },
+  statusText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#374151",
+  },
+  speakingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  speakingDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 8,
+  },
+  speakingText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  toolsContainer: {
+    backgroundColor: "#E5E7EB",
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 24,
+    width: "100%",
   },
   toolsTitle: {
-    fontFamily: "Inter-Bold",
-    fontSize: 18,
-    color: "#E2E8F0",
-    marginBottom: 16,
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 8,
   },
   toolItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.1)",
-  },
-  toolText: {
-    fontFamily: "Inter-Regular",
-    fontSize: 14,
-    color: "#E2E8F0",
-  },
-  platformTags: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  platformTag: {
     fontSize: 12,
-    color: "#94A3B8",
-    backgroundColor: "rgba(148, 163, 184, 0.1)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    overflow: "hidden",
-    fontFamily: "Inter-Regular",
+    color: "#6B7280",
+    fontFamily: "monospace",
+    marginBottom: 4,
   },
-  domComponentContainer: {
-    width: 120,
-    height: 120,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 24,
+  buttonContainer: {
+    width: "100%",
+    gap: 16,
   },
-  domComponent: {
-    width: 120,
-    height: 120,
-  },
-  chatContainer: {
-    flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-  },
-  messagesList: {
-    flex: 1,
-  },
-  messagesContent: {
+  button: {
+    backgroundColor: "#3B82F6",
     paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  startButton: {
+    backgroundColor: "#10B981",
+  },
+  endButton: {
+    backgroundColor: "#EF4444",
+  },
+  disabledButton: {
+    backgroundColor: "#9CA3AF",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  instructions: {
+    marginTop: 24,
+    fontSize: 14,
+    color: "#6B7280",
+    textAlign: "center",
+    lineHeight: 20,
+  },
+  feedbackContainer: {
+    marginTop: 24,
+    alignItems: "center",
+  },
+  feedbackLabel: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#374151",
+    marginBottom: 12,
+  },
+  feedbackButtons: {
+    flexDirection: "row",
+    gap: 16,
+  },
+  likeButton: {
+    backgroundColor: "#10B981",
+  },
+  dislikeButton: {
+    backgroundColor: "#EF4444",
+  },
+  messagingContainer: {
+    marginTop: 24,
+    width: "100%",
+  },
+  messagingLabel: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#374151",
+    marginBottom: 8,
+  },
+  textInput: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
+    padding: 16,
+    minHeight: 100,
+    textAlignVertical: "top",
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    marginBottom: 16,
+  },
+  messageButtons: {
+    flexDirection: "row",
+    gap: 16,
+  },
+  messageButton: {
+    backgroundColor: "#3B82F6",
+    flex: 1,
+  },
+  contextButton: {
+    backgroundColor: "#4F46E5",
+    flex: 1,
+  },
+  activityContainer: {
+    marginTop: 24,
+    alignItems: "center",
+  },
+  activityLabel: {
+    fontSize: 14,
+    color: "#6B7280",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  activityButton: {
+    backgroundColor: "#F59E0B",
   },
 });

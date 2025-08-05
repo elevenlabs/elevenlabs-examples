@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "ElevenLabs RN Example",
+    "slug": "elevenlabs-rn-example",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app needs access to microphone for voice conversations."
+      },
+      "bitcode": false,
+      "bundleIdentifier": "io.elevenlabs.convaiexample"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.CAMERA",
+        "android.permission.INTERNET",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.WAKE_LOCK",
+        "android.permission.BLUETOOTH"
+      ],
+      "package": "io.elevenlabs.convaiexample"
+    },
+    "plugins": [
+      "@livekit/react-native-expo-plugin", "@config-plugins/react-native-webrtc"
+    ]
+
+  }
+}
