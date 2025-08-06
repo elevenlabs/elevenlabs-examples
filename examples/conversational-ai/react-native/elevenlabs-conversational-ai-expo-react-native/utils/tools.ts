@@ -24,10 +24,4 @@ const flash_screen = () => {
   return "Successfully flashed the screen.";
 };
 
-const tools = {
-  get_battery_level,
-  change_brightness,
-  flash_screen,
-};
-
-export default tools;
+export { get_battery_level, change_brightness, flash_screen };
