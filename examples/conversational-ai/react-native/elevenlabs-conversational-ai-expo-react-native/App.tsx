@@ -15,14 +15,18 @@ import type {
   ConversationEvent,
   Role,
 } from "@elevenlabs/react-native";
-import tools from "./utils/tools";
+import {
+  get_battery_level,
+  change_brightness,
+  flash_screen,
+} from "./utils/tools";
 
 const ConversationScreen = () => {
   const conversation = useConversation({
     clientTools: {
-      get_battery_level: tools.get_battery_level,
-      change_brightness: tools.change_brightness,
-      flash_screen: tools.flash_screen,
+      get_battery_level,
+      change_brightness,
+      flash_screen,
     },
     onConnect: ({ conversationId }: { conversationId: string }) => {
       console.log("✅ Connected to conversation", conversationId);
