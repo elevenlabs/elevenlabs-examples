@@ -26,7 +26,7 @@ Install dependencies:
 
 `npx expo install @elevenlabs/react-native @livekit/react-native @livekit/react-native-webrtc @config-plugins/react-native-webrtc @livekit/react-native-expo-plugin @livekit/react-native-expo-plugin livekit-client`
 
-Note: If you're running into an issue with peer dependencies, please add a .npmrc file in the root of the project with the following content: `legacy-peer-deps=true`.
+Note: If you're running into an issue with peer dependencies, please add a `.npmrc` file in the root of the project with the following content: `legacy-peer-deps=true`.
 
 ```bash
 npm install
