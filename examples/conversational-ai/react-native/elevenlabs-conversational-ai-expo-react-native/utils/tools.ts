@@ -1,7 +1,7 @@
 import * as Battery from "expo-battery";
 import * as Brightness from "expo-brightness";
 
-const get_battery_level = async () => {
+const getBatteryLevel = async () => {
   const batteryLevel = await Battery.getBatteryLevelAsync();
   console.log("batteryLevel", batteryLevel);
   if (batteryLevel === -1) {
@@ -10,13 +10,13 @@ const get_battery_level = async () => {
   return batteryLevel;
 };
 
-const change_brightness = ({ brightness }: { brightness: number }) => {
-  console.log("change_brightness", brightness);
+const changeBrightness = ({ brightness }: { brightness: number }) => {
+  console.log("changeBrightness", brightness);
   Brightness.setSystemBrightnessAsync(brightness);
   return brightness;
 };
 
-const flash_screen = () => {
+const flashScreen = () => {
   Brightness.setSystemBrightnessAsync(1);
   setTimeout(() => {
     Brightness.setSystemBrightnessAsync(0);
@@ -24,4 +24,4 @@ const flash_screen = () => {
   return "Successfully flashed the screen.";
 };
 
-export { get_battery_level, change_brightness, flash_screen };
+export { getBatteryLevel, changeBrightness, flashScreen };
