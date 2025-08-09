@@ -13,7 +13,7 @@ This is a simple SwiftUI chat application demonstrating the use of the ElevenLab
 
 1. Clone the repository
 2. Open the project in Xcode
-3. Replace `"<REPLACE-WITH-YOUR-AGENT-ID>"` with your actual Agent ID in `ConversationalAIExampleView.swift`
+3. Replace `"<insert-agent-url-here>"` with your actual Agent ID in `ConversationalAIExampleView.swift`
 4. Run the app on a simulator or device
 
 ## Usage
