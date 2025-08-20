@@ -1,0 +1,25 @@
+---
+description: Quickstart guardrails for ElevenLabs Conversational AI integration in this Next.js example.
+globs: app/**/*.tsx,lib/**/*.ts
+---
+
+### Conversational AI Quickstart Guardrails
+
+- **Client setup**
+  - Use `useConversation` from `@elevenlabs/react` in Client Components.
+  - Always request mic permission before starting a session.
+  - Default path: start by passing `agentId`; upgrade to signed URL for private agents.
+
+- **Signed URL (private agents)**
+  - Create a server route to call ElevenLabs "get signed url" using the server API key.
+  - Client fetches `/api/get-signed-url`, then calls `startSession({ signedUrl })`.
+  - Signed URLs expire; handle errors, allow retry, and re-fetch when starting new sessions.
+
+- **Environment & secrets**
+  - Store `ELEVENLABS_API_KEY` and `NEXT_PUBLIC_AGENT_ID` in `.env.local`.
+  - Never expose the API key to the client; only the agent id can be public.
+
+- **UX**
+  - Disable Start while connected; disable Stop when disconnected.
+  - Display `status` and `isSpeaking` for minimal feedback.
+

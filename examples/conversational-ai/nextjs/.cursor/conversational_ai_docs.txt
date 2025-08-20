@@ -1,0 +1,171 @@
+# Conversational AI
+
+## Docs
+
+- [Conversational AI overview](https://elevenlabs.io/docs/conversational-ai/overview.mdx): Deploy customized, conversational voice agents in minutes.
+- [Quickstart](https://elevenlabs.io/docs/cookbooks/conversational-ai/quickstart.mdx): Build your first conversational AI voice agent in 5 minutes.
+- [Conversational AI dashboard](https://elevenlabs.io/docs/conversational-ai/dashboard.mdx): Monitor and analyze your agents' performance effortlessly.
+- [Tools](https://elevenlabs.io/docs/conversational-ai/customization/tools.mdx): Enhance Conversational AI agents with custom functionalities and external integrations.
+- [Client tools](https://elevenlabs.io/docs/conversational-ai/customization/tools/client-tools.mdx): Empower your assistant to trigger client-side operations.
+- [Server tools](https://elevenlabs.io/docs/conversational-ai/customization/tools/server-tools.mdx): Connect your assistant to external data & systems.
+- [Agent tools deprecation](https://elevenlabs.io/docs/conversational-ai/customization/tools/agent-tools-deprecation.mdx): Migrate from legacy `prompt.tools` to the new `prompt.tool_ids` field.
+- [System tools](https://elevenlabs.io/docs/conversational-ai/customization/tools/system-tools.mdx): Update the internal state of conversations without external requests.
+- [End call](https://elevenlabs.io/docs/conversational-ai/customization/tools/system-tools/end-call.mdx): Let your agent automatically hang up on the user.
+- [Language detection](https://elevenlabs.io/docs/conversational-ai/customization/tools/system-tools/language-detection.mdx): Let your agent automatically switch to the language
+- [Agent transfer](https://elevenlabs.io/docs/conversational-ai/customization/tools/system-tools/agent-transfer.mdx): Seamlessly transfer the user between Conversational AI agents based on defined conditions.
+- [Transfer to human](https://elevenlabs.io/docs/conversational-ai/customization/tools/system-tools/transfer-to-human.mdx): Seamlessly transfer the user to a human operator via phone number based on defined conditions.
+- [Skip turn](https://elevenlabs.io/docs/conversational-ai/customization/tools/system-tools/skip-turn.mdx): Allow your agent to pause and wait for the user to speak next.
+- [Play keypad touch tone](https://elevenlabs.io/docs/conversational-ai/customization/tools/system-tools/play-keypad-touch-tone.mdx): Enable agents to play DTMF tones to interact with automated phone systems and navigate menus.
+- [Voicemail detection](https://elevenlabs.io/docs/conversational-ai/customization/tools/system-tools/voicemail-detection.mdx): Enable agents to automatically detect voicemail systems and optionally leave messages.
+- [Events](https://elevenlabs.io/docs/conversational-ai/customization/events.mdx): Understand real-time communication events exchanged between client and server in conversational AI.
+- [Client events](https://elevenlabs.io/docs/conversational-ai/customization/events/client-events.mdx): Understand and handle real-time events received by the client during conversational applications.
+- [Client to server events](https://elevenlabs.io/docs/conversational-ai/customization/events/client-to-server-events.mdx): Send contextual information from the client to enhance conversational applications in real-time.
+- [Knowledge base](https://elevenlabs.io/docs/conversational-ai/customization/knowledge-base.mdx): Enhance your conversational agent with custom knowledge.
+- [Knowledge base dashboard](https://elevenlabs.io/docs/conversational-ai/customization/knowledge-base/dashboard.mdx): Learn how to manage and organize your knowledge base through the ElevenLabs dashboard
+- [Retrieval-Augmented Generation](https://elevenlabs.io/docs/conversational-ai/customization/knowledge-base/rag.mdx): Enhance your agent with large knowledge bases using RAG.
+- [Personalization](https://elevenlabs.io/docs/conversational-ai/customization/personalization.mdx): Learn how to personalize your agent's behavior using dynamic variables and overrides.
+- [Dynamic variables](https://elevenlabs.io/docs/conversational-ai/customization/personalization/dynamic-variables.mdx): Pass runtime values to personalize your agent's behavior.
+- [Overrides](https://elevenlabs.io/docs/conversational-ai/customization/personalization/overrides.mdx): Tailor each conversation with personalized context for each user.
+- [Twilio personalization](https://elevenlabs.io/docs/conversational-ai/customization/personalization/twilio-personalization.mdx): Configure personalization for incoming Twilio calls using webhooks.
+- [Voice customization](https://elevenlabs.io/docs/conversational-ai/customization/voice.mdx): Learn how to customize your AI agent's voice and speech patterns.
+- [Multi-voice support](https://elevenlabs.io/docs/conversational-ai/customization/voice/multi-voice-support.mdx): Enable your AI agent to switch between different voices for multi-character conversations and enhanced storytelling.
+- [Pronunciation dictionaries](https://elevenlabs.io/docs/conversational-ai/customization/voice/pronunciation-dictionary.mdx): Learn how to control how your AI agent pronounces specific words and phrases.
+- [Speed control](https://elevenlabs.io/docs/conversational-ai/customization/voice/speed-control.mdx): Learn how to adjust the speaking speed of your conversational AI agent.
+- [Language](https://elevenlabs.io/docs/conversational-ai/customization/language.mdx): Learn how to configure your agent to speak multiple languages.
+- [Language detection](https://elevenlabs.io/docs/conversational-ai/customization/tools/system-tools/language-detection.mdx): Let your agent automatically switch to the language
+- [Large Language Models (LLMs)](https://elevenlabs.io/docs/conversational-ai/customization/llm.mdx): Understand the available LLMs for your conversational AI agents, their capabilities, and pricing.
+- [Optimizing LLM costs](https://elevenlabs.io/docs/conversational-ai/customization/llm/optimizing-costs.mdx): Practical strategies to reduce LLM inference expenses on the ElevenLabs platform.
+- [Integrate your own model](https://elevenlabs.io/docs/conversational-ai/customization/llm/custom-llm.mdx): Connect an agent to your own LLM or host your own server.
+- [Cloudflare Workers AI](https://elevenlabs.io/docs/conversational-ai/customization/llm/custom-llm/cloudflare.mdx): Connect an agent to a custom LLM on Cloudflare Workers AI.
+- [Groq Cloud](https://elevenlabs.io/docs/conversational-ai/customization/llm/custom-llm/groq-cloud.mdx): Connect an agent to a custom LLM on Groq Cloud.
+- [SambaNova Cloud](https://elevenlabs.io/docs/conversational-ai/customization/llm/custom-llm/samba-nova-cloud.mdx): Connect an agent to a custom LLM on SambaNova Cloud.
+- [Together AI](https://elevenlabs.io/docs/conversational-ai/customization/llm/custom-llm/together-ai.mdx): Connect an agent to a custom LLM on Together AI.
+- [LLM Cascading](https://elevenlabs.io/docs/conversational-ai/customization/llm/llm-cascading.mdx): Learn how Conversational AI ensures reliable LLM responses using a cascading fallback mechanism.
+- [Widget customization](https://elevenlabs.io/docs/conversational-ai/customization/widget.mdx): Learn how to customize the widget appearance to match your brand, and personalize the agent's behavior from html.
+- [Conversation flow](https://elevenlabs.io/docs/conversational-ai/customization/conversation-flow.mdx): Configure how your assistant handles timeouts and interruptions during conversations.
+- [Authentication](https://elevenlabs.io/docs/conversational-ai/customization/authentication.mdx): Learn how to secure access to your conversational AI agents
+- [Agent Analysis](https://elevenlabs.io/docs/conversational-ai/customization/agent-analysis.mdx): Analyze conversation quality and extract structured data from customer interactions.
+- [Success Evaluation](https://elevenlabs.io/docs/conversational-ai/customization/agent-analysis/success-evaluation.mdx): Define custom criteria to assess conversation quality, goal achievement, and customer satisfaction.
+- [Data Collection](https://elevenlabs.io/docs/conversational-ai/customization/agent-analysis/data-collection.mdx): Extract structured information from conversations such as contact details and business data.
+- [Privacy](https://elevenlabs.io/docs/conversational-ai/customization/privacy.mdx): Manage how your agent handles data storage and privacy.
+- [Retention](https://elevenlabs.io/docs/conversational-ai/customization/privacy/retention.mdx): Control how long your agent retains conversation history and recordings.
+- [Audio saving](https://elevenlabs.io/docs/conversational-ai/customization/privacy/audio-saving.mdx): Control whether call audio recordings are retained.
+- [Zero Retention Mode (per-agent)](https://elevenlabs.io/docs/conversational-ai/customization/privacy/zero-retention-mode.mdx): Learn how to enable Zero Retention Mode for individual agents to enhance data privacy.
+- [Model Context Protocol](https://elevenlabs.io/docs/conversational-ai/customization/mcp.mdx): Connect your ElevenLabs conversational agents to external tools and data sources using the Model Context Protocol.
+- [MCP integration security](https://elevenlabs.io/docs/conversational-ai/customization/mcp/security.mdx): Tips for securely integrating third-party Model Context Protocol servers with your ElevenLabs conversational agents.
+- [SIP trunking](https://elevenlabs.io/docs/conversational-ai/phone-numbers/sip-trunking.mdx): Connect your existing phone system with ElevenLabs conversational AI agents using SIP trunking
+- [Batch calling](https://elevenlabs.io/docs/conversational-ai/phone-numbers/batch-calls.mdx): Initiate multiple outbound calls simultaneously with your Conversational AI agents.
+- [Vonage integration](https://elevenlabs.io/docs/conversational-ai/phone-numbers/telephony/vonage.mdx): Integrate ElevenLabs Conversational AI with Vonage voice calls using a WebSocket connector.
+- [Telnyx SIP trunking](https://elevenlabs.io/docs/conversational-ai/phone-numbers/telephony/telnyx.mdx): Connect Telnyx SIP trunks with ElevenLabs conversational AI agents.
+- [Plivo](https://elevenlabs.io/docs/conversational-ai/phone-numbers/telephony/plivo.mdx): Integrate ElevenLabs conversational AI agents with your Plivo SIP trunks
+- [Genesys](https://elevenlabs.io/docs/conversational-ai/phone-numbers/c-caa-s-integrations/genesys.mdx): Integrate ElevenLabs conversational AI agents with Genesys using native Audio Connector integration.
+- [Twilio native integration](https://elevenlabs.io/docs/conversational-ai/phone-numbers/twilio-integration/native-integration.mdx): Learn how to configure inbound calls for your agent with Twilio.
+- [Twilio personalization](https://elevenlabs.io/docs/conversational-ai/customization/personalization/twilio-personalization.mdx): Configure personalization for incoming Twilio calls using webhooks.
+- [Post-call webhooks](https://elevenlabs.io/docs/conversational-ai/workflows/post-call-webhooks.mdx): Get notified when calls end and analysis is complete through webhooks.
+- [Transfer to human](https://elevenlabs.io/docs/conversational-ai/customization/tools/system-tools/transfer-to-human.mdx): Seamlessly transfer the user to a human operator via phone number based on defined conditions.
+- [Agent transfer](https://elevenlabs.io/docs/conversational-ai/customization/tools/system-tools/agent-transfer.mdx): Seamlessly transfer the user between Conversational AI agents based on defined conditions.
+- [Prompting guide](https://elevenlabs.io/docs/conversational-ai/best-practices/prompting-guide.mdx): Learn how to engineer lifelike, engaging Conversational AI voice agents
+- [Conversational voice design](https://elevenlabs.io/docs/conversational-ai/best-practices/conversational-voice-design.mdx): Learn how to design lifelike, engaging Conversational AI voices
+- [Chat Mode](https://elevenlabs.io/docs/conversational-ai/guides/chat-mode.mdx): Configure your agent for text-only conversations with chat mode
+- [Burst pricing](https://elevenlabs.io/docs/conversational-ai/guides/burst-pricing.mdx): Optimize call capacity with burst concurrency to handle traffic spikes.
+- [Building the ElevenLabs documentation agent](https://elevenlabs.io/docs/conversational-ai/guides/eleven-labs-docs-agent.mdx): Learn how we built our documentation assistant using ElevenLabs Conversational AI
+- [Simulate Conversations](https://elevenlabs.io/docs/conversational-ai/guides/simulate-conversations.mdx): Learn how to test and evaluate your Conversational AI agent with simulated conversations
+- [Next.JS](https://elevenlabs.io/docs/conversational-ai/guides/quickstarts/next-js.mdx): Learn how to create a web application that enables voice conversations with ElevenLabs AI agents
+- [Vite (Javascript)](https://elevenlabs.io/docs/conversational-ai/guides/quickstarts/java-script.mdx): Learn how to create a web application that enables voice conversations with ElevenLabs AI agents
+- [Conversational AI in Ghost](https://elevenlabs.io/docs/conversational-ai/guides/conversational-ai-guide-ghost.mdx): Learn how to deploy a Conversational AI agent to Ghost
+- [Conversational AI in Framer](https://elevenlabs.io/docs/conversational-ai/guides/conversational-ai-guide-framer.mdx): Learn how to deploy a Conversational AI agent to Framer
+- [Conversational AI in Squarespace](https://elevenlabs.io/docs/conversational-ai/guides/conversational-ai-guide-squarespace.mdx): Learn how to deploy a Conversational AI agent to Squarespace
+- [Conversational AI in Webflow](https://elevenlabs.io/docs/conversational-ai/guides/conversational-ai-guide-webflow.mdx): Learn how to deploy a Conversational AI agent to Webflow
+- [Conversational AI in Wix](https://elevenlabs.io/docs/conversational-ai/guides/conversational-ai-guide-wix.mdx): Learn how to deploy a Conversational AI agent to Wix
+- [Conversational AI in WordPress](https://elevenlabs.io/docs/conversational-ai/guides/conversational-ai-guide-wordpress.mdx): Learn how to deploy a Conversational AI agent to WordPress
+- [Cross-platform Voice Agents with Expo React Native](https://elevenlabs.io/docs/cookbooks/conversational-ai/expo-react-native.mdx): Build conversational AI agents that work across iOS and Android using Expo and the ElevenLabs React Native SDK with WebRTC support.
+- [Build a Voice Assistant with Conversational AI on a Raspberry Pi](https://elevenlabs.io/docs/cookbooks/conversational-ai/raspberry-pi-voice-assistant.mdx): Build a voice assistant with Conversational AI on a Raspberry Pi.
+- [Cal.com](https://elevenlabs.io/docs/conversational-ai/guides/integrations/cal-com.mdx): Learn how to integrate our Conversational AI platform with Cal.com for automated meeting scheduling
+- [Data Collection and Analysis with Conversational AI in Next.js](https://elevenlabs.io/docs/cookbooks/conversational-ai/post-call-webhooks.mdx): Collect and analyse data in post-call webhooks using Conversational AI and Next.js.
+- [Zendesk](https://elevenlabs.io/docs/conversational-ai/guides/integrations/zendesk.mdx): Learn how to integrate our Conversational AI platform with Zendesk for better customer support
+- [HubSpot](https://elevenlabs.io/docs/conversational-ai/guides/integrations/hub-spot.mdx): Learn how to integrate our Conversational AI platform with HubSpot CRM
+- [Salesforce](https://elevenlabs.io/docs/conversational-ai/guides/integrations/salesforce.mdx): Learn how to integrate our Conversational AI platform with Salesforce for enhanced customer relationship management
+- [HIPAA](https://elevenlabs.io/docs/conversational-ai/legal/hipaa.mdx): Learn how ElevenLabs Conversational AI, coupled with Zero Retention Mode, is designed to promote HIPAA compliance for healthcare applications. Please refer to our [compliance page](https://compliance.elevenlabs.io/) for the latest information.
+- [Overview of Key TCPA Requirements](https://elevenlabs.io/docs/conversational-ai/legal/tcpa.mdx)
+- [Disclosure requirements](https://elevenlabs.io/docs/conversational-ai/legal/disclosure-requirement.mdx): Informing end users about your use of ElevenLabs Conversational AI
+- [11.ai integrations](https://elevenlabs.io/docs/conversational-ai/legal/11-ai-integrations.mdx): Learn about third-party integrations and their automatic Zero Retention Mode (ZRM) requirements for data privacy and compliance.
+- [Python SDK](https://elevenlabs.io/docs/conversational-ai/libraries/python.mdx): Conversational AI SDK: deploy customized, interactive voice agents in minutes.
+- [React SDK](https://elevenlabs.io/docs/conversational-ai/libraries/react.mdx): Conversational AI SDK: deploy customized, interactive voice agents in minutes.
+- [React Native SDK](https://elevenlabs.io/docs/conversational-ai/libraries/react-native.mdx): Conversational AI SDK: deploy customized, interactive voice agents in minutes for React Native apps.
+- [JavaScript SDK](https://elevenlabs.io/docs/conversational-ai/libraries/java-script.mdx): Conversational AI SDK: deploy customized, interactive voice agents in minutes.
+- [Kotlin SDK](https://elevenlabs.io/docs/conversational-ai/libraries/kotlin.mdx): Conversational AI SDK: deploy customized, interactive voice agents in minutes for Android apps.
+- [Swift SDK](https://elevenlabs.io/docs/conversational-ai/libraries/swift.mdx): Conversational AI SDK: deploy customized, interactive voice agents in your Swift applications.
+- [WebSocket](https://elevenlabs.io/docs/conversational-ai/libraries/web-sockets.mdx): Create real-time, interactive voice conversations with AI agents
+- [Conversational AI CLI](https://elevenlabs.io/docs/conversational-ai/libraries/agents-cli.mdx): Manage ElevenLabs conversational AI agents using an "agents as code" approach with local configuration files.
+
+## API Docs
+
+- Conversational AI [Agent WebSockets](https://elevenlabs.io/docs/conversational-ai/api-reference/conversational-ai/websocket)
+- API Reference > Agents [Create agent](https://elevenlabs.io/docs/conversational-ai/api-reference/agents/create.mdx)
+- API Reference > Agents [Get agent](https://elevenlabs.io/docs/conversational-ai/api-reference/agents/get.mdx)
+- API Reference > Agents [List agents](https://elevenlabs.io/docs/conversational-ai/api-reference/agents/list.mdx)
+- API Reference > Agents [Update agent](https://elevenlabs.io/docs/conversational-ai/api-reference/agents/update.mdx)
+- API Reference > Agents [Delete agent](https://elevenlabs.io/docs/conversational-ai/api-reference/agents/delete.mdx)
+- API Reference > Agents [Duplicate agent](https://elevenlabs.io/docs/conversational-ai/api-reference/agents/duplicate.mdx)
+- API Reference > Agents [Get link](https://elevenlabs.io/docs/conversational-ai/api-reference/agents/get-link.mdx)
+- API Reference > Agents [Simulate conversation](https://elevenlabs.io/docs/conversational-ai/api-reference/agents/simulate-conversation.mdx)
+- API Reference > Agents [Stream simulate conversation](https://elevenlabs.io/docs/conversational-ai/api-reference/agents/simulate-conversation-stream.mdx)
+- API Reference > Agents [Calculate expected LLM usage](https://elevenlabs.io/docs/conversational-ai/api-reference/agents/calculate.mdx)
+- API Reference > Conversations [List conversations](https://elevenlabs.io/docs/conversational-ai/api-reference/conversations/list.mdx)
+- API Reference > Conversations [Get conversation details](https://elevenlabs.io/docs/conversational-ai/api-reference/conversations/get.mdx)
+- API Reference > Conversations [Delete conversation](https://elevenlabs.io/docs/conversational-ai/api-reference/conversations/delete.mdx)
+- API Reference > Conversations [Get conversation audio](https://elevenlabs.io/docs/conversational-ai/api-reference/conversations/get-audio.mdx)
+- API Reference > Conversations [Get signed URL](https://elevenlabs.io/docs/conversational-ai/api-reference/conversations/get-signed-url.mdx)
+- API Reference > Conversations [Get conversation token](https://elevenlabs.io/docs/conversational-ai/api-reference/conversations/get-webrtc-token.mdx)
+- API Reference > Conversations [Send conversation feedback](https://elevenlabs.io/docs/conversational-ai/api-reference/conversations/create.mdx)
+- API Reference > Tools [List tools](https://elevenlabs.io/docs/conversational-ai/api-reference/tools/list.mdx)
+- API Reference > Tools [Get tool](https://elevenlabs.io/docs/conversational-ai/api-reference/tools/get.mdx)
+- API Reference > Tools [Create tool](https://elevenlabs.io/docs/conversational-ai/api-reference/tools/create.mdx)
+- API Reference > Tools [Update tool](https://elevenlabs.io/docs/conversational-ai/api-reference/tools/update.mdx)
+- API Reference > Tools [Delete tool](https://elevenlabs.io/docs/conversational-ai/api-reference/tools/delete.mdx)
+- API Reference > Tools [Get dependent agents](https://elevenlabs.io/docs/conversational-ai/api-reference/tools/get-dependent-agents.mdx)
+- API Reference > Knowledge Base [List knowledge base documents](https://elevenlabs.io/docs/conversational-ai/api-reference/knowledge-base/list.mdx)
+- API Reference > Knowledge Base [Delete knowledge base document](https://elevenlabs.io/docs/conversational-ai/api-reference/knowledge-base/delete.mdx)
+- API Reference > Knowledge Base [Get knowledge base document](https://elevenlabs.io/docs/conversational-ai/api-reference/knowledge-base/get-document.mdx)
+- API Reference > Knowledge Base [Update knowledge base document](https://elevenlabs.io/docs/conversational-ai/api-reference/knowledge-base/update.mdx)
+- API Reference > Knowledge Base [Create knowledge base document from URL](https://elevenlabs.io/docs/conversational-ai/api-reference/knowledge-base/create-from-url.mdx)
+- API Reference > Knowledge Base [Create knowledge base document from text](https://elevenlabs.io/docs/conversational-ai/api-reference/knowledge-base/create-from-text.mdx)
+- API Reference > Knowledge Base [Create knowledge base document from file](https://elevenlabs.io/docs/conversational-ai/api-reference/knowledge-base/create-from-file.mdx)
+- API Reference > Knowledge Base [Compute RAG index](https://elevenlabs.io/docs/conversational-ai/api-reference/knowledge-base/compute-rag-index.mdx)
+- API Reference > Knowledge Base [Get RAG index](https://elevenlabs.io/docs/conversational-ai/api-reference/knowledge-base/get-document-rag-indexes.mdx)
+- API Reference > Knowledge Base [Get RAG index overview](https://elevenlabs.io/docs/conversational-ai/api-reference/knowledge-base/rag-index-overview.mdx)
+- API Reference > Knowledge Base [Delete RAG index](https://elevenlabs.io/docs/conversational-ai/api-reference/knowledge-base/delete-document-rag-index.mdx)
+- API Reference > Knowledge Base [Get dependent agents](https://elevenlabs.io/docs/conversational-ai/api-reference/knowledge-base/get-agents.mdx)
+- API Reference > Knowledge Base [Get document content](https://elevenlabs.io/docs/conversational-ai/api-reference/knowledge-base/get-content.mdx)
+- API Reference > Knowledge Base [Get document chunk](https://elevenlabs.io/docs/conversational-ai/api-reference/knowledge-base/get-chunk.mdx)
+- API Reference > Knowledge Base [Get knowledge base size](https://elevenlabs.io/docs/conversational-ai/api-reference/knowledge-base/size.mdx)
+- API Reference > Phone Numbers [Import phone number](https://elevenlabs.io/docs/conversational-ai/api-reference/phone-numbers/create.mdx)
+- API Reference > Phone Numbers [List phone numbers](https://elevenlabs.io/docs/conversational-ai/api-reference/phone-numbers/list.mdx)
+- API Reference > Phone Numbers [Get phone number](https://elevenlabs.io/docs/conversational-ai/api-reference/phone-numbers/get.mdx)
+- API Reference > Phone Numbers [Update phone number](https://elevenlabs.io/docs/conversational-ai/api-reference/phone-numbers/update.mdx)
+- API Reference > Phone Numbers [Delete phone number](https://elevenlabs.io/docs/conversational-ai/api-reference/phone-numbers/delete.mdx)
+- API Reference > Widget [Get widget](https://elevenlabs.io/docs/conversational-ai/api-reference/widget/get.mdx)
+- API Reference > Widget [Create widget avatar](https://elevenlabs.io/docs/conversational-ai/api-reference/widget/create.mdx)
+- API Reference > Workspace > Settings [Get settings](https://elevenlabs.io/docs/conversational-ai/api-reference/workspace/get.mdx)
+- API Reference > Workspace > Settings [Update settings](https://elevenlabs.io/docs/conversational-ai/api-reference/workspace/update.mdx)
+- API Reference > Workspace > Secrets [Get secrets](https://elevenlabs.io/docs/conversational-ai/api-reference/workspace/secrets/list.mdx)
+- API Reference > Workspace > Secrets [Create secret](https://elevenlabs.io/docs/conversational-ai/api-reference/workspace/secrets/create.mdx)
+- API Reference > Workspace > Secrets [Update secret](https://elevenlabs.io/docs/conversational-ai/api-reference/workspace/secrets/update-secret.mdx)
+- API Reference > Workspace > Secrets [Delete secret](https://elevenlabs.io/docs/conversational-ai/api-reference/workspace/secrets/delete.mdx)
+- API Reference > Workspace > Dashboard [Get dashboard settings](https://elevenlabs.io/docs/conversational-ai/api-reference/workspace/dashboard/get.mdx)
+- API Reference > Workspace > Dashboard [Update Convai Dashboard Settings](https://elevenlabs.io/docs/conversational-ai/api-reference/workspace/dashboard/update.mdx)
+- API Reference > SIP Trunk [Outbound call via SIP trunk](https://elevenlabs.io/docs/conversational-ai/api-reference/sip-trunk/outbound-call.mdx)
+- API Reference > Twilio [Outbound call via twilio](https://elevenlabs.io/docs/conversational-ai/api-reference/twilio/outbound-call.mdx)
+- API Reference > Batch Calling [Submit batch calling job](https://elevenlabs.io/docs/conversational-ai/api-reference/batch-calling/create.mdx)
+- API Reference > Batch Calling [List workspace batch calling jobs](https://elevenlabs.io/docs/conversational-ai/api-reference/batch-calling/list.mdx)
+- API Reference > Batch Calling [Get batch call information](https://elevenlabs.io/docs/conversational-ai/api-reference/batch-calling/get.mdx)
+- API Reference > Batch Calling [Cancel batch calling job](https://elevenlabs.io/docs/conversational-ai/api-reference/batch-calling/cancel.mdx)
+- API Reference > Batch Calling [Retry batch calling job](https://elevenlabs.io/docs/conversational-ai/api-reference/batch-calling/retry.mdx)
+- API Reference > LLM Usage [Calculate expected LLM usage](https://elevenlabs.io/docs/conversational-ai/api-reference/llm-usage/calculate.mdx)
+- API Reference > MCP [Create MCP server](https://elevenlabs.io/docs/conversational-ai/api-reference/mcp/create.mdx)
+- API Reference > MCP [List MCP servers](https://elevenlabs.io/docs/conversational-ai/api-reference/mcp/list.mdx)
+- API Reference > MCP [Get MCP server](https://elevenlabs.io/docs/conversational-ai/api-reference/mcp/get.mdx)
+- API Reference > MCP [List MCP server tools](https://elevenlabs.io/docs/conversational-ai/api-reference/mcp/list.mdx)
+- API Reference > MCP > Approval Policies [Update MCP server approval policy](https://elevenlabs.io/docs/conversational-ai/api-reference/mcp/approval-policies/update.mdx)
+- API Reference > MCP > Approval Policies [Create MCP server tool approval](https://elevenlabs.io/docs/conversational-ai/api-reference/mcp/approval-policies/create.mdx)
+- API Reference > MCP > Approval Policies [Delete MCP server tool approval](https://elevenlabs.io/docs/conversational-ai/api-reference/mcp/approval-policies/delete.mdx)

@@ -1,0 +1,23 @@
+---
+globs: app/api/**/route.ts
+description: Guidance for building robust Next.js Route Handlers (Edge/Node) with environment variables and secure external calls.
+---
+
+### Next.js API Routes
+
+- **Environment variables**
+  - Read secrets server-side only; never expose in client components.
+  - Validate required envs at runtime and return clear 500 errors when missing.
+
+- **External requests**
+  - Use `fetch` with explicit method, headers, and error handling.
+  - Propagate non-OK responses with sanitized messages, not raw bodies.
+
+- **Responses**
+  - Prefer `NextResponse.json()` with explicit status.
+  - Keep payloads minimal and intention-revealing (e.g., `{ signedUrl }`).
+
+- **Edge vs Node**
+  - Default to Node runtime unless an Edge constraint is required.
+  - Avoid unsupported Node APIs in Edge handlers.
+

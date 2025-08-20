@@ -1,0 +1,31 @@
+---
+globs: *.ts,*.tsx
+description: Enforce readable, explicit TypeScript with clear naming, early exits, and safe defaults across TS/TSX files.
+---
+
+### TypeScript Style Guide (TS/TSX)
+
+- **Naming**
+  - Prefer full words over abbreviations; avoid 1–2 char symbols.
+  - Functions are verbs; variables are nouns.
+  - Use domain language in names (e.g., `agentSession`, `signedUrl`).
+
+- **Typing**
+  - Explicitly annotate exported/public APIs and function signatures.
+  - Avoid `any`; use union types, generics, or `unknown` + refinement.
+  - Prefer discriminated unions for status-like state.
+
+- **Control flow**
+  - Use guard clauses and early returns over deep nesting.
+  - Handle error/edge cases first; surface actionable error messages.
+  - Avoid try/catch unless you can handle or enrich the error.
+
+- **React**
+  - Keep Client Components minimal; lift reusable logic into `lib/`.
+  - Memoize callbacks with dependencies; avoid stale closures.
+  - Derive UI state from source-of-truth values; avoid duplication.
+
+- **Formatting**
+  - Match existing project formatting; do not reformat unrelated code.
+  - Prefer multi-line for complex expressions; avoid nested ternaries.
+

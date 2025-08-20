@@ -1,0 +1,118 @@
+---
+alwaysApply: true
+description: Progressive, layered assistance and code design for this repo — defaults first, escape hatches second, expert controls third. Emphasize smooth transitions between layers.
+---
+
+### Designing in Layers — Repository Rule
+
+Use progressive disclosure across code, configuration, and explanations. The goal is not to hide complexity but to sequence its reveal so contributors start simple and can grow into full power without friction.
+
+### Project map for quick orientation
+- `app` entry points: [app/layout.tsx](mdc:app/layout.tsx), [app/page.tsx](mdc:app/page.tsx)
+- Utilities and helpers: [lib/utils.ts](mdc:lib/utils.ts)
+- Configuration: [package.json](mdc:package.json), [next.config.ts](mdc:next.config.ts), [tsconfig.json](mdc:tsconfig.json), [app/globals.css](mdc:app/globals.css)
+
+### Core principles
+- **Defaults first**: The default experience should “just work” with minimal surface area.
+- **Optional power**: Advanced capabilities must be discoverable in place (no rewrites) and optional.
+- **Smooth transitions**: Moving between layers should feel like opening a door, not hitting a wall.
+- **Trust users to grow**: Provide clear escape hatches and expert levers when needed.
+
+### Layering model to apply in code and assistance
+- **Layer 1 — Defaults (high-traffic path)**
+  - Keep APIs and UI minimal; prefer zero-config sensible defaults.
+  - Avoid heavy dependencies; use standard library or existing stack first.
+  - Provide one primary path that solves the 80% case.
+- **Layer 2 — Alternatives & presets (the 20%)**
+  - Introduce optional props, presets, flags, and configuration objects.
+  - Keep migration from Layer 1 trivial; no breaking changes.
+  - Document knobs inline with concise examples near the change site.
+- **Layer 3 — Full power for experts**
+  - Expose low-level primitives, advanced typing, and extension points.
+  - Allow full composition, custom pipelines, and performance tuning.
+  - Make internals accessible without forcing them on beginners.
+
+### How this shapes code changes
+- Start with the smallest viable edit and stable defaults; then clearly note opt-ins.
+- Structure modules so Layer 1 exports are thin wrappers over Layer 3 primitives.
+- Keep names descriptive and consistent; prefer clarity over brevity.
+- Add guard clauses and meaningful error messages; avoid deep nesting.
+- When introducing options, prefer a typed `options` object with safe defaults.
+- Maintain backward compatibility when adding layers; avoid silent behavior changes.
+
+### How this shapes explanations and diffs
+- Lead with the default path (what to do now), then offer alternatives, then expert details.
+- Summarize what changed and the impact; keep rationale brief and high-signal.
+- Link directly to affected files and entry points (use mdc: links where possible).
+
+### Practical checklist before completing a change
+1) Is there a working Layer 1 path with sensible defaults?
+2) Are escape hatches for Layer 2 discoverable and documented inline?
+3) Can an expert drop into Layer 3 without forking or rewriting?
+4) Are transitions between layers non-breaking and clearly signposted?
+5) Do file and API names reflect intent, not implementation details?
+
+### Notes for this repository
+- Favor keeping simple examples in `app/page.tsx` and move complexity behind helpers in `lib/` as it grows.
+- Centralize shared utilities in [lib/utils.ts](mdc:lib/utils.ts) and keep them dependency-light.
+- CSS and design tokens should expose a sane default theme, then optional layers for customization in [app/globals.css](mdc:app/globals.css).
+
+---
+alwaysApply: true
+description: Progressive, layered assistance and code design for this repo — defaults first, escape hatches second, expert controls third. Emphasize smooth transitions between layers.
+---
+
+## Designing in Layers — Repository Rule
+
+Use progressive disclosure across code, configuration, and explanations. The goal is not to hide complexity but to sequence its reveal so contributors start simple and can grow into full power without friction.
+
+Project map for quick orientation:
+- `app` entry points: [app/layout.tsx](mdc:app/layout.tsx), [app/page.tsx](mdc:app/page.tsx)
+- Utilities and helpers: [lib/utils.ts](mdc:lib/utils.ts)
+- Configuration: [package.json](mdc:package.json), [next.config.ts](mdc:next.config.ts), [tsconfig.json](mdc:tsconfig.json), [app/globals.css](mdc:app/globals.css)
+
+### Core principles
+- Default experience should “just work” with minimal surface area.
+- Advanced capabilities must be discoverable in place (no rewrites) and optional.
+- Transitions between layers should feel like opening a door, not hitting a wall.
+- Trust users to grow: provide clear escape hatches and expert levers when needed.
+
+### Layering model to apply in code and assistance
+- Layer 1 — Defaults (high-traffic path)
+  - Keep APIs and UI minimal; prefer zero-config sensible defaults.
+  - Avoid heavy dependencies; use standard library or existing stack first.
+  - Provide one primary path that solves the 80% case.
+- Layer 2 — Alternatives & presets (the 20%)
+  - Introduce optional props, presets, flags, and configuration objects.
+  - Keep migration from Layer 1 trivial; no breaking changes.
+  - Document knobs inline with concise examples near the change site.
+- Layer 3 — Full power for experts
+  - Expose low-level primitives, advanced typing, and extension points.
+  - Allow full composition, custom pipelines, and performance tuning.
+  - Make internals accessible without forcing them on beginners.
+
+### How this shapes code changes
+- Start with the smallest viable edit and stable defaults; then clearly note opt-ins.
+- Structure modules so Layer 1 exports are thin wrappers over Layer 3 primitives.
+- Keep names descriptive and consistent; prefer clarity over brevity.
+- Add guard clauses and meaningful error messages; avoid deep nesting.
+- When introducing options, prefer a typed `options` object with safe defaults.
+- Maintain backward compatibility when adding layers; avoid silent behavior changes.
+
+### How this shapes explanations and diffs
+- Lead with the default path (what to do now), then offer alternatives, then expert details.
+- Summarize what changed and the impact; keep rationale brief and high-signal.
+- Link directly to affected files and entry points (use mdc: links where possible).
+
+### Practical checklist before completing a change
+1) Is there a working Layer 1 path with sensible defaults?
+2) Are escape hatches for Layer 2 discoverable and documented inline?
+3) Can an expert drop into Layer 3 without forking or rewriting?
+4) Are transitions between layers non-breaking and clearly signposted?
+5) Do file and API names reflect intent, not implementation details?
+
+### Notes for this repository
+- Favor keeping simple examples in `app/page.tsx` and move complexity behind helpers in `lib/` as it grows.
+- Centralize shared utilities in [lib/utils.ts](mdc:lib/utils.ts) and keep them dependency-light.
+- CSS and design tokens should expose a sane default theme, then optional layers for customization in [app/globals.css](mdc:app/globals.css).
+
