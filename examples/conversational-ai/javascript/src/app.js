@@ -171,16 +171,6 @@ async function startConversation() {
     const signedUrl = await getSignedUrl();
     //const agentId = await getAgentId(); // You can switch to agentID for public agents
 
-    console.log(
-      "Starting conversation with microphone device ID:",
-      selectedAudioDevice || "default"
-    );
-
-    console.log(
-      "Starting conversation with speaker device ID:",
-      selectedSpeakerDevice || "default"
-    );
-
     conversation = await Conversation.startSession({
       signedUrl: signedUrl,
       //agentId: agentId, // You can switch to agentID for public agents
