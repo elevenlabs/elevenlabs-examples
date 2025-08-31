@@ -101,23 +101,6 @@ async function requestMicrophonePermission() {
   }
 }
 
-// Function to set the audio output device
-async function setSpeakerDevice(audioElement) {
-  if (!selectedSpeakerDevice || !audioElement.setSinkId) {
-    return; // Use default or setSinkId not supported
-  }
-
-  try {
-    await audioElement.setSinkId(selectedSpeakerDevice);
-    console.log("Output device set to:", selectedSpeakerDevice);
-
-    // Update the status to show which speaker is active
-    updateDeviceStatus();
-  } catch (error) {
-    console.error("Error setting audio output device:", error);
-  }
-}
-
 // Function to update the active device status display
 function updateDeviceStatus() {
   const micStatusElement = document.getElementById("microphoneStatus");
@@ -193,6 +176,11 @@ async function startConversation() {
       selectedAudioDevice || "default"
     );
 
+    console.log(
+      "Starting conversation with speaker device ID:",
+      selectedSpeakerDevice || "default"
+    );
+
     conversation = await Conversation.startSession({
       signedUrl: signedUrl,
       //agentId: agentId, // You can switch to agentID for public agents
@@ -230,7 +218,7 @@ async function startConversation() {
         console.log("Mode changed:", mode); // Debug log to see exact mode object
         updateSpeakingStatus(mode);
       },
-      deviceId: selectedAudioDevice || undefined,
+      inputDeviceId: selectedAudioDevice || undefined,
       outputDeviceId: selectedSpeakerDevice || undefined,
     });
 
