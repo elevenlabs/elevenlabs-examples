@@ -1,5 +1,5 @@
 // --- src/app.js ---
-import { Conversation } from "@11labs/client";
+import { Conversation } from '@elevenlabs/client';
 
 let conversation = null;
 let selectedAudioDevice = null;
