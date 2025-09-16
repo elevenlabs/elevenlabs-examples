@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@11labs/react": "^0.0.7",
+    "@elevenlabs/react": "^0.0.7",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-accordion": "^1.2.2",
     "@radix-ui/react-alert-dialog": "^1.1.4",
@@ -46,7 +46,7 @@
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
     "date-fns": "4.1.0",
-    "elevenlabs": "^1.54.0",
+    "@elevenlabs/elevenlabs-js": "^2.1.0",
     "embla-carousel-react": "8.5.1",
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",

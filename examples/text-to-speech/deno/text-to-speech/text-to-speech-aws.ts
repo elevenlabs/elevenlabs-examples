@@ -1,6 +1,6 @@
 import "https://deno.land/x/dotenv/load.ts";
 import { Buffer } from "node:buffer";
-import { ElevenLabsClient } from "npm:elevenlabs";
+import { ElevenLabsClient } from "npm:@elevenlabs/elevenlabs-js";
 import { S3Client, PutObjectCommand } from "npm:@aws-sdk/client-s3";
 
 const client = new ElevenLabsClient();
@@ -18,8 +18,8 @@ export const createAudioFromTextToS3 = async (
   remotePath: string
 ) => {
   const audio = await client.textToSpeech.convert("JBFqnCBsd6RMkjVDRZzb", {
-    model_id: "eleven_multilingual_v2",
-    output_format: "mp3_44100_128",
+    modelId: "eleven_multilingual_v2",
+    outputFormat: "mp3_44100_128",
     text,
   });
 

@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express, { Response } from 'express';
 import ExpressWs from 'express-ws';
 import VoiceResponse from 'twilio/lib/twiml/VoiceResponse';
-import { ElevenLabsClient } from 'elevenlabs';
+import { ElevenLabsClient } from '@elevenlabs/elevenlabs-js';
 import { type WebSocket } from 'ws';
 import { Readable } from 'stream';
 
@@ -36,8 +36,8 @@ function startApp() {
       if (message.event === 'start' && message.start) {
         const streamSid = message.start.streamSid;
         const response = await elevenlabs.textToSpeech.convert(voiceId, {
-          model_id: 'eleven_turbo_v2',
-          output_format: outputFormat,
+          modelId: 'eleven_turbo_v2',
+          outputFormat: outputFormat,
           text,
         });
 

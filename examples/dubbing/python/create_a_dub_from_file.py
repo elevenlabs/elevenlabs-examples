@@ -16,7 +16,7 @@ if not ELEVENLABS_API_KEY:
         "Please set the API key in your environment variables."
     )
 
-client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
+elevenlabs = ElevenLabs(api_key=ELEVENLABS_API_KEY)
 
 
 def create_dub_from_file(
@@ -41,7 +41,7 @@ def create_dub_from_file(
         raise FileNotFoundError(f"The input file does not exist: {input_file_path}")
 
     with open(input_file_path, "rb") as audio_file:
-        response = client.dubbing.dub_a_video_or_an_audio_file(
+        response = elevenlabs.dubbing.create(
             file=(os.path.basename(input_file_path), audio_file, file_format),
             target_lang=target_language,
             mode="automatic",

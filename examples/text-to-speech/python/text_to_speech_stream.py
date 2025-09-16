@@ -13,7 +13,7 @@ ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
 if not ELEVENLABS_API_KEY:
     raise ValueError("ELEVENLABS_API_KEY environment variable not set")
 
-client = ElevenLabs(
+elevenlabs = ElevenLabs(
     api_key=ELEVENLABS_API_KEY,
 )
 
@@ -33,7 +33,7 @@ def text_to_speech_stream(text: str) -> IO[bytes]:
         IO[bytes]: A BytesIO stream containing the audio data.
     """
     # Perform the text-to-speech conversion
-    response = client.text_to_speech.convert(
+    response = elevenlabs.text_to_speech.convert(
         voice_id="pNInz6obpgDQGcFmaJgB",  # Adam pre-made voice
         optimize_streaming_latency="0",
         output_format="mp3_22050_32",
