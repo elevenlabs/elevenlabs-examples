@@ -3,7 +3,6 @@
     "name": "elevenlabs-conversational-ai-expo-react-native",
     "slug": "elevenlabs-conversational-ai-expo-react-native",
     "version": "1.0.0",
-    "scheme": "elevenlabs",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -14,25 +13,37 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "infoPlist": {
-        "NSMicrophoneUsageDescription": "This app uses the microphone to record audio."
-      },
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.elevenlabs-conversational-ai-expo-react-native"
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app needs access to microphone for voice conversations."
+      },
+      "bitcode": false,
+      "bundleIdentifier": "com.thorelevendev.elevenlabsconversationalaiexporeactnative"
     },
     "android": {
-      "permissions": [
-        "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS"
-      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.elevenlabsconversationalaiexporeactnative"
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.CAMERA",
+        "android.permission.INTERNET",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.WAKE_LOCK",
+        "android.permission.BLUETOOTH"
+      ],
+      "package": "com.thorelevendev.elevenlabsconversationalaiexporeactnative"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "@livekit/react-native-expo-plugin",
+      "@config-plugins/react-native-webrtc"
+    ]
   }
 }
