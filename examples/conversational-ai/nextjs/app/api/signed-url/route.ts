@@ -6,8 +6,12 @@ export async function GET() {
   if (!agentId) {
     throw Error("AGENT_ID is not set");
   }
+  const apiKey = process.env.XI_API_KEY;
+  if (!apiKey) {
+    throw Error("XI_API_KEY is not set");
+  }
   try {
-    const client = new ElevenLabsClient();
+    const client = new ElevenLabsClient({ apiKey });
     const response = await client.conversationalAi.getSignedUrl({
       agent_id: agentId,
     });

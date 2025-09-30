@@ -9,21 +9,25 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@11labs/react": "^0.0.8",
+    "@elevenlabs/react": "^0.7.0",
     "@radix-ui/react-slot": "^1.1.0",
+    "@react-three/drei": "^10.7.6",
+    "@react-three/fiber": "^9.3.0",
+    "@types/three": "^0.180.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "elevenlabs": "^1.54.0",
     "express": "^4.21.1",
-    "framer-motion": "^11.11.11",
+    "framer-motion": "^12.23.22",
     "lucide-react": "^0.454.0",
-    "next": "15.0.2",
-    "react": "19.0.0-rc-02c0e824-20241028",
-    "react-dom": "19.0.0-rc-02c0e824-20241028",
+    "next": "^15.5.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
     "tailwind-merge": "^2.5.4",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "three": "^0.180.0"
   },
   "devDependencies": {
     "@types/node": "^20",
