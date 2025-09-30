@@ -56,7 +56,9 @@ export function Orb({
           volumeMode={volumeMode}
           manualInput={manualInput}
           manualOutput={manualOutput}
+          // @ts-expect-error Wrong type
           inputVolumeRef={inputVolumeRef}
+          // @ts-expect-error Wrong type
           outputVolumeRef={outputVolumeRef}
           getInputVolume={getInputVolume}
           getOutputVolume={getOutputVolume}
