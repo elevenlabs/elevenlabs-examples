@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import * as React from "react";
 import { useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useConversation } from "@11labs/react";
-import { cn } from "@/lib/utils";
+import { useConversation } from "@elevenlabs/react";
+import { Orb } from "@/components/ui/orb";
+
 
 async function requestMicrophonePermission() {
   try {
@@ -40,7 +41,7 @@ export function ConvAI() {
     },
     onMessage: message => {
       console.log(message);
-    },
+    }
   });
 
   async function startConversation() {
@@ -50,20 +51,37 @@ export function ConvAI() {
       return;
     }
     const signedUrl = await getSignedUrl();
-    const conversationId = await conversation.startSession({ signedUrl });
+    const conversationId = await conversation.startSession({
+      signedUrl
+    });
     console.log(conversationId);
   }
+
 
   const stopConversation = useCallback(async () => {
     await conversation.endSession();
   }, [conversation]);
 
+
+  function getAgentState() {
+    if (conversation.status === "connected" && conversation.isSpeaking) {
+      return "talking";
+    }
+    if (conversation.status === "connected") {
+      return "listening";
+    }
+    if (conversation.status === "disconnected") {
+      return null;
+    }
+    return null;
+  }
+
   return (
-    <div className={"flex justify-center items-center gap-x-4"}>
+    <div className={"flex justify-center items-center gap-x-10"}>
       <Card className={"rounded-3xl"}>
         <CardContent>
           <CardHeader>
-            <CardTitle className={"text-center"}>
+            <CardTitle className={"text-center py-2"}>
               {conversation.status === "connected"
                 ? conversation.isSpeaking
                   ? `Agent is speaking`
@@ -71,24 +89,15 @@ export function ConvAI() {
                 : "Disconnected"}
             </CardTitle>
           </CardHeader>
-          <div className={"flex flex-col gap-y-4 text-center"}>
-            <div
-              className={cn(
-                "orb my-16 mx-12",
-                conversation.status === "connected" && conversation.isSpeaking
-                  ? "orb-active animate-orb"
-                  : conversation.status === "connected"
-                  ? "animate-orb-slow orb-inactive"
-                  : "orb-inactive"
-              )}
-            ></div>
+          <div className={"flex flex-col gap-y-4 text-center items-center"}>
+            <Orb agentState={getAgentState()} className={"w-[250px] h-[250px]"} />
 
             <Button
               variant={"outline"}
               className={"rounded-full"}
               size={"lg"}
               disabled={
-                conversation !== null && conversation.status === "connected"
+                conversation.status !== "disconnected"
               }
               onClick={startConversation}
             >
@@ -98,7 +107,7 @@ export function ConvAI() {
               variant={"outline"}
               className={"rounded-full"}
               size={"lg"}
-              disabled={conversation === null}
+              disabled={conversation.status === "disconnected"}
               onClick={stopConversation}
             >
               End conversation
