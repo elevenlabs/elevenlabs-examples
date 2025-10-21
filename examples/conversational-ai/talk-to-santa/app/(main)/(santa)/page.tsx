@@ -175,31 +175,6 @@ export default function Page() {
     };
   }, []);
 
-  // Update the useEffect
-  useEffect(() => {
-    let mounted = true;
-    const setupStream = async () => {
-      const stream = await requestAudioPermissions();
-      if (stream && videoRef.current && mounted) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-        setIsPreviewVideoLoading(false);
-      } else {
-        setIsPreviewVideoLoading(false);
-      }
-    };
-    setupStream();
-    return () => {
-      mounted = false;
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => {
-          track.stop();
-        });
-        streamRef.current = null;
-      }
-    };
-  }, []);
-
   // call handling
   const startCall = async () => {
     try {
