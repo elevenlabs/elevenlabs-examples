@@ -1,13 +1,13 @@
-import { maxDuration } from "./../app/api/route";
+import { maxDuration } from "../app/api/sound/route";
 import { posthog } from "posthog-js";
 import {
   VideoToSFXRequestBody,
   VideoToSFXResponseBody,
-} from "@/app/api/interface";
+} from "@/app/api/sound/interface";
 
 const apiVideoToSFX = async (frames: string[], maxDuration: number) => {
   posthog?.capture("video_to_sfx_started");
-  const response = await fetch("/api", {
+  const response = await fetch("/api/sound", {
     method: "POST",
     body: JSON.stringify({ frames, maxDuration } as VideoToSFXRequestBody),
   });
