@@ -1,0 +1,15 @@
+About ElevenLabs
+
+ElevenLabs is a voice AI research & deployment company with a mission to make content universally accessible in any language & voice.
+
+ElevenLabs creates the most realistic, versatile and contextually-aware AI audio, providing the ability to generate speech in hundreds of new and existing voices in 29 languages. As a technology research company, ElevenLabs is at the forefront of developing new cutting-edge voice AI. We deploy the most advanced models and features accessible via web app or API to a user base from creators to publishers and beyond.
+
+Our mission
+
+Our mission is to make on-demand multilingual audio support a reality across education, streaming, audiobooks, gaming, movies, and even real-time conversation.
+
+Our research powers the platform's current features but it also contributes to realizing our ultimate goal of instantly converting spoken audio between languages. The AI dubbing tool - aimed for release later this year - will let users automatically re-voice any audio or video in a different language, all while preserving the original speaker's voice.
+
+ElevenLabs was founded in 2022 by best friends: Piotr, an ex-Google machine learning engineer, and Mati, an ex-Palantir deployment strategist. Inspired by the 'poor' dubbing of Hollywood movies they watched growing up in their native Poland, the pair set about designing a platform which could eliminate the linguistic barriers of content.
+
+ElevenLabs has closed its Series B round co-led by Andreessen Horowitz, Nat Friedman, Daniel Gross, and joined by Sequoia Capital, SV Angel, Smash Capital, BroadLight Capital and Credo Ventures. We have received previous investments from Credo Ventures and Concept Ventures. Angel investors include Instagram co-founder Mike Krieger, Oculus VR co-founder Brendan Iribe, Deepmind & Inflection co-founder Mustafa Suleyman, Perplexity AI co-founder Aravind Srinivas, Ubiquity6 co-founder Anjney Midha, Reface co-founder Dima Shvets, Inkitt co-founder Ali Albazzaz, Vercel founder Guillermo Rauch, O'Reilly Media founder Tim O'Reilly, Creator Ventures and SV Angel.
