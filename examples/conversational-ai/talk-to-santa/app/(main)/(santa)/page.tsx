@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useConversation } from "@11labs/react";
 import { motion } from "framer-motion";
-import { VideoIcon, VideoOffIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -24,8 +23,6 @@ export default function Page() {
 
   // permission state
   const [hasAudioAccess, setHasAudioAccess] = useState(false);
-  const [hasVideoAccess, setHasVideoAccess] = useState(false);
-  const [isVideoEnabled, setIsVideoEnabled] = useState(false);
   const [language, setLanguage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -64,7 +61,7 @@ export default function Page() {
   >([]);
   const [isCardOpen, setIsCardOpen] = useState(false);
   const [isEndingCall, setIsEndingCall] = useState(false);
-  const [isPreviewVideoLoading, setIsPreviewVideoLoading] = useState(true);
+  const [, setIsPreviewVideoLoading] = useState(true);
 
   // refs
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -97,56 +94,6 @@ export default function Page() {
       );
       setHasAudioAccess(false);
       return null;
-    }
-  };
-
-  // video stream handling
-  const requestVideoPermissions = async () => {
-    try {
-      if (!streamRef.current) {
-        throw new Error("Audio stream not initialized");
-      }
-
-      const videoStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: false,
-      });
-
-      // Add video track to existing audio stream
-      const videoTrack = videoStream.getVideoTracks()[0];
-      streamRef.current.addTrack(videoTrack);
-      setHasVideoAccess(true);
-      return streamRef.current;
-    } catch (err) {
-      console.error(err);
-      toast.error("Unable to access camera");
-      setHasVideoAccess(false);
-      setIsVideoEnabled(false);
-      return streamRef.current;
-    }
-  };
-
-  const toggleVideoEnabled = async () => {
-    const newVideoState = !isVideoEnabled;
-    setIsVideoEnabled(newVideoState);
-
-    if (newVideoState) {
-      // Adding video
-      if (!hasVideoAccess) {
-        await requestVideoPermissions();
-      } else if (streamRef.current) {
-        // Re-enable existing video track
-        streamRef.current
-          .getVideoTracks()
-          .forEach(track => (track.enabled = true));
-      }
-    } else {
-      // Removing video
-      if (streamRef.current) {
-        streamRef.current
-          .getVideoTracks()
-          .forEach(track => (track.enabled = false));
-      }
     }
   };
 
@@ -341,8 +288,6 @@ export default function Page() {
             startCall={startCall}
             hasMediaAccess={hasAudioAccess}
             requestMediaPermissions={requestAudioPermissions}
-            isVideoEnabled={isVideoEnabled}
-            toggleVideoEnabled={toggleVideoEnabled}
             language={language}
             setLanguage={setLanguage}
             languages={LANGUAGES}
@@ -388,35 +333,6 @@ export default function Page() {
               />
             </motion.div>
           )}
-
-          <motion.div
-            className={cn(
-              "w-32 h-32 rounded-full overflow-hidden border-4 border-red-500 border-opacity-50 shadow-lg relative",
-              (!hasVideoAccess || !isVideoEnabled || isEndingCall) && "hidden"
-            )}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            {isPreviewVideoLoading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
-              </div>
-            )}
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className="w-full h-full object-cover opacity-90"
-              onLoadedData={() => {
-                setIsPreviewVideoLoading(false);
-              }}
-              onError={e => {
-                console.error(e);
-                setIsPreviewVideoLoading(false);
-              }}
-            />
-          </motion.div>
         </div>
 
         {isEndingCall && (
@@ -435,29 +351,9 @@ export default function Page() {
               isCardOpen ? "invisible" : "visible"
             )}
           >
-            {isVideoEnabled && (
-              <>
-                <Button
-                  variant="default"
-                  className="px-4 py-2 rounded-full border-emerald-500 border-2 hover:bg-emerald-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
-                  onClick={() => endCall()}
-                >
-                  Save Card with Video
-                  <VideoIcon className="w-4 h-4" />
-                </Button>
-
-                <Button
-                  variant="default"
-                  className="px-4 py-2 rounded-full border-blue-500 border-2 hover:bg-blue-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
-                  onClick={() => endCall(false)}
-                >
-                  Save Card without Video
-                  <VideoOffIcon className="w-4 h-4" />
-                </Button>
-              </>
-            )}
-            {!isVideoEnabled && (
-              <>
+        
+      
+         
                 <Button
                   variant="default"
                   className="px-4 py-2 rounded-full border-blue-500 border-2 hover:bg-blue-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
@@ -465,8 +361,8 @@ export default function Page() {
                 >
                   Save Card
                 </Button>
-              </>
-            )}
+         
+          
             <Button
               variant="default"
               className="px-4 py-2 rounded-full border-gray-500 border-2 hover:bg-gray-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"

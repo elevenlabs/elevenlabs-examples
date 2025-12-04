@@ -2,8 +2,6 @@
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -23,8 +21,6 @@ interface CallButtonProps {
   startCall: () => void;
   hasMediaAccess: boolean;
   requestMediaPermissions: () => void;
-  isVideoEnabled: boolean;
-  toggleVideoEnabled: (value: boolean) => void;
   language: string | null;
   setLanguage: (value: string) => void;
   languages: typeof LANGUAGES;
@@ -37,8 +33,6 @@ export function CallButton({
   startCall,
   hasMediaAccess,
   requestMediaPermissions,
-  isVideoEnabled,
-  toggleVideoEnabled,
   language,
   setLanguage,
   languages,
@@ -139,31 +133,56 @@ export function CallButton({
           />
         </div>
       )}
-      <div className="flex items-center space-x-2 pt-3">
-        <Switch
-          id="airplane-mode"
-          className="bg-red-500"
-          checked={isVideoEnabled}
-          onCheckedChange={toggleVideoEnabled}
-        />
-        <Label htmlFor="airplane-mode" className="text-white">
-          Enable Video
-        </Label>
-      </div>
-
       <Dialog open={showAgeModal} onOpenChange={setShowAgeModal}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Age Verification</DialogTitle>
-            <DialogDescription>
-              Please confirm that you are 18 years or older to continue.
+            <DialogTitle>Before You Continue</DialogTitle>
+            <DialogDescription asChild>
+              <div className="space-y-3 text-sm text-left">
+                <p>By clicking &quot;I Agree&quot; below, you confirm that:</p>
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>You are 18 years of age or older.</li>
+                  <li>
+                    You understand that &quot;Santa&quot; is an AI character powered by
+                    ElevenLabs, not a real person.
+                  </li>
+                  <li>
+                    You consent to your conversation being recorded.
+                  </li>
+                  <li>
+                    You understand that your recording may be shared with third
+                    parties for the purpose of generating your personalized
+                    card.
+                  </li>
+                </ul>
+                <p>
+                  For more information, please review our{" "}
+                  <Link
+                    href="https://elevenlabs.io/privacy-policy"
+                    target="_blank"
+                    className="underline text-primary"
+                  >
+                    Privacy Policy
+                  </Link>
+                  .
+                </p>
+              </div>
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-y-2">
-            <Button variant="secondary" className="bg-red-800 hover:bg-red-600 text-white mb-2 sm:mb-0" onClick={() => setShowAgeModal(false)}>
+          <DialogFooter className="gap-y-2 mt-4">
+            <Button
+              variant="secondary"
+              className="bg-red-800 hover:bg-red-600 text-white mb-2 sm:mb-0"
+              onClick={() => setShowAgeModal(false)}
+            >
               Cancel
             </Button>
-            <Button className="bg-green-800 hover:bg-green-600" onClick={handleAgeConfirm}>I confirm I am 18+</Button>
+            <Button
+              className="bg-green-800 hover:bg-green-600"
+              onClick={handleAgeConfirm}
+            >
+              I Agree
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

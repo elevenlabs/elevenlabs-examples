@@ -4,7 +4,6 @@ import { Snowfall } from "@/components/snowfall";
 import { MusicPlayer } from "@/components/music-player";
 import Link from "next/link";
 import { DisclaimerButton } from "@/components/disclaimer-button";
-import { DonationCountup } from "@/components/donation-countup";
 
 export default function Layout({
   children,
@@ -20,7 +19,6 @@ export default function Layout({
         <div className="hidden md:block">
           <ChristmasCountdown />
         </div>
-        <DonationCountup />
       </div>
 
       <main>
