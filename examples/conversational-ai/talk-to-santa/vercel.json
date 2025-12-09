@@ -1,9 +1,0 @@
-{
-  "redirects": [
-    {
-      "source": "/:path*",
-      "destination": "https://elevenlabs.io/santa",
-      "permanent": true
-    }
-  ]
-}
