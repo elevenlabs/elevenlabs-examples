@@ -14,7 +14,7 @@
     "clsx": "^2.1.0",
     "elevenlabs": "^0.1.6",
     "lucide-react": "^0.359.0",
-    "next": "14.1.2",
+    "next": "14.2.35",
     "node-fetch": "^3.3.2",
     "openai": "^4.28.4",
     "react": "^18",
