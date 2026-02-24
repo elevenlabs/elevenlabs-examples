@@ -50,3 +50,9 @@ venv
 
 # formatters
 .ruff_cache
+
+# skills files
+.agents/
+skills-lock.json
+.claude/
+.kiro/

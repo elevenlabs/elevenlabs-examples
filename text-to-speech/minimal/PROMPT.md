@@ -1,22 +1,24 @@
 Use the `text-to-speech` skill from the installed `elevenlabs/skills` package.
 
-You are in the `text-to-speech/minimal` project folder. Create a minimal runnable JavaScript example that generates an MP3 from text using ElevenLabs Text-to-Speech.
+You are in the `text-to-speech/minimal` project folder. Create a minimal runnable TypeScript example that generates an MP3 from text using ElevenLabs Text-to-Speech.
 
 Requirements:
 - Keep this example intentionally small and easy to read.
 - Only create/update files inside the current folder.
-- Use Node.js + ESM JavaScript (no TypeScript, no frameworks).
+- Use Node.js + TypeScript (no frameworks).
 
 Create these files:
 1. `package.json`
    - Include scripts:
-     - `start`: `node index.mjs`
+     - `start`: `tsx index.ts`
    - Include dependencies:
      - `@elevenlabs/elevenlabs-js`
      - `dotenv`
+   - Include devDependencies:
+     - `tsx`
 2. `.env.example`
    - Include `ELEVENLABS_API_KEY=`
-3. `index.mjs`
+3. `index.ts`
    - Load env vars from `.env`.
    - Read text from CLI args (fallback to a short default sentence).
    - Generate speech with:

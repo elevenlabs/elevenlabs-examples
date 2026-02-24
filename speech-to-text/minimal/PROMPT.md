@@ -1,28 +1,32 @@
 Use the `speech-to-text` skill from the installed `elevenlabs/skills` package.
 
-You are in the `speech-to-text/minimal` project folder. Create a minimal runnable JavaScript example that transcribes one local audio file with ElevenLabs Scribe v2.
+You are in the `speech-to-text/minimal` project folder. Create a minimal runnable TypeScript example that transcribes audio with ElevenLabs Scribe v2.
 
 Requirements:
 - Keep this example intentionally small and easy to read.
 - Only create/update files inside the current folder.
-- Use Node.js + ESM JavaScript (no TypeScript, no frameworks).
+- Use Node.js + TypeScript (no frameworks).
 
 Create these files:
 1. `package.json`
    - Include scripts:
-     - `start`: `node index.mjs`
+     - `start`: `tsx index.ts`
    - Include dependencies:
      - `@elevenlabs/elevenlabs-js`
      - `dotenv`
+   - Include devDependencies:
+     - `tsx`
 2. `.env.example`
    - Include `ELEVENLABS_API_KEY=`
-3. `index.mjs`
+3. `index.ts`
    - Load env vars from `.env`.
-   - Read first CLI arg as input audio path.
-   - If missing arg, print usage and exit with non-zero code.
+   - Read first CLI arg as optional local audio path.
+   - This folder already contains `audio.mp3` (the ElevenLabs quickstart sample).
+   - If no CLI arg is provided, default to local `./audio.mp3`.
+   - Do not download audio in `index.ts`; use local files only.
    - Use `ElevenLabsClient` and call Speech-to-Text with:
      - `modelId: "scribe_v2"`
-     - `file: createReadStream(inputPath)`
+     - `file: createReadStream(inputPath)` where default input is local `audio.mp3`
    - Print transcript text to stdout.
    - Handle API/file errors with a readable message.
 4. `README.md`
@@ -31,9 +35,11 @@ Create these files:
      - copy `.env.example` to `.env`
      - add API key
      - install deps
-   - Run example command with a sample audio filename.
+   - Include run examples for:
+     - default quickstart sample (`npm start`)
+     - local file (`npm start -- ./audio.mp3`)
 
 Acceptance checklist:
 - Minimal files only.
 - Uses the `speech-to-text` skill patterns and ElevenLabs JS SDK.
-- Running `npm start -- ./audio.mp3` prints transcription text.
+- Running `npm start` transcribes the bundled local `audio.mp3` and prints transcription text.

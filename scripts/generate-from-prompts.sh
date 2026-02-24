@@ -10,10 +10,31 @@ TIMESTAMP="$(date +"%Y%m%d-%H%M%S")"
 LOG_DIR="${REPO_ROOT}/tmp/prompt-runs/${TIMESTAMP}"
 CLAUDE_TIMEOUT_SECONDS="${CLAUDE_TIMEOUT_SECONDS:-600}"
 
-PROMPT_FILES=(
-  "${REPO_ROOT}/speech-to-text/minimal/PROMPT.md"
-  "${REPO_ROOT}/text-to-speech/minimal/PROMPT.md"
-)
+expected_outputs_for_project() {
+  case "$1" in
+    "speech-to-text/minimal")
+      printf "%s\n" "package.json" ".env.example" "index.ts" "README.md"
+      ;;
+    "text-to-speech/minimal")
+      printf "%s\n" "package.json" ".env.example" "index.ts" "README.md"
+      ;;
+    *)
+      printf "%s\n" ""
+      ;;
+  esac
+}
+
+PROMPT_FILES=()
+while IFS= read -r prompt_file; do
+  PROMPT_FILES+=("${prompt_file}")
+done < <(find "${REPO_ROOT}" -type f -name "PROMPT.md" \
+  -not -path "${REPO_ROOT}/.git/*" \
+  -not -path "*/node_modules/*" | sort)
+
+if [[ ${#PROMPT_FILES[@]} -eq 0 ]]; then
+  echo "No PROMPT.md files found under ${REPO_ROOT}" >&2
+  exit 1
+fi
 
 require_cmd() {
   if ! command -v "$1" >/dev/null 2>&1; then
@@ -43,7 +64,7 @@ echo "Logs: ${LOG_DIR}"
 
 echo
 echo "Step 1/2: Pulling latest skills"
-npx skills add elevenlabs/skills -y 2>&1 | tee "${LOG_DIR}/skills-add.log"
+npx skills add elevenlabs/skills --agent claude-code -y 2>&1 | tee "${LOG_DIR}/skills-add.log"
 SKILLS_EXIT=${PIPESTATUS[0]}
 printf "exit_code=%s\n" "${SKILLS_EXIT}" >> "${LOG_DIR}/skills-add.log"
 if [[ ${SKILLS_EXIT} -ne 0 ]]; then
@@ -68,7 +89,7 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
     cd "${project_dir}" || exit 1
     perl -e 'alarm shift @ARGV; exec @ARGV' \
       "${CLAUDE_TIMEOUT_SECONDS}" \
-      claude -p "$(cat "PROMPT.md")"
+      claude --dangerously-skip-permissions -p "$(cat "PROMPT.md")"
   ) 2>&1 | tee "${run_log}"
   RUN_EXIT=${PIPESTATUS[0]}
   printf "exit_code=%s\n" "${RUN_EXIT}" >> "${run_log}"
@@ -77,7 +98,21 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
     FAILED_RUNS=$((FAILED_RUNS + 1))
     echo "Failed: ${relative_project_dir} (see ${run_log})" >&2
   else
-    echo "Completed: ${relative_project_dir}"
+    missing_count=0
+    while IFS= read -r output_file; do
+      [[ -z "${output_file}" ]] && continue
+      if [[ ! -f "${project_dir}/${output_file}" ]]; then
+        missing_count=$((missing_count + 1))
+        echo "Missing expected file: ${relative_project_dir}/${output_file}" >&2
+      fi
+    done < <(expected_outputs_for_project "${relative_project_dir}")
+
+    if [[ ${missing_count} -ne 0 ]]; then
+      FAILED_RUNS=$((FAILED_RUNS + 1))
+      echo "Failed: ${relative_project_dir} (no generated output detected; see ${run_log})" >&2
+    else
+      echo "Completed: ${relative_project_dir}"
+    fi
   fi
 done
 
