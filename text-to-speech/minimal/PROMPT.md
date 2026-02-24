@@ -14,8 +14,10 @@ Create these files:
    - Include dependencies:
      - `@elevenlabs/elevenlabs-js`
      - `dotenv`
+   - Set dependency versions to `"latest"` (do not use pinned ranges like `^1.0.0`)
    - Include devDependencies:
      - `tsx`
+   - Set devDependency versions to `"latest"`
 2. `.env.example`
    - Include `ELEVENLABS_API_KEY=`
 3. `index.ts`
@@ -32,10 +34,11 @@ Create these files:
    - Setup steps:
      - copy `.env.example` to `.env`
      - add API key
-     - install deps
+     - install deps (`pnpm install`)
    - Run example command with a quoted text sample.
 
 Acceptance checklist:
 - Minimal files only.
 - Uses the `text-to-speech` skill patterns and ElevenLabs JS SDK.
-- Running `npm start -- "Hello from ElevenLabs"` writes `output.mp3`.
+- `pnpm install` succeeds without manual edits.
+- Running `pnpm run start -- "Hello from ElevenLabs"` writes `output.mp3`.

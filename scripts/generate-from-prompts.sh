@@ -44,7 +44,7 @@ require_cmd() {
 }
 
 echo "Preparing prompt runner..."
-require_cmd "npx"
+require_cmd "pnpm"
 require_cmd "claude"
 require_cmd "perl"
 
@@ -64,7 +64,7 @@ echo "Logs: ${LOG_DIR}"
 
 echo
 echo "Step 1/2: Pulling latest skills"
-npx skills add elevenlabs/skills --agent claude-code -y 2>&1 | tee "${LOG_DIR}/skills-add.log"
+pnpm dlx skills add elevenlabs/skills --agent claude-code -y 2>&1 | tee "${LOG_DIR}/skills-add.log"
 SKILLS_EXIT=${PIPESTATUS[0]}
 printf "exit_code=%s\n" "${SKILLS_EXIT}" >> "${LOG_DIR}/skills-add.log"
 if [[ ${SKILLS_EXIT} -ne 0 ]]; then
