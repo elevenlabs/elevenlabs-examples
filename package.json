@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "generate:examples": "bash scripts/generate-from-prompts.sh"
+  },
   "dependencies": {
     "geist": "^1.3.0",
     "mobx-react": "^9.1.1",
