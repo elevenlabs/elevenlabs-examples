@@ -19,7 +19,7 @@ Prompt-driven ElevenLabs examples for text-to-speech and speech-to-text. Each pr
 
 ## Generate examples from prompts
 
-The general prompt-runner workflow is in `scripts/generate-examples.sh` (the replacement for `scripts/generate-from-prompts.sh`) and is exposed as:
+The general prompt-runner workflow is in `scripts/generate-examples.sh` and is exposed as:
 
 ```bash
 pnpm run generate:examples
@@ -29,7 +29,6 @@ pnpm run generate:examples
 
 - `pnpm`
 - `claude` CLI
-- `perl`
 
 Install root dependencies first:
 

@@ -24,6 +24,9 @@ expected_outputs_for_project() {
     "text-to-speech/minimal")
       printf "%s\n" "package.json" ".env.example" "index.ts" "README.md"
       ;;
+    "speech-to-text/realtime-nextjs")
+      printf "%s\n" "package.json" ".env.example" "app/page.tsx" "app/layout.tsx" "README.md"
+      ;;
     *)
       printf "%s\n" ""
       ;;
@@ -69,10 +72,40 @@ require_cmd() {
   fi
 }
 
+run_with_timeout() {
+  local timeout_seconds="$1"
+  shift
+
+  "$@" &
+  local cmd_pid=$!
+  local elapsed=0
+
+  while kill -0 "${cmd_pid}" >/dev/null 2>&1; do
+    if (( elapsed >= timeout_seconds )); then
+      echo "Command timed out after ${timeout_seconds}s; terminating PID ${cmd_pid}." >&2
+      kill -TERM "${cmd_pid}" >/dev/null 2>&1 || true
+      sleep 2
+      if kill -0 "${cmd_pid}" >/dev/null 2>&1; then
+        kill -KILL "${cmd_pid}" >/dev/null 2>&1 || true
+      fi
+      wait "${cmd_pid}" >/dev/null 2>&1 || true
+      return 124
+    fi
+    sleep 1
+    elapsed=$((elapsed + 1))
+  done
+
+  wait "${cmd_pid}"
+}
+
 echo "Preparing prompt runner..."
 require_cmd "pnpm"
 require_cmd "claude"
-require_cmd "perl"
+
+if ! [[ "${CLAUDE_TIMEOUT_SECONDS}" =~ ^[1-9][0-9]*$ ]]; then
+  echo "CLAUDE_TIMEOUT_SECONDS must be a positive integer: ${CLAUDE_TIMEOUT_SECONDS}" >&2
+  exit 1
+fi
 
 for prompt_file in "${PROMPT_FILES[@]}"; do
   if [[ ! -f "${prompt_file}" ]]; then
@@ -119,7 +152,7 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
   echo "Running: ${relative_project_dir}/PROMPT.md"
   (
     cd "${project_dir}" || exit 1
-    perl -e 'alarm shift @ARGV; exec @ARGV' \
+    run_with_timeout \
       "${CLAUDE_TIMEOUT_SECONDS}" \
       claude --dangerously-skip-permissions -p "$(cat "PROMPT.md")"
   ) 2>&1 | tee "${run_log}"
