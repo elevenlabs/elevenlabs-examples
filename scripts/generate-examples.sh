@@ -6,6 +6,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${REPO_ROOT}" || exit 1
 
+if [[ $# -gt 1 ]]; then
+  echo "Usage: $0 [folder-or-PROMPT.md]" >&2
+  exit 1
+fi
+
+TARGET_PATH="${1:-}"
 TIMESTAMP="$(date +"%Y%m%d-%H%M%S")"
 LOG_DIR="${REPO_ROOT}/tmp/prompt-runs/${TIMESTAMP}"
 CLAUDE_TIMEOUT_SECONDS="${CLAUDE_TIMEOUT_SECONDS:-600}"
@@ -25,11 +31,31 @@ expected_outputs_for_project() {
 }
 
 PROMPT_FILES=()
-while IFS= read -r prompt_file; do
-  PROMPT_FILES+=("${prompt_file}")
-done < <(find "${REPO_ROOT}" -type f -name "PROMPT.md" \
-  -not -path "${REPO_ROOT}/.git/*" \
-  -not -path "*/node_modules/*" | sort)
+if [[ -n "${TARGET_PATH}" ]]; then
+  if [[ -d "${TARGET_PATH}" ]]; then
+    TARGET_PATH="${TARGET_PATH%/}/PROMPT.md"
+  fi
+
+  if [[ ! -f "${TARGET_PATH}" ]]; then
+    echo "Target not found: ${1}" >&2
+    echo "Pass a folder containing PROMPT.md or a direct path to PROMPT.md." >&2
+    exit 1
+  fi
+
+  if [[ "$(basename "${TARGET_PATH}")" != "PROMPT.md" ]]; then
+    echo "Target must be a folder containing PROMPT.md or a PROMPT.md file: ${1}" >&2
+    exit 1
+  fi
+
+  target_dir_abs="$(cd "$(dirname "${TARGET_PATH}")" && pwd)"
+  PROMPT_FILES+=("${target_dir_abs}/PROMPT.md")
+else
+  while IFS= read -r prompt_file; do
+    PROMPT_FILES+=("${prompt_file}")
+  done < <(find "${REPO_ROOT}" -type f -name "PROMPT.md" \
+    -not -path "${REPO_ROOT}/.git/*" \
+    -not -path "*/node_modules/*" | sort)
+fi
 
 if [[ ${#PROMPT_FILES[@]} -eq 0 ]]; then
   echo "No PROMPT.md files found under ${REPO_ROOT}" >&2
@@ -61,6 +87,12 @@ done
 
 mkdir -p "${LOG_DIR}"
 echo "Logs: ${LOG_DIR}"
+
+if [[ -n "${TARGET_PATH}" ]]; then
+  selected_dir="$(dirname "${PROMPT_FILES[0]}")"
+  relative_selected_dir="${selected_dir#${REPO_ROOT}/}"
+  echo "Target: ${relative_selected_dir}"
+fi
 
 echo
 echo "Step 1/2: Pulling latest skills"

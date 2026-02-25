@@ -4,62 +4,92 @@
   </a>
 </p>
 
-This collection of demos and projects showcases the ElevenLabs API and how you can start building next generation AI audio apps with it. Whether you're looking to integrate text-to-speech into your website, create dubbed content, or explore advanced conversational applications, you'll find valuable resources here.
+Prompt-driven ElevenLabs examples for text-to-speech and speech-to-text. Each project includes:
 
-## 🚀 Featured Projects
+- `PROMPT.md` for agent-driven generation and updates
+- `README.md` with manual setup and run steps
 
-### Conversational AI Demos
-These projects offer practical examples of building real-time, voice-driven applications with rich interactivity.
+> The legacy `examples/` folder is being deprecated and can be ignored for new work.
 
-### Text-to-Speech (TTS) Demos
-- **Standard TTS Demo**: A straightforward implementation of our core TTS functionality.
-- **TTS WebSocket Demo with Latency Measurement**: Explore real-time text-to-speech with performance metrics.
+## Current examples
 
-### Native Mac App (Open Source)
-A fully open-source native Mac application that brings ElevenLabs to your desktop. Written by Claude 3.5 and Cursor.
+- [Text-to-Speech Minimal](text-to-speech/minimal/README.md) - Generate an MP3 from text with the ElevenLabs JS SDK.
+- [Speech-to-Text Minimal](speech-to-text/minimal/README.md) - Transcribe local audio files with Scribe v2.
+- [Real-Time Speech-to-Text (Next.js)](speech-to-text/realtime-nextjs/README.md) - Live microphone transcription with VAD in a Next.js app.
 
-### Sound Effects Generation
-Unleash your creativity with our sound effects generation demo. Create custom audio landscapes for your projects!
+## Generate examples from prompts
 
-### AudioNative React Demo
-Embed ElevenLabs' text-to-speech capabilities directly into your React-based websites. This demo shows you how to seamlessly integrate our technology for a native-like audio experience.
+The general prompt-runner workflow is in `scripts/generate-examples.sh` (the replacement for `scripts/generate-from-prompts.sh`) and is exposed as:
 
-### Dubbing API Demo
-Discover how to use our Dubbing API to create multilingual content effortlessly. Perfect for content creators and localization teams!
+```bash
+pnpm run generate:examples
+```
 
-### Pronunciation Dictionaries
-Learn how to work with pronunciation dictionaries to fine-tune the output of our voice models.
+### Prerequisites
 
+- `pnpm`
+- `claude` CLI
+- `perl`
 
-## 🛠 Getting Started
+Install root dependencies first:
 
-To get started with these examples:
+```bash
+pnpm install
+```
 
-1. Clone this repository
-2. Navigate to the project you're interested in
-3. Follow the project-specific README for setup instructions
+### Usage
 
-For detailed API documentation and guides, visit our [Developer Docs](https://elevenlabs.io/docs/api-reference/getting-started).
+Run all example prompts:
 
-## 🤝 Contributing
+```bash
+pnpm run generate:examples
+```
 
-We welcome contributions from the community! Before you start:
+Run only one example folder:
+
+```bash
+pnpm run generate:examples -- speech-to-text/realtime-nextjs
+```
+
+Run a specific prompt file directly:
+
+```bash
+pnpm run generate:examples -- text-to-speech/minimal/PROMPT.md
+```
+
+Optional timeout (seconds) per prompt run:
+
+```bash
+CLAUDE_TIMEOUT_SECONDS=1200 pnpm run generate:examples
+```
+
+Logs are written to `tmp/prompt-runs/<timestamp>/`.
+
+## Try an example directly
+
+Use the project README that matches what you want to test:
+
+- Next.js real-time transcription: [speech-to-text/realtime-nextjs/README.md](speech-to-text/realtime-nextjs/README.md)
+- Speech-to-text CLI minimal: [speech-to-text/minimal/README.md](speech-to-text/minimal/README.md)
+- Text-to-speech CLI minimal: [text-to-speech/minimal/README.md](text-to-speech/minimal/README.md)
+
+## Contributing
+
+We welcome contributions from the community. Before you start:
 
 1. Install the pre-commit hook:
-   ```
+   ```bash
    pip install pre-commit
    pre-commit install
    ```
-2. Check out our [Contributing Guidelines](CONTRIBUTING.md) for more information on how to submit pull requests, report issues, and suggest improvements.
+2. Review [Contributing Guidelines](CONTRIBUTING.md).
 
-## 📚 Learn More
+## Learn more
 
 - [ElevenLabs Developer Docs](https://elevenlabs.io/docs/api-reference/getting-started)
 - [API Reference](https://api.elevenlabs.io/docs)
 - [ElevenLabs app](https://elevenlabs.io/)
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.

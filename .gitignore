@@ -56,3 +56,6 @@ venv
 skills-lock.json
 .claude/
 .kiro/
+
+# next files
+**/.next/
