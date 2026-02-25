@@ -1,16 +1,40 @@
-export const metadata = {
-  title: "Real-Time Transcription",
-  description: "Real-time microphone transcription with ElevenLabs Scribe v2",
+import type { Metadata } from "next";
+import "./globals.css";
+import Link from "next/link";
+import { ElevenLabsLogo, GithubLogo } from "@/components/logos";
+
+export const metadata: Metadata = {
+  title: "Realtime Transcription",
 };
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" className="h-full w-full">
+      <body className="antialiased w-full h-full flex flex-col">
+        <div className="flex flex-col flex-grow w-full items-center justify-center sm:px-4">
+          <nav className="sm:fixed w-full top-0 left-0 grid grid-cols-2 py-4 px-8">
+            <div className="flex">
+              <Link href="/" prefetch={true}>
+                <ElevenLabsLogo className="h-[15px] w-auto hover:text-gray-500" />
+              </Link>
+            </div>
+            <div className="flex gap-4 justify-end">
+              <Link
+                href="https://github.com/elevenlabs/elevenlabs-examples/tree/main/speech-to-text/realtime-nextjs"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="py-0.5"
+                aria-label="View source on GitHub"
+              >
+                <GithubLogo className="w-5 h-5 hover:text-gray-500 text-[#24292f]" />
+              </Link>
+            </div>
+          </nav>
+          {children}
+        </div>
+      </body>
     </html>
   );
 }
