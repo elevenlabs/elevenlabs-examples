@@ -25,7 +25,7 @@ expected_outputs_for_project() {
       printf "%s\n" "package.json" ".env.example" "index.ts" "README.md"
       ;;
     "speech-to-text/realtime-nextjs")
-      printf "%s\n" "package.json" ".env.example" "app/page.tsx" "app/layout.tsx" "README.md"
+      printf "%s\n" "example/package.json" "example/.env.example" "example/app/page.tsx" "example/app/layout.tsx" "example/README.md"
       ;;
     *)
       printf "%s\n" ""
