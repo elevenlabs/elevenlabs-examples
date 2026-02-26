@@ -1,171 +1,207 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useScribe, CommitStrategy } from "@elevenlabs/react";
-import {
-  Conversation,
-  ConversationContent,
-  ConversationEmptyState,
-} from "@/components/ui/conversation";
-import { Button } from "@/components/ui/button";
-import { LiveWaveform } from "@/components/ui/live-waveform";
+
+const EXPECTED_MANUAL_CLOSE_ERROR_PREFIX = "WebSocket closed unexpectedly: 1006";
+
+function isExpectedManualCloseError(message: string) {
+  return message.startsWith(EXPECTED_MANUAL_CLOSE_ERROR_PREFIX);
+}
 
 export default function Home() {
   const [committedSegments, setCommittedSegments] = useState<string[]>([]);
   const [partial, setPartial] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [isLive, setIsLive] = useState(false);
-  const intentionalDisconnectRef = useRef(false);
+  const [error, setError] = useState("");
+  const manualDisconnectRef = useRef(false);
+  const manualDisconnectTimerRef = useRef<number | null>(null);
 
-  // In development, suppress the Next.js error overlay for transient 1006 close
+  const endManualDisconnectWindow = useCallback(() => {
+    manualDisconnectRef.current = false;
+    if (manualDisconnectTimerRef.current !== null) {
+      window.clearTimeout(manualDisconnectTimerRef.current);
+      manualDisconnectTimerRef.current = null;
+    }
+  }, []);
+
+  const startManualDisconnectWindow = useCallback(() => {
+    manualDisconnectRef.current = true;
+    if (manualDisconnectTimerRef.current !== null) {
+      window.clearTimeout(manualDisconnectTimerRef.current);
+    }
+    manualDisconnectTimerRef.current = window.setTimeout(() => {
+      manualDisconnectRef.current = false;
+      manualDisconnectTimerRef.current = null;
+    }, 3000);
+  }, []);
+
   useEffect(() => {
-    if (process.env.NODE_ENV !== "development") return;
+    if (process.env.NODE_ENV !== "development") {
+      return;
+    }
 
-    const handler = (event: ErrorEvent) => {
+    const originalConsoleError = console.error;
+    // Avoid noisy dev overlay for the known 1006 race during user-triggered disconnect.
+    console.error = (...args: unknown[]) => {
+      const [firstArg] = args;
       if (
-        intentionalDisconnectRef.current &&
-        typeof event.message === "string" &&
-        event.message.includes("1006")
+        manualDisconnectRef.current &&
+        typeof firstArg === "string" &&
+        isExpectedManualCloseError(firstArg)
       ) {
-        event.preventDefault();
+        return;
       }
+      originalConsoleError(...args);
     };
 
-    const rejectionHandler = (event: PromiseRejectionEvent) => {
-      const msg = String(event.reason?.message ?? event.reason ?? "");
-      if (intentionalDisconnectRef.current && msg.includes("1006")) {
-        event.preventDefault();
-      }
-    };
-
-    window.addEventListener("error", handler);
-    window.addEventListener("unhandledrejection", rejectionHandler);
     return () => {
-      window.removeEventListener("error", handler);
-      window.removeEventListener("unhandledrejection", rejectionHandler);
+      console.error = originalConsoleError;
+      if (manualDisconnectTimerRef.current !== null) {
+        window.clearTimeout(manualDisconnectTimerRef.current);
+        manualDisconnectTimerRef.current = null;
+      }
     };
   }, []);
 
   const scribe = useScribe({
     modelId: "scribe_v2_realtime",
     commitStrategy: CommitStrategy.VAD,
-    vadSilenceThresholdSecs: 1.0,
-    vadThreshold: 0.5,
+    vadThreshold: 0.4,
+    vadSilenceThresholdSecs: 1.5,
+    minSpeechDurationMs: 100,
+    minSilenceDurationMs: 100,
     onPartialTranscript: (data) => {
       setPartial(data.text);
     },
     onCommittedTranscript: (data) => {
       if (data.text.trim()) {
-        setCommittedSegments((prev) => [data.text.trim(), ...prev]);
+        setCommittedSegments((prev) => [data.text, ...prev]);
       }
       setPartial("");
     },
     onError: (err) => {
-      const msg = err instanceof Error ? err.message : String(err);
-      // Suppress transient 1006 close during intentional disconnect
-      if (
-        intentionalDisconnectRef.current &&
-        msg.includes("1006")
-      ) {
+      const message = err instanceof Error ? err.message : "An error occurred.";
+      if (manualDisconnectRef.current && isExpectedManualCloseError(message)) {
         return;
       }
-      setError(msg);
+      setError(message);
     },
     onDisconnect: () => {
-      setIsLive(false);
-      // Clear the intentional-disconnect guard after a brief window
-      setTimeout(() => {
-        intentionalDisconnectRef.current = false;
-      }, 500);
+      endManualDisconnectWindow();
     },
   });
 
-  const isConnected = scribe.isConnected;
+  const isLive =
+    scribe.status === "connecting" ||
+    scribe.status === "connected" ||
+    scribe.status === "transcribing";
+
+  const isConnected = scribe.status === "connected" || scribe.status === "transcribing";
+  const liveLine = partial.trim() || "Listening...";
 
   const toggle = useCallback(async () => {
+    setError("");
     if (isLive) {
-      intentionalDisconnectRef.current = true;
+      startManualDisconnectWindow();
       scribe.disconnect();
       setPartial("");
-      setIsLive(false);
-    } else {
-      setError(null);
-      try {
-        const res = await fetch("/api/scribe-token");
-        const data = await res.json();
-        if (!res.ok) {
-          setError(data.error || "Failed to get token");
-          return;
-        }
-        await scribe.connect({
-          token: data.token,
-          microphone: {
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true,
-          },
-        });
-        setIsLive(true);
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : "Connection failed";
-        setError(msg);
-      }
+      return;
     }
-  }, [isLive, scribe]);
+
+    endManualDisconnectWindow();
+
+    try {
+      const res = await fetch("/api/scribe-token");
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Failed to fetch token.");
+        return;
+      }
+
+      await scribe.connect({
+        token: data.token,
+        microphone: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to connect.";
+      setError(message);
+    }
+  }, [isLive, scribe, startManualDisconnectWindow, endManualDisconnectWindow]);
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-8 row-start-2 items-center w-full max-w-lg">
-        <section className="rounded-3xl w-full border border-border/70 bg-background/95 p-6 shadow-sm">
-          <header className="mb-4">
-            <h1 className="text-lg font-medium">
-              {isConnected ? "Transcribing" : "Disconnected"}
-            </h1>
-          </header>
-          <div className="flex flex-col gap-4 items-center">
-            {isLive && (
-              <LiveWaveform
-                active={true}
-                mode="static"
-                height={48}
-                barWidth={3}
-                fadeEdges={true}
-              />
-            )}
-            <Button
-              onClick={toggle}
-              variant="outline"
-              size="lg"
-              className="rounded-full"
-            >
-              {isLive ? "Stop transcription" : "Start transcription"}
-            </Button>
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
-            <Conversation className="h-[300px] w-full">
-              <ConversationContent className="flex flex-col gap-2">
-                {committedSegments.length === 0 && !isLive && (
-                  <ConversationEmptyState
-                    title="No transcription yet"
-                    description="Press Start to begin live transcription"
-                  />
-                )}
-                {isLive && (
-                  <p className="text-sm italic text-muted-foreground">
-                    {partial.trim() || "Listening..."}
-                  </p>
-                )}
-                {committedSegments.map((text, i) => (
-                  <p key={i} className="text-sm">
-                    {text}
-                  </p>
-                ))}
-              </ConversationContent>
-            </Conversation>
-          </div>
-        </section>
-      </main>
-    </div>
+    <main
+      style={{
+        maxWidth: 600,
+        margin: "2rem auto",
+        fontFamily: "system-ui, sans-serif",
+        padding: "0 1rem",
+      }}
+    >
+      <h1 style={{ fontSize: "1.5rem", marginBottom: "0.25rem" }}>
+        Real-Time Transcription
+      </h1>
+      <p style={{ marginTop: 0, marginBottom: "1rem", color: "#888", fontSize: "0.9rem" }}>
+        Microphone transcription powered by ElevenLabs Scribe v2
+      </p>
+
+      <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
+        <span
+          style={{
+            display: "inline-block",
+            padding: "0.25rem 0.75rem",
+            borderRadius: "4px",
+            fontSize: "0.85rem",
+            fontWeight: 500,
+            color: isConnected ? "#166534" : "#555",
+            backgroundColor: isConnected ? "#dcfce7" : "#f0f0f0",
+          }}
+        >
+          {isConnected ? "connected" : "disconnected"}
+        </span>
+
+        <button
+          onClick={toggle}
+          disabled={false}
+          style={{
+            padding: "0.4rem 1.25rem",
+            fontSize: "0.95rem",
+            cursor: isLive ? "pointer" : "pointer",
+            border: "1px solid #ccc",
+            borderRadius: "4px",
+            background: isLive ? "#fee2e2" : "#f0f0f0",
+          }}
+        >
+          {isLive ? "Stop" : "Start"}
+        </button>
+      </div>
+
+      {error && (
+        <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>
+      )}
+
+      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+        {isLive && (
+          <li
+            style={{
+              color: "gray",
+              fontStyle: "italic",
+              marginBottom: "0.5rem",
+            }}
+          >
+            {liveLine}
+          </li>
+        )}
+        {committedSegments.map((text, i) => (
+          <li key={i} style={{ marginBottom: "0.5rem", color: "#000" }}>
+            {text}
+          </li>
+        ))}
+      </ul>
+    </main>
   );
 }
