@@ -33,4 +33,3 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - After a pause, VAD commits the segment and it appears as regular text.
 - Committed segments are shown in reverse chronological order (newest first).
 - Click **Stop** to end the session.
-- When you stop a session, the underlying WebSocket closes with a transient `1006` code — this is expected behavior and is **not** shown as an app error.
