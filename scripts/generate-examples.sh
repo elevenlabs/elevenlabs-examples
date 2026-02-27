@@ -15,7 +15,7 @@ TARGET_PATH="${1:-}"
 TIMESTAMP="$(date +"%Y%m%d-%H%M%S")"
 LOG_DIR="${REPO_ROOT}/tmp/prompt-runs/${TIMESTAMP}"
 CLAUDE_TIMEOUT_SECONDS="${CLAUDE_TIMEOUT_SECONDS:-1200}"
-CLAUDE_MODEL="${CLAUDE_MODEL:-opus}"
+CLAUDE_MODEL="${CLAUDE_MODEL:-sonnet}"
 
 expected_outputs_for_project() {
   case "$1" in

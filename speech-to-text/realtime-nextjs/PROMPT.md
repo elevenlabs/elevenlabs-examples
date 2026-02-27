@@ -1,5 +1,5 @@
-Use the `speech-to-text` skill from the installed `elevenlabs/skills` package.
-Follow the design guidelines in `DESIGN.md` at the repo root.
+Before writing any code, invoke the `/speech-to-text` skill to learn the correct
+ElevenLabs SDK patterns. Then read `DESIGN.md` at the repo root for styling rules.
 
 Prerequisite: `setup.sh` has already been run. `example/` is ready with
 dependencies installed and template layout in place.
