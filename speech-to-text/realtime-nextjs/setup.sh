@@ -36,4 +36,4 @@ if [ -f "$DIR/.env" ]; then
 fi
 
 # Install dependencies
-pnpm install
+pnpm install --config.confirmModulesPurge=false

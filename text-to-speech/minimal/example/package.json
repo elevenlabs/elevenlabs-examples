@@ -1,0 +1,13 @@
+{
+  "type": "module",
+  "scripts": {
+    "start": "tsx index.ts"
+  },
+  "dependencies": {
+    "@elevenlabs/elevenlabs-js": "latest",
+    "dotenv": "latest"
+  },
+  "devDependencies": {
+    "tsx": "latest"
+  }
+}

@@ -1,6 +1,4 @@
 {
-  "name": "elevenlabs-tts-minimal",
-  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "start": "tsx index.ts"

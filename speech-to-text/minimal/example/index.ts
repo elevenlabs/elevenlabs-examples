@@ -1,17 +1,20 @@
-import "dotenv/config";
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 import { createReadStream } from "fs";
+import { config } from "dotenv";
 
-const inputPath = process.argv[2] || "./audio.mp3";
+config();
+
+const audioPath = process.argv[2] || "./audio.mp3";
 
 try {
   const client = new ElevenLabsClient();
   const result = await client.speechToText.convert({
-    file: createReadStream(inputPath),
+    file: createReadStream(audioPath),
     modelId: "scribe_v2",
   });
+
   console.log(result.text);
 } catch (error) {
-  console.error("Transcription failed:", (error as Error).message);
+  console.error(`Transcription failed: ${error instanceof Error ? error.message : String(error)}`);
   process.exit(1);
 }

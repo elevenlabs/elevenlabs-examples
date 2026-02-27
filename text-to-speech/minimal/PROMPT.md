@@ -1,44 +1,18 @@
-Use the `text-to-speech` skill from the installed `elevenlabs/skills` package.
+Before writing any code, invoke the `/text-to-speech` skill to learn the correct
+ElevenLabs SDK patterns.
 
-You are in the `text-to-speech/minimal` project folder. Create a minimal runnable TypeScript example that generates an MP3 from text using ElevenLabs Text-to-Speech.
+Prerequisite: `setup.sh` has already been run. `example/` is ready with
+dependencies installed.
 
-Requirements:
-- Keep this example intentionally small and easy to read.
-- Only create/update files inside the current folder.
-- Use Node.js + TypeScript (no frameworks).
+Implement in `example/` only.
 
-Create these files:
-1. `package.json`
-   - Include scripts:
-     - `start`: `tsx index.ts`
-   - Include dependencies:
-     - `@elevenlabs/elevenlabs-js`
-     - `dotenv`
-   - Set dependency versions to `"latest"` (do not use pinned ranges like `^1.0.0`)
-   - Include devDependencies:
-     - `tsx`
-   - Set devDependency versions to `"latest"`
-2. `.env.example`
-   - Include `ELEVENLABS_API_KEY=`
-3. `index.ts`
-   - Load env vars from `.env`.
-   - Read text from CLI args (fallback to a short default sentence).
-   - Generate speech with:
-     - `voiceId: "JBFqnCBsd6RMkjVDRZzb"`
-     - `modelId: "eleven_multilingual_v2"`
-   - Write output audio to `output.mp3`.
-   - Print success message with output path.
-   - Handle API/file errors with a readable message.
-4. `README.md`
-   - Short project description.
-   - Setup steps:
-     - copy `.env.example` to `.env`
-     - add API key
-     - install deps (`pnpm install`)
-   - Run example command with a quoted text sample.
+## `index.ts`
 
-Acceptance checklist:
-- Minimal files only.
-- Uses the `text-to-speech` skill patterns and ElevenLabs JS SDK.
-- `pnpm install` succeeds without manual edits.
-- Running `pnpm run start -- "Hello from ElevenLabs"` writes `output.mp3`.
+Minimal script that generates an MP3 from text using ElevenLabs Text-to-Speech.
+
+- Load env vars from `.env`.
+- Read text from CLI args; fall back to a short default sentence.
+- Generate speech with `voiceId: "JBFqnCBsd6RMkjVDRZzb"` and `modelId: "eleven_multilingual_v2"`.
+- Write output audio to `output.mp3`.
+- Print success message with the output path.
+- Handle errors with a readable message.
