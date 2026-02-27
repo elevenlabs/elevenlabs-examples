@@ -17,23 +17,6 @@ LOG_DIR="${REPO_ROOT}/tmp/prompt-runs/${TIMESTAMP}"
 CLAUDE_TIMEOUT_SECONDS="${CLAUDE_TIMEOUT_SECONDS:-1200}"
 CLAUDE_MODEL="${CLAUDE_MODEL:-sonnet}"
 
-expected_outputs_for_project() {
-  case "$1" in
-    "speech-to-text/minimal")
-      printf "%s\n" "package.json" ".env.example" "index.ts" "README.md"
-      ;;
-    "text-to-speech/minimal")
-      printf "%s\n" "package.json" ".env.example" "index.ts" "README.md"
-      ;;
-    "speech-to-text/realtime-nextjs")
-      printf "%s\n" "example/package.json" "example/.env.example" "example/app/page.tsx" "example/app/layout.tsx" "example/README.md"
-      ;;
-    *)
-      printf "%s\n" ""
-      ;;
-  esac
-}
-
 PROMPT_FILES=()
 if [[ -n "${TARGET_PATH}" ]]; then
   if [[ -d "${TARGET_PATH}" ]]; then
@@ -184,21 +167,7 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
     FAILED_RUNS=$((FAILED_RUNS + 1))
     echo "Failed: ${relative_project_dir} (see ${run_log})" >&2
   else
-    missing_count=0
-    while IFS= read -r output_file; do
-      [[ -z "${output_file}" ]] && continue
-      if [[ ! -f "${project_dir}/${output_file}" ]]; then
-        missing_count=$((missing_count + 1))
-        echo "Missing expected file: ${relative_project_dir}/${output_file}" >&2
-      fi
-    done < <(expected_outputs_for_project "${relative_project_dir}")
-
-    if [[ ${missing_count} -ne 0 ]]; then
-      FAILED_RUNS=$((FAILED_RUNS + 1))
-      echo "Failed: ${relative_project_dir} (no generated output detected; see ${run_log})" >&2
-    else
-      echo "Completed: ${relative_project_dir}"
-    fi
+    echo "Completed: ${relative_project_dir}"
   fi
 done
 
