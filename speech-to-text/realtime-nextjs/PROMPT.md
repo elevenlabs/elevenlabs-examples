@@ -18,7 +18,6 @@ Implement:
 2. `app/page.tsx`
 - Build realtime mic transcription UI:
   - Start/Stop button
-  - connected/disconnected status badge (show connecting state when applicable)
   - listening state
   - live waveform visualization while listening
   - live partial transcript
@@ -26,7 +25,12 @@ Implement:
   - visible error state (human-readable)
 - UI guidance:
   - prefer preloaded `LiveWaveform` from `example/components/ui` when available
-  - decorative animation and polish are allowed
+  - keep the UI minimal and utilitarian (compact spacing, neutral colors, no decorative hero/nav elements)
+  - use a flat layout with as few visual containers as possible (avoid nested cards/panels)
+  - do not put every state block in its own box; rely on spacing and typography first
+  - render the live waveform inline (no extra bordered/background container around the waveform itself)
+  - avoid decorative styles: gradients, heavy shadows, oversized rounded cards, ornamental icons
+  - prefer one simple control area and one simple history area; keep everything else unboxed unless necessary for readability
   - avoid adding custom UI components for this task unless strictly required
   - prioritize correctness/reliability of transcription state over styling
 - Implement realtime transcription using ElevenLabs React SDK patterns from the `speech-to-text` skill and the client-side streaming guide.
@@ -50,7 +54,7 @@ Implement:
   - Handle SDK websocket close/error events gracefully and avoid uncaught promise rejections.
   - If websocket closes with code `1006`, show a friendly error message (e.g. "Connection dropped. Please try again.").
   - Reset transient state on disconnect, keep committed history, and allow reconnect via Start with a fresh token.
-  - Do not leave UI stuck in connecting/connected state after disconnect.
+  - Do not leave UI stuck in a stale state after disconnect.
 
 Completion State: 
 Go through the README file and make sure everything works.
