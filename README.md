@@ -13,9 +13,9 @@ Prompt-driven ElevenLabs examples for text-to-speech and speech-to-text. Each pr
 
 ## Current examples
 
-- [Text-to-Speech Minimal](text-to-speech/minimal/README.md) - Generate an MP3 from text with the ElevenLabs JS SDK.
-- [Speech-to-Text Minimal](speech-to-text/minimal/README.md) - Transcribe local audio files with Scribe v2.
-- [Real-Time Speech-to-Text (Next.js)](speech-to-text/realtime-nextjs/README.md) - Live microphone transcription with VAD in a Next.js app.
+- [Text-to-Speech Minimal](text-to-speech/typescript/minimal/README.md) - Generate an MP3 from text with the ElevenLabs JS SDK.
+- [Speech-to-Text Minimal](speech-to-text/typescript/minimal/README.md) - Transcribe local audio files with Scribe v2.
+- [Real-Time Speech-to-Text (Next.js)](speech-to-text/nextjs/realtime/README.md) - Live microphone transcription with VAD in a Next.js app.
 
 ## Generate examples from prompts
 
@@ -47,13 +47,13 @@ pnpm run generate:examples
 Run only one example folder:
 
 ```bash
-pnpm run generate:examples -- speech-to-text/realtime-nextjs
+pnpm run generate:examples -- speech-to-text/nextjs/realtime
 ```
 
 Run a specific prompt file directly:
 
 ```bash
-pnpm run generate:examples -- text-to-speech/minimal/PROMPT.md
+pnpm run generate:examples -- text-to-speech/typescript/minimal/PROMPT.md
 ```
 
 Optional timeout (seconds) per prompt run:
@@ -68,9 +68,9 @@ Logs are written to `tmp/prompt-runs/<timestamp>/`.
 
 Use the project README that matches what you want to test:
 
-- Next.js real-time transcription: [speech-to-text/realtime-nextjs/README.md](speech-to-text/realtime-nextjs/README.md)
-- Speech-to-text CLI minimal: [speech-to-text/minimal/README.md](speech-to-text/minimal/README.md)
-- Text-to-speech CLI minimal: [text-to-speech/minimal/README.md](text-to-speech/minimal/README.md)
+- Next.js real-time transcription: [speech-to-text/nextjs/realtime/README.md](speech-to-text/nextjs/realtime/README.md)
+- Speech-to-text CLI minimal: [speech-to-text/typescript/minimal/README.md](speech-to-text/typescript/minimal/README.md)
+- Text-to-speech CLI minimal: [text-to-speech/typescript/minimal/README.md](text-to-speech/typescript/minimal/README.md)
 
 ## Contributing
 
