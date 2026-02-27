@@ -1,33 +1,40 @@
-import Image from "next/image";
-
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white font-sans text-zinc-900">
-      <nav>
-        <div className="mx-auto w-full max-w-6xl px-6 py-4 sm:px-10 lg:px-14">
-          <Image
-            src="/elevenlabs-logo-black.svg"
-            alt="ElevenLabs logo"
-            width={132}
-            height={17}
-            priority
-          />
-        </div>
-      </nav>
-
-      <main className="mx-auto w-full max-w-6xl px-6 py-14 sm:px-10 sm:py-16 lg:px-14 lg:py-20">
-        <header className="max-w-4xl space-y-4 text-left">
-          <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+    <main className="min-h-screen bg-white text-zinc-900">
+      <div className="mx-auto w-full max-w-2xl px-6 py-12 sm:py-16">
+        <header className="space-y-2">
+          <h1 className="text-2xl font-medium tracking-tight sm:text-3xl">
             Realtime Transcription
           </h1>
-          <h2 className="max-w-3xl text-xl leading-relaxed font-normal text-zinc-600">
-            A minimal realtime transcription demo powered by ElevenLabs Scribe.
-          </h2>
+          <p className="text-sm text-zinc-500">
+            Live and committed speech transcription with ElevenLabs Scribe.
+          </p>
         </header>
-        <section className="pt-14 text-left">
-          <p className="text-xl leading-relaxed text-zinc-500">demo goes here</p>
+
+        <section className="mt-6 space-y-4 rounded-lg border border-zinc-200 p-4 sm:p-5">
+          <div className="flex items-center justify-between gap-4">
+            <button className="rounded-md bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-900">
+              Start
+            </button>
+            <p className="text-xs text-zinc-500">status</p>
+          </div>
+
+          <div className="h-9 text-xs text-zinc-400">
+            waveform goes here
+          </div>
+
+          <div className="min-h-12 rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-500">
+            live transcript goes here
+          </div>
         </section>
-      </main>
-    </div>
+
+        <section className="mt-6">
+          <h2 className="text-sm font-medium text-zinc-700">History</h2>
+          <div className="mt-2 rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-500">
+            transcription history goes here
+          </div>
+        </section>
+      </div>
+    </main>
   );
 }

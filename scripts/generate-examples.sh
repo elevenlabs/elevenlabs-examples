@@ -15,6 +15,7 @@ TARGET_PATH="${1:-}"
 TIMESTAMP="$(date +"%Y%m%d-%H%M%S")"
 LOG_DIR="${REPO_ROOT}/tmp/prompt-runs/${TIMESTAMP}"
 CLAUDE_TIMEOUT_SECONDS="${CLAUDE_TIMEOUT_SECONDS:-600}"
+CLAUDE_MODEL="${CLAUDE_MODEL:-opus}"
 
 expected_outputs_for_project() {
   case "$1" in
@@ -140,6 +141,7 @@ fi
 echo
 echo "Step 2/2: Running prompts with fresh Claude processes"
 echo "Claude timeout per prompt: ${CLAUDE_TIMEOUT_SECONDS}s"
+echo "Claude model: ${CLAUDE_MODEL}"
 FAILED_RUNS=0
 
 for prompt_file in "${PROMPT_FILES[@]}"; do
@@ -152,9 +154,15 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
   echo "Running: ${relative_project_dir}/PROMPT.md"
   (
     cd "${project_dir}" || exit 1
+    prompt_text="$(cat "PROMPT.md")"
+    claude_cmd=(claude --dangerously-skip-permissions)
+    if [[ -n "${CLAUDE_MODEL}" ]]; then
+      claude_cmd+=(--model "${CLAUDE_MODEL}")
+    fi
+    claude_cmd+=(-p "${prompt_text}")
     run_with_timeout \
       "${CLAUDE_TIMEOUT_SECONDS}" \
-      claude --dangerously-skip-permissions -p "$(cat "PROMPT.md")"
+      "${claude_cmd[@]}"
   ) 2>&1 | tee "${run_log}"
   RUN_EXIT=${PIPESTATUS[0]}
   printf "exit_code=%s\n" "${RUN_EXIT}" >> "${run_log}"
