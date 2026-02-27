@@ -136,21 +136,30 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
   echo
   echo "Running: ${relative_project_dir}/PROMPT.md"
 
-  # Run setup script if present
+  # Run setup script if present, but skip if example/ already exists
   if [[ -f "${project_dir}/setup.sh" ]]; then
-    echo "Running setup: ${relative_project_dir}/setup.sh"
-    bash "${project_dir}/setup.sh" 2>&1 | tee -a "${run_log}"
-    SETUP_EXIT=${PIPESTATUS[0]}
-    if [[ ${SETUP_EXIT} -ne 0 ]]; then
-      FAILED_RUNS=$((FAILED_RUNS + 1))
-      echo "Setup failed: ${relative_project_dir} (see ${run_log})" >&2
-      continue
+    if [[ -d "${project_dir}/example" ]]; then
+      echo "Skipping setup (example/ already exists): ${relative_project_dir}/setup.sh"
+    else
+      echo "Running setup: ${relative_project_dir}/setup.sh"
+      bash "${project_dir}/setup.sh" 2>&1 | tee -a "${run_log}"
+      SETUP_EXIT=${PIPESTATUS[0]}
+      if [[ ${SETUP_EXIT} -ne 0 ]]; then
+        FAILED_RUNS=$((FAILED_RUNS + 1))
+        echo "Setup failed: ${relative_project_dir} (see ${run_log})" >&2
+        continue
+      fi
     fi
   fi
 
   (
     cd "${project_dir}" || exit 1
     prompt_text="$(cat "PROMPT.md")"
+    if [[ -d "example" ]]; then
+      prompt_text="IMPORTANT: Check the existing code in example/ first. Only make changes if the requirements below are not already met. If everything is already implemented correctly, confirm that no changes are needed.
+
+${prompt_text}"
+    fi
     claude_cmd=(claude --dangerously-skip-permissions)
     if [[ -n "${CLAUDE_MODEL}" ]]; then
       claude_cmd+=(--model "${CLAUDE_MODEL}")
