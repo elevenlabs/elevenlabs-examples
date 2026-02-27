@@ -1,8 +1,6 @@
-Before writing any code, invoke the `/speech-to-text` skill to learn the correct
-ElevenLabs SDK patterns.
+Before writing any code, invoke the `/speech-to-text` skill to learn the correct ElevenLabs SDK patterns.
 
-Prerequisite: `setup.sh` has already been run. `example/` is ready with
-dependencies installed and a sample `audio.mp3`.
+Prerequisite: `setup.sh` has already been run. `example/` is ready with dependencies installed and a sample `audio.mp3`.
 
 Implement in `example/` only.
 
