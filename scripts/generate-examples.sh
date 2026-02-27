@@ -14,7 +14,7 @@ fi
 TARGET_PATH="${1:-}"
 TIMESTAMP="$(date +"%Y%m%d-%H%M%S")"
 LOG_DIR="${REPO_ROOT}/tmp/prompt-runs/${TIMESTAMP}"
-CLAUDE_TIMEOUT_SECONDS="${CLAUDE_TIMEOUT_SECONDS:-600}"
+CLAUDE_TIMEOUT_SECONDS="${CLAUDE_TIMEOUT_SECONDS:-1200}"
 CLAUDE_MODEL="${CLAUDE_MODEL:-opus}"
 
 expected_outputs_for_project() {
@@ -152,6 +152,19 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
 
   echo
   echo "Running: ${relative_project_dir}/PROMPT.md"
+
+  # Run setup script if present
+  if [[ -f "${project_dir}/setup.sh" ]]; then
+    echo "Running setup: ${relative_project_dir}/setup.sh"
+    bash "${project_dir}/setup.sh" 2>&1 | tee -a "${run_log}"
+    SETUP_EXIT=${PIPESTATUS[0]}
+    if [[ ${SETUP_EXIT} -ne 0 ]]; then
+      FAILED_RUNS=$((FAILED_RUNS + 1))
+      echo "Setup failed: ${relative_project_dir} (see ${run_log})" >&2
+      continue
+    fi
+  fi
+
   (
     cd "${project_dir}" || exit 1
     prompt_text="$(cat "PROMPT.md")"
