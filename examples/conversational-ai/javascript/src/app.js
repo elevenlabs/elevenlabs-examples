@@ -2,14 +2,154 @@
 import { Conversation } from '@elevenlabs/client';
 
 let conversation = null;
+const startButton = document.getElementById('startButton');
+const endButton = document.getElementById('endButton');
+const inputDeviceSelect = document.getElementById('inputDeviceSelect');
+const outputDeviceSelect = document.getElementById('outputDeviceSelect');
+const outputSupportNotice = document.getElementById('outputSupportNotice');
 
-async function requestMicrophonePermission() {
+function supportsSetSinkId() {
+    return typeof HTMLAudioElement !== 'undefined' && 'setSinkId' in HTMLAudioElement.prototype;
+}
+
+function getAudioConstraintForInputDevice(inputDeviceId) {
+    if (!inputDeviceId) {
+        return true;
+    }
+
+    return {
+        deviceId: { exact: inputDeviceId }
+    };
+}
+
+function stopStreamTracks(stream) {
+    if (!stream) {
+        return;
+    }
+
+    stream.getTracks().forEach((track) => track.stop());
+}
+
+async function requestMicrophonePermission(inputDeviceId, options = { silent: false }) {
+    let stream;
+
     try {
-        await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream = await navigator.mediaDevices.getUserMedia({
+            audio: getAudioConstraintForInputDevice(inputDeviceId)
+        });
+
         return true;
     } catch (error) {
-        console.error('Microphone permission denied:', error);
+        if (!options.silent) {
+            console.error('Microphone permission denied:', error);
+        }
+
         return false;
+    } finally {
+        stopStreamTracks(stream);
+    }
+}
+
+function getDeviceLabel(device, index, fallbackPrefix) {
+    if (device.label) {
+        return device.label;
+    }
+
+    return `${fallbackPrefix} ${index + 1}`;
+}
+
+function populateDeviceSelect(selectElement, devices, config) {
+    const { defaultLabel, selectedValue } = config;
+    selectElement.innerHTML = '';
+
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = defaultLabel;
+    selectElement.appendChild(defaultOption);
+
+    devices.forEach((device, index) => {
+        const option = document.createElement('option');
+        option.value = device.deviceId;
+        option.textContent = getDeviceLabel(
+            device,
+            index,
+            device.kind === 'audioinput' ? 'Microphone' : 'Speaker'
+        );
+        selectElement.appendChild(option);
+    });
+
+    selectElement.value = selectedValue && devices.some((device) => device.deviceId === selectedValue)
+        ? selectedValue
+        : '';
+}
+
+async function refreshAudioDeviceSelectors() {
+    if (!navigator.mediaDevices?.enumerateDevices || !inputDeviceSelect || !outputDeviceSelect) {
+        return;
+    }
+
+    try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const inputDevices = devices.filter((device) => device.kind === 'audioinput');
+        const outputDevices = devices.filter((device) => device.kind === 'audiooutput');
+
+        const selectedInputId = inputDeviceSelect.value;
+        const selectedOutputId = outputDeviceSelect.value;
+
+        populateDeviceSelect(inputDeviceSelect, inputDevices, {
+            defaultLabel: 'Default microphone',
+            selectedValue: selectedInputId
+        });
+
+        populateDeviceSelect(outputDeviceSelect, outputDevices, {
+            defaultLabel: 'Default speaker',
+            selectedValue: selectedOutputId
+        });
+
+        if (!supportsSetSinkId()) {
+            outputDeviceSelect.value = '';
+            outputDeviceSelect.disabled = true;
+            if (outputSupportNotice) {
+                outputSupportNotice.textContent = 'Speaker selection is not supported in this browser. Default output will be used.';
+            }
+            return;
+        }
+
+        outputDeviceSelect.disabled = false;
+        if (outputSupportNotice) {
+            outputSupportNotice.textContent = '';
+        }
+    } catch (error) {
+        console.error('Failed to enumerate audio devices:', error);
+    }
+}
+
+function getSelectedInputDeviceId() {
+    if (!inputDeviceSelect) {
+        return undefined;
+    }
+
+    return inputDeviceSelect.value || undefined;
+}
+
+function getSelectedOutputDeviceId() {
+    if (!outputDeviceSelect || !supportsSetSinkId()) {
+        return undefined;
+    }
+
+    return outputDeviceSelect.value || undefined;
+}
+
+async function initializeAudioDeviceSelection() {
+    const hasPermission = await requestMicrophonePermission(undefined, { silent: true });
+    if (!hasPermission) {
+        console.warn('Microphone permission was not granted during initialization. Device labels may be hidden.');
+    }
+
+    await refreshAudioDeviceSelectors();
+
+    if (navigator.mediaDevices?.addEventListener) {
+        navigator.mediaDevices.addEventListener('devicechange', refreshAudioDeviceSelectors);
     }
 }
 
@@ -47,11 +187,11 @@ function updateSpeakingStatus(mode) {
 }
 
 async function startConversation() {
-    const startButton = document.getElementById('startButton');
-    const endButton = document.getElementById('endButton');
-    
+    const selectedInputDeviceId = getSelectedInputDeviceId();
+    const selectedOutputDeviceId = getSelectedOutputDeviceId();
+
     try {
-        const hasPermission = await requestMicrophonePermission();
+        const hasPermission = await requestMicrophonePermission(selectedInputDeviceId);
         if (!hasPermission) {
             alert('Microphone permission is required for the conversation.');
             return;
@@ -62,18 +202,24 @@ async function startConversation() {
         
         conversation = await Conversation.startSession({
             signedUrl: signedUrl,
+            inputDeviceId: selectedInputDeviceId,
+            outputDeviceId: selectedOutputDeviceId,
             //agentId: agentId, // You can switch to agentID for public agents
             onConnect: () => {
                 console.log('Connected');
                 updateStatus(true);
-                startButton.disabled = true;
-                endButton.disabled = false;
+                if (startButton && endButton) {
+                    startButton.disabled = true;
+                    endButton.disabled = false;
+                }
             },
             onDisconnect: () => {
                 console.log('Disconnected');
                 updateStatus(false);
-                startButton.disabled = false;
-                endButton.disabled = true;
+                if (startButton && endButton) {
+                    startButton.disabled = false;
+                    endButton.disabled = true;
+                }
                 updateSpeakingStatus({ mode: 'listening' }); // Reset to listening mode on disconnect
             },
             onError: (error) => {
@@ -98,8 +244,15 @@ async function endConversation() {
     }
 }
 
-document.getElementById('startButton').addEventListener('click', startConversation);
-document.getElementById('endButton').addEventListener('click', endConversation);
+if (startButton) {
+    startButton.addEventListener('click', startConversation);
+}
+
+if (endButton) {
+    endButton.addEventListener('click', endConversation);
+}
+
+initializeAudioDeviceSelection();
 
 window.addEventListener('error', function(event) {
     console.error('Global error:', event.error);
