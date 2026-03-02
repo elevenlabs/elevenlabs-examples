@@ -62,8 +62,6 @@ pnpm run generate -v                          # verbose output
 pnpm run generate -m opus -t 1200 -v          # combine flags
 ```
 
-Logs are written to `tmp/prompt-runs/<timestamp>/`.
-
 ## Try an example directly
 
 Each example has an `example/` folder with a README containing setup and run instructions. See the links in [Current examples](#current-examples) above.

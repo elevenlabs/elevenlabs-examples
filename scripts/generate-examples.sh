@@ -33,8 +33,6 @@ if [[ $# -gt 1 ]]; then
 fi
 
 TARGET_PATH="${1:-}"
-TIMESTAMP="$(date +"%Y%m%d-%H%M%S")"
-LOG_DIR="${REPO_ROOT}/tmp/prompt-runs/${TIMESTAMP}"
 
 PROMPT_FILES=()
 if [[ -n "${TARGET_PATH}" ]]; then
@@ -159,17 +157,13 @@ format_token_display() {
 }
 
 extract_json_number_for_keys() {
-  local file_path="$1"
+  local json_text="$1"
   shift
-  local json_text key value
+  local flattened_json key value
 
-  if [[ ! -f "${file_path}" ]]; then
-    return 0
-  fi
-
-  json_text="$(tr -d '\n' < "${file_path}")"
+  flattened_json="$(printf "%s" "${json_text}" | tr -d '\n')"
   for key in "$@"; do
-    value="$(printf "%s" "${json_text}" | sed -nE "s/.*\"${key}\"[[:space:]]*:[[:space:]]*([0-9]+).*/\\1/p")"
+    value="$(printf "%s" "${flattened_json}" | sed -nE "s/.*\"${key}\"[[:space:]]*:[[:space:]]*([0-9]+).*/\\1/p")"
     if [[ -n "${value}" ]]; then
       printf "%s\n" "${value}"
       return 0
@@ -178,7 +172,7 @@ extract_json_number_for_keys() {
 }
 
 extract_with_jq() {
-  local file_path="$1"
+  local json_text="$1"
   local jq_filter="$2"
   local value
 
@@ -186,7 +180,7 @@ extract_with_jq() {
     return 1
   fi
 
-  value="$(jq -r "${jq_filter}" "${file_path}" 2>/dev/null || true)"
+  value="$(printf "%s" "${json_text}" | jq -r "${jq_filter}" 2>/dev/null || true)"
   if [[ "${value}" == "null" ]]; then
     value=""
   fi
@@ -199,7 +193,7 @@ extract_with_jq() {
 }
 
 extract_claude_usage() {
-  local output_file="$1"
+  local output_json="$1"
   local input_for_total=0
   local output_for_total=0
   local cache_write_for_total=0
@@ -215,18 +209,18 @@ extract_claude_usage() {
   CLAUDE_CACHE_READ_TOKENS=""
   CLAUDE_TOTAL_TOKENS=""
 
-  CLAUDE_INPUT_TOKENS="$(extract_with_jq "${output_file}" '.usage.input_tokens // .usage.inputTokens // empty')"
-  CLAUDE_OUTPUT_TOKENS="$(extract_with_jq "${output_file}" '.usage.output_tokens // .usage.outputTokens // empty')"
-  CLAUDE_CACHE_WRITE_TOKENS="$(extract_with_jq "${output_file}" '.usage.cache_creation_input_tokens // .usage.cacheCreationInputTokens // empty')"
-  CLAUDE_CACHE_READ_TOKENS="$(extract_with_jq "${output_file}" '.usage.cache_read_input_tokens // .usage.cacheReadInputTokens // empty')"
-  CLAUDE_TOTAL_TOKENS="$(extract_with_jq "${output_file}" '.usage.total_tokens // .usage.totalTokens // empty')"
+  CLAUDE_INPUT_TOKENS="$(extract_with_jq "${output_json}" '.usage.input_tokens // .usage.inputTokens // empty')"
+  CLAUDE_OUTPUT_TOKENS="$(extract_with_jq "${output_json}" '.usage.output_tokens // .usage.outputTokens // empty')"
+  CLAUDE_CACHE_WRITE_TOKENS="$(extract_with_jq "${output_json}" '.usage.cache_creation_input_tokens // .usage.cacheCreationInputTokens // empty')"
+  CLAUDE_CACHE_READ_TOKENS="$(extract_with_jq "${output_json}" '.usage.cache_read_input_tokens // .usage.cacheReadInputTokens // empty')"
+  CLAUDE_TOTAL_TOKENS="$(extract_with_jq "${output_json}" '.usage.total_tokens // .usage.totalTokens // empty')"
 
   if [[ -z "${CLAUDE_INPUT_TOKENS}${CLAUDE_OUTPUT_TOKENS}${CLAUDE_CACHE_WRITE_TOKENS}${CLAUDE_CACHE_READ_TOKENS}${CLAUDE_TOTAL_TOKENS}" ]]; then
-    CLAUDE_INPUT_TOKENS="$(extract_json_number_for_keys "${output_file}" "input_tokens" "inputTokens")"
-    CLAUDE_OUTPUT_TOKENS="$(extract_json_number_for_keys "${output_file}" "output_tokens" "outputTokens")"
-    CLAUDE_CACHE_WRITE_TOKENS="$(extract_json_number_for_keys "${output_file}" "cache_creation_input_tokens" "cacheCreationInputTokens")"
-    CLAUDE_CACHE_READ_TOKENS="$(extract_json_number_for_keys "${output_file}" "cache_read_input_tokens" "cacheReadInputTokens")"
-    CLAUDE_TOTAL_TOKENS="$(extract_json_number_for_keys "${output_file}" "total_tokens" "totalTokens")"
+    CLAUDE_INPUT_TOKENS="$(extract_json_number_for_keys "${output_json}" "input_tokens" "inputTokens")"
+    CLAUDE_OUTPUT_TOKENS="$(extract_json_number_for_keys "${output_json}" "output_tokens" "outputTokens")"
+    CLAUDE_CACHE_WRITE_TOKENS="$(extract_json_number_for_keys "${output_json}" "cache_creation_input_tokens" "cacheCreationInputTokens")"
+    CLAUDE_CACHE_READ_TOKENS="$(extract_json_number_for_keys "${output_json}" "cache_read_input_tokens" "cacheReadInputTokens")"
+    CLAUDE_TOTAL_TOKENS="$(extract_json_number_for_keys "${output_json}" "total_tokens" "totalTokens")"
   fi
 
   if [[ -z "${CLAUDE_TOTAL_TOKENS}" ]]; then
@@ -277,11 +271,6 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
   fi
 done
 
-mkdir -p "${LOG_DIR}"
-if (( VERBOSE_OUTPUT == 1 )); then
-  echo "Logs: ${LOG_DIR}"
-fi
-
 if [[ -n "${TARGET_PATH}" ]]; then
   selected_dir="$(dirname "${PROMPT_FILES[0]}")"
   relative_selected_dir="${selected_dir#${REPO_ROOT}/}"
@@ -289,21 +278,26 @@ if [[ -n "${TARGET_PATH}" ]]; then
 fi
 
 echo
+skills_add_output=""
 if (( VERBOSE_OUTPUT == 1 )); then
   echo "Pulling latest skills"
-  pnpm dlx skills add elevenlabs/skills --agent claude-code -y 2>&1 | tee "${LOG_DIR}/skills-add.log"
-  SKILLS_EXIT=${PIPESTATUS[0]}
+  pnpm dlx skills add elevenlabs/skills --agent claude-code -y
+  SKILLS_EXIT=$?
 else
   printf "Updating skills... "
-  pnpm dlx skills add elevenlabs/skills --agent claude-code -y > "${LOG_DIR}/skills-add.log" 2>&1
+  skills_add_output="$(pnpm dlx skills add elevenlabs/skills --agent claude-code -y 2>&1)"
   SKILLS_EXIT=$?
   if [[ ${SKILLS_EXIT} -eq 0 ]]; then
     echo "done."
+  else
+    echo "failed."
   fi
 fi
-printf "exit_code=%s\n" "${SKILLS_EXIT}" >> "${LOG_DIR}/skills-add.log"
 if [[ ${SKILLS_EXIT} -ne 0 ]]; then
-  echo "Skills install failed. See ${LOG_DIR}/skills-add.log" >&2
+  if (( VERBOSE_OUTPUT == 0 )) && [[ -n "${skills_add_output}" ]]; then
+    printf "%s\n" "${skills_add_output}" >&2
+  fi
+  echo "Skills install failed." >&2
   exit "${SKILLS_EXIT}"
 fi
 
@@ -330,18 +324,15 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
   CURRENT_PROMPT=$((CURRENT_PROMPT + 1))
   project_dir="$(dirname "${prompt_file}")"
   relative_project_dir="${project_dir#${REPO_ROOT}/}"
-  log_name="${relative_project_dir//\//__}.log"
-  run_log="${LOG_DIR}/${log_name}"
-  setup_log="${LOG_DIR}/${relative_project_dir//\//__}.setup.log"
-  claude_output_log="${LOG_DIR}/${relative_project_dir//\//__}.claude-output.log"
   run_intent="generating"
   if [[ -d "${project_dir}/example" ]]; then
     run_intent="verifying"
   fi
-  run_outcome=""
   project_status_before=""
   project_status_after=""
   run_changed=0
+  setup_output=""
+  claude_raw_output=""
 
   if command -v git >/dev/null 2>&1; then
     project_status_before="$(git -C "${REPO_ROOT}" status --porcelain -- "${relative_project_dir}" 2>/dev/null || true)"
@@ -370,19 +361,21 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
         echo "Running setup: ${relative_project_dir}/setup.sh"
       fi
       if (( VERBOSE_OUTPUT == 1 )); then
-        bash "${project_dir}/setup.sh" 2>&1 | tee "${setup_log}" | tee -a "${run_log}"
-        SETUP_EXIT=${PIPESTATUS[0]}
-      else
-        bash "${project_dir}/setup.sh" > "${setup_log}" 2>&1
+        bash "${project_dir}/setup.sh"
         SETUP_EXIT=$?
-        tee -a "${run_log}" < "${setup_log}" >/dev/null
+      else
+        setup_output="$(bash "${project_dir}/setup.sh" 2>&1)"
+        SETUP_EXIT=$?
       fi
       if [[ ${SETUP_EXIT} -ne 0 ]]; then
         FAILED_RUNS=$((FAILED_RUNS + 1))
         if (( VERBOSE_OUTPUT == 1 )); then
-          echo "  ✗ Setup failed (see ${run_log})" >&2
+          echo "  ✗ Setup failed" >&2
         else
-          echo "      ✗ Setup failed (log: ${run_log})" >&2
+          echo "      ✗ Setup failed" >&2
+          if [[ -n "${setup_output}" ]]; then
+            printf "%s\n" "${setup_output}" >&2
+          fi
         fi
         continue
       fi
@@ -390,66 +383,42 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
   fi
 
   claude_started_at="$(date +%s)"
-  (
-    cd "${project_dir}" || exit 1
-    prompt_text="$(cat "PROMPT.md")"
-    if [[ -d "example" ]]; then
-      prompt_text="IMPORTANT: Check the existing code in example/ first. Only make changes if the requirements below are not already met. If everything is already implemented correctly, confirm that no changes are needed.
+  claude_raw_output="$(
+    (
+      cd "${project_dir}" || exit 1
+      prompt_text="$(cat "PROMPT.md")"
+      if [[ -d "example" ]]; then
+        prompt_text="IMPORTANT: Check the existing code in example/ first. Only make changes if the requirements below are not already met. If everything is already implemented correctly, confirm that no changes are needed.
 
 ${prompt_text}"
-    fi
-    claude_cmd=(claude --dangerously-skip-permissions)
-    if [[ -n "${CLAUDE_MODEL}" ]]; then
-      claude_cmd+=(--model "${CLAUDE_MODEL}")
-    fi
-    claude_cmd+=(-p --output-format json "${prompt_text}")
-    run_with_timeout \
-      "${CLAUDE_TIMEOUT_SECONDS}" \
-      "${claude_cmd[@]}"
-  ) > "${claude_output_log}" 2>&1
+      fi
+      claude_cmd=(claude --dangerously-skip-permissions)
+      if [[ -n "${CLAUDE_MODEL}" ]]; then
+        claude_cmd+=(--model "${CLAUDE_MODEL}")
+      fi
+      claude_cmd+=(-p --output-format json "${prompt_text}")
+      run_with_timeout \
+        "${CLAUDE_TIMEOUT_SECONDS}" \
+        "${claude_cmd[@]}"
+    ) 2>&1
+  )"
   RUN_EXIT=$?
 
-  if command -v jq >/dev/null 2>&1 && jq -e '.result != null and .result != ""' "${claude_output_log}" >/dev/null 2>&1; then
+  if command -v jq >/dev/null 2>&1 && jq -e '.result != null and .result != ""' >/dev/null 2>&1 <<< "${claude_raw_output}"; then
     if (( VERBOSE_OUTPUT == 1 )); then
-      jq -r '.result' "${claude_output_log}" | tee -a "${run_log}"
-    else
-      jq -r '.result' "${claude_output_log}" >> "${run_log}"
+      jq -r '.result' <<< "${claude_raw_output}"
     fi
-  else
-    if (( VERBOSE_OUTPUT == 1 )); then
-      tee -a "${run_log}" < "${claude_output_log}"
-    else
-      tee -a "${run_log}" < "${claude_output_log}" >/dev/null
-    fi
+  elif (( VERBOSE_OUTPUT == 1 )); then
+    printf "%s\n" "${claude_raw_output}"
   fi
 
   claude_finished_at="$(date +%s)"
   claude_duration_seconds=$((claude_finished_at - claude_started_at))
   claude_duration_human="$(format_duration "${claude_duration_seconds}")"
-  extract_claude_usage "${claude_output_log}"
-
-  printf "exit_code=%s\n" "${RUN_EXIT}" >> "${run_log}"
-  printf "run_intent=%s\n" "${run_intent}" >> "${run_log}"
-  printf "claude_duration_seconds=%s\n" "${claude_duration_seconds}" >> "${run_log}"
+  extract_claude_usage "${claude_raw_output}"
   token_display="$(format_token_display "${CLAUDE_TOTAL_TOKENS}")"
-  if [[ -n "${CLAUDE_TOTAL_TOKENS}" ]]; then
-    printf "claude_tokens_total=%s\n" "${CLAUDE_TOTAL_TOKENS}" >> "${run_log}"
-  fi
-  if [[ -n "${CLAUDE_INPUT_TOKENS}" ]]; then
-    printf "claude_tokens_input=%s\n" "${CLAUDE_INPUT_TOKENS}" >> "${run_log}"
-  fi
-  if [[ -n "${CLAUDE_OUTPUT_TOKENS}" ]]; then
-    printf "claude_tokens_output=%s\n" "${CLAUDE_OUTPUT_TOKENS}" >> "${run_log}"
-  fi
-  if [[ -n "${CLAUDE_CACHE_WRITE_TOKENS}" ]]; then
-    printf "claude_tokens_cache_creation=%s\n" "${CLAUDE_CACHE_WRITE_TOKENS}" >> "${run_log}"
-  fi
-  if [[ -n "${CLAUDE_CACHE_READ_TOKENS}" ]]; then
-    printf "claude_tokens_cache_read=%s\n" "${CLAUDE_CACHE_READ_TOKENS}" >> "${run_log}"
-  fi
 
   if [[ ${RUN_EXIT} -ne 0 ]]; then
-    run_outcome="failed"
     FAILED_RUNS=$((FAILED_RUNS + 1))
     if (( VERBOSE_OUTPUT == 1 )); then
       echo "  ✗ Failed (${run_intent})" >&2
@@ -458,10 +427,12 @@ ${prompt_text}"
       else
         echo "    ${claude_duration_human}, tokens unknown" >&2
       fi
-      echo "    Log: ${run_log}" >&2
     else
       echo "      ✗ Failed in ${claude_duration_human} (${token_display})" >&2
-      echo "        Log: ${run_log}" >&2
+      if [[ -n "${claude_raw_output}" ]]; then
+        echo "        Claude output:" >&2
+        printf "%s\n" "${claude_raw_output}" >&2
+      fi
     fi
   else
     if command -v git >/dev/null 2>&1; then
@@ -470,10 +441,8 @@ ${prompt_text}"
         run_changed=1
       fi
     fi
-    printf "run_changed=%s\n" "${run_changed}" >> "${run_log}"
 
     if [[ "${run_intent}" == "generating" ]]; then
-      run_outcome="generated"
       GENERATED_RUNS=$((GENERATED_RUNS + 1))
       if (( VERBOSE_OUTPUT == 1 )); then
         if [[ -n "${CLAUDE_TOTAL_TOKENS}" ]]; then
@@ -485,7 +454,6 @@ ${prompt_text}"
         echo "      ✓ Generated in ${claude_duration_human} (${token_display})"
       fi
     elif (( run_changed == 0 )); then
-      run_outcome="verified"
       VERIFIED_RUNS=$((VERIFIED_RUNS + 1))
       if (( VERBOSE_OUTPUT == 1 )); then
         if [[ -n "${CLAUDE_TOTAL_TOKENS}" ]]; then
@@ -497,7 +465,6 @@ ${prompt_text}"
         echo "      ✓ Verified, no changes in ${claude_duration_human} (${token_display})"
       fi
     else
-      run_outcome="updated"
       UPDATED_RUNS=$((UPDATED_RUNS + 1))
       if (( VERBOSE_OUTPUT == 1 )); then
         if [[ -n "${CLAUDE_TOTAL_TOKENS}" ]]; then
@@ -510,7 +477,6 @@ ${prompt_text}"
       fi
     fi
   fi
-  printf "run_outcome=%s\n" "${run_outcome}" >> "${run_log}"
 done
 
 OVERALL_END_TIME="$(date +%s)"
@@ -522,6 +488,6 @@ printf "  %s generated · %s verified · %s updated · %s failed\n" "${GENERATED
 printf "  Total time: %s\n" "${OVERALL_DURATION}"
 echo "────────────────────────────────────────────────"
 if [[ ${FAILED_RUNS} -ne 0 ]]; then
-  echo "${FAILED_RUNS} prompt run(s) failed. Logs: ${LOG_DIR}" >&2
+  echo "${FAILED_RUNS} prompt run(s) failed." >&2
   exit 1
 fi
