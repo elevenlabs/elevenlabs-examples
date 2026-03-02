@@ -2,7 +2,13 @@
 
 import { synthesizeHumanAction } from "@/app/(default)/actions/actions";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAction } from "next-safe-action/hooks";
 import Image from "next/image";
@@ -12,7 +18,6 @@ import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ScrambleText } from "@/components/scramble-text";
-
 
 export function VoiceGenForm() {
   const [handle, setHandle] = useState("");
@@ -127,14 +132,19 @@ const QuickLinks = () => {
               href={`/${celeb.handle}`}
               className={cn(
                 buttonVariants({ variant: "outline" }),
-                "flex-none min-w-[160px] flex p-3 h-auto",
+                "flex-none min-w-[160px] flex p-3 h-auto"
               )}
               prefetch={true}
             >
-              <Image priority width={34} height={34} src={celeb.profilePicture} className={"rounded-full"}
-                     alt={`${celeb.name} profile picture`} />
+              <Image
+                priority
+                width={34}
+                height={34}
+                src={celeb.profilePicture}
+                className={"rounded-full"}
+                alt={`${celeb.name} profile picture`}
+              />
               <div className={"flex flex-col items-start text-xs"}>
-
                 <span className="font-medium">@{celeb.handle}</span>
                 <span className="text-gray-500 truncate w-full">
                   {celeb.name}

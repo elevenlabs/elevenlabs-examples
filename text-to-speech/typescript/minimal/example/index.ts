@@ -2,7 +2,9 @@ import "dotenv/config";
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 import { writeFile } from "fs/promises";
 
-const text = process.argv.slice(2).join(" ") || "Hello! Welcome to ElevenLabs text-to-speech.";
+const text =
+  process.argv.slice(2).join(" ") ||
+  "Hello! Welcome to ElevenLabs text-to-speech.";
 const outputPath = "output.mp3";
 
 const client = new ElevenLabsClient();
@@ -23,6 +25,9 @@ try {
   await writeFile(outputPath, buffer);
   console.log(`✓ Audio generated successfully: ${outputPath}`);
 } catch (error) {
-  console.error("Error generating speech:", error instanceof Error ? error.message : error);
+  console.error(
+    "Error generating speech:",
+    error instanceof Error ? error.message : error
+  );
   process.exit(1);
 }

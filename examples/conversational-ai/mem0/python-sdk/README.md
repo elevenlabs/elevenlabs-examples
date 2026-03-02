@@ -56,6 +56,7 @@ This integration provides two key memory functions to your conversational AI age
 ![Add Memories Tool](/examples/conversational-ai/mem0/images/addmemories.png)
 
 The `addMemories` tool allows your agent to store important information during a conversation. This could include:
+
 - User preferences
 - Important facts shared by the user
 - Decisions or commitments made
@@ -68,6 +69,7 @@ When the agent identifies information worth remembering, it calls this function 
 ![Retrieve Memories Tool](/examples/conversational-ai/mem0/images/retrieveMemories.png)
 
 The `retrieveMemories` tool allows your agent to search for and retrieve relevant memories from previous conversations. The agent can:
+
 - Search for context related to the current topic
 - Recall user preferences
 - Remember previous interactions on similar topics
@@ -96,6 +98,7 @@ To enable your agent to effectively use memory:
 3. Update your agent's prompt to instruct it to use these memory functions.
 
 Example prompt addition:
+
 ```
 You have access to memory tools that allow you to remember important information:
 - Use retrieveMemories to recall relevant context from prior conversations
@@ -125,4 +128,4 @@ For detailed setup instructions and API references, please refer to:
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.

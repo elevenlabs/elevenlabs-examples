@@ -97,11 +97,11 @@ export const MouseProvider = ({
   const [targets, setTargets] = useState<MouseTargetInfo[]>([]);
 
   const pushTarget = useCallback((target: MouseTargetInfo) => {
-    setTargets((prev) => [...prev, target]);
+    setTargets(prev => [...prev, target]);
   }, []);
 
   const popTarget = useCallback((id: string) => {
-    setTargets((prev) => prev.filter((t) => t.id !== id));
+    setTargets(prev => prev.filter(t => t.id !== id));
   }, []);
 
   const activeTarget = targets[targets.length - 1] as
@@ -196,11 +196,11 @@ export const MouseTarget = ({
     <motion.div
       ref={ref}
       {...otherProps}
-      onMouseEnter={(e) => {
+      onMouseEnter={e => {
         mouse.pushTarget({ id, data });
         otherProps.onMouseEnter?.(e);
       }}
-      onMouseLeave={(e) => {
+      onMouseLeave={e => {
         mouse.popTarget(id);
         otherProps.onMouseLeave?.(e);
       }}

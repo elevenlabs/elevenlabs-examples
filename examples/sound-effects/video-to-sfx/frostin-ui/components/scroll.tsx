@@ -339,7 +339,7 @@ type ScrollDirection = "up" | "down" | "static";
 export const useScrollDirection = (): ScrollDirection => {
   const scroll = useScroll();
   const [direction, setDirection] = React.useState<ScrollDirection>("static");
-  useMotionValueEvent(scroll.velocity.y, "change", (val) => {
+  useMotionValueEvent(scroll.velocity.y, "change", val => {
     if (val > 0) {
       setDirection("down");
     } else if (val < 0) {

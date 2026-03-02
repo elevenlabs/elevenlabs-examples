@@ -6,7 +6,7 @@ import * as hash from "npm:object-hash";
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 );
 
 const client = new ElevenLabsClient({
@@ -16,7 +16,7 @@ const client = new ElevenLabsClient({
 // Upload audio to Supabase Storage in a background task
 async function uploadAudioToStorage(
   stream: ReadableStream,
-  requestHash: string,
+  requestHash: string
 ) {
   const { data, error } = await supabase.storage
     .from("audio")
@@ -27,7 +27,7 @@ async function uploadAudioToStorage(
   console.log("Storage upload result", { data, error });
 }
 
-Deno.serve(async (req) => {
+Deno.serve(async req => {
   // To secure your function for production, you can for example validate the request origin,
   // or append a user access token and validate it with Supabase Auth.
   console.log("Request origin", req.headers.get("host"));
@@ -40,8 +40,7 @@ Deno.serve(async (req) => {
   console.log("Request hash", requestHash);
 
   // Check storage for existing audio file
-  const { data } = await supabase
-    .storage
+  const { data } = await supabase.storage
     .from("audio")
     .createSignedUrl(`${requestHash}.mp3`, 60);
 
@@ -54,7 +53,7 @@ Deno.serve(async (req) => {
   if (!text) {
     return new Response(
       JSON.stringify({ error: "Text parameter is required" }),
-      { status: 400, headers: { "Content-Type": "application/json" } },
+      { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
 

@@ -65,9 +65,8 @@ export const getAgentConversation = actionClient
     });
 
     try {
-      const conversation = await elevenlabs.conversationalAi.getConversation(
-        conversationId
-      );
+      const conversation =
+        await elevenlabs.conversationalAi.getConversation(conversationId);
       return { conversation };
     } catch (error) {
       throw new Error(`Failed to get conversation: ${error}`);

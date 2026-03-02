@@ -351,18 +351,14 @@ export default function Page() {
               isCardOpen ? "invisible" : "visible"
             )}
           >
-        
-      
-         
-                <Button
-                  variant="default"
-                  className="px-4 py-2 rounded-full border-blue-500 border-2 hover:bg-blue-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
-                  onClick={() => endCall(false)}
-                >
-                  Save Card
-                </Button>
-         
-          
+            <Button
+              variant="default"
+              className="px-4 py-2 rounded-full border-blue-500 border-2 hover:bg-blue-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"
+              onClick={() => endCall(false)}
+            >
+              Save Card
+            </Button>
+
             <Button
               variant="default"
               className="px-4 py-2 rounded-full border-gray-500 border-2 hover:bg-gray-900/90 bg-white/5 backdrop-blur-[16px] shadow-2xl"

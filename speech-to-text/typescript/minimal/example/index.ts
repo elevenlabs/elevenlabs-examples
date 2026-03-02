@@ -15,6 +15,8 @@ try {
 
   console.log(result.text);
 } catch (error) {
-  console.error(`Transcription failed: ${error instanceof Error ? error.message : String(error)}`);
+  console.error(
+    `Transcription failed: ${error instanceof Error ? error.message : String(error)}`
+  );
   process.exit(1);
 }

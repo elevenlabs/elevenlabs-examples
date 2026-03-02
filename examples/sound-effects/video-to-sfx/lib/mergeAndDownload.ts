@@ -1,7 +1,7 @@
 export async function mergeAndDownload(
   videoFile: File | null,
   audioData: string,
-  setProgress: (progress: number) => void,
+  setProgress: (progress: number) => void
 ) {
   const { FFmpeg } = await import("@ffmpeg/ffmpeg");
   const { fetchFile, toBlobURL } = await import("@ffmpeg/util");
@@ -16,7 +16,7 @@ export async function mergeAndDownload(
       coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
       wasmURL: await toBlobURL(
         `${baseURL}/ffmpeg-core.wasm`,
-        "application/wasm",
+        "application/wasm"
       ),
     });
   };
@@ -36,7 +36,7 @@ export async function mergeAndDownload(
     if (videoFile) {
       await ffmpeg.writeFile(
         "input.mp4",
-        await fetchFile(URL.createObjectURL(videoFile)),
+        await fetchFile(URL.createObjectURL(videoFile))
       );
     }
 
@@ -47,19 +47,25 @@ export async function mergeAndDownload(
     await ffmpeg.exec(["-v", "error", "-i", "audio.mpeg", "-f", "null", "-"]);
 
     await ffmpeg.exec([
-      "-i", "input.mp4",
-      "-i", "audio.mpeg",
-      "-map", "0:v",
-      "-map", "1:a",
-      "-c:v", "copy",
-      "-c:a", "aac",
+      "-i",
+      "input.mp4",
+      "-i",
+      "audio.mpeg",
+      "-map",
+      "0:v",
+      "-map",
+      "1:a",
+      "-c:v",
+      "copy",
+      "-c:a",
+      "aac",
       "output.mp4",
     ]);
 
     console.log("transcoding completed");
     const data = (await ffmpeg.readFile("output.mp4")) as Uint8Array;
     const final_url = URL.createObjectURL(
-      new Blob([data.buffer], { type: "video/mp4" }),
+      new Blob([data.buffer], { type: "video/mp4" })
     );
     const downloadLinkFinalVideo = document.createElement("a");
     downloadLinkFinalVideo.href = final_url;

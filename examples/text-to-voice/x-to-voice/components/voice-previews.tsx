@@ -16,7 +16,7 @@ export function VoicePreviews({ voicePreviews }: { voicePreviews: any }) {
       // Stop any currently playing audio
       if (playingIndex !== null) {
         const prevAudio = document.querySelector(
-          `#audio-${playingIndex}`,
+          `#audio-${playingIndex}`
         ) as HTMLAudioElement;
         prevAudio?.pause();
       }
@@ -28,47 +28,45 @@ export function VoicePreviews({ voicePreviews }: { voicePreviews: any }) {
   return (
     <div className="space-y-2">
       {voicePreviews.map((previewUrl, index) => (
-          <div
-            key={previewUrl}
-            className="flex items-center text-sm text-gray-700 border border-gray-200 rounded p-2"
+        <div
+          key={previewUrl}
+          className="flex items-center text-sm text-gray-700 border border-gray-200 rounded p-2"
+        >
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-gray-500 hover:text-gray-700 mr-2"
+            onClick={() => {
+              const audio = document.querySelector(
+                `#audio-${index}`
+              ) as HTMLAudioElement;
+              handlePlayPause(index, audio);
+            }}
           >
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-gray-500 hover:text-gray-700 mr-2"
-              onClick={() => {
-                const audio = document.querySelector(
-                  `#audio-${index}`,
-                ) as HTMLAudioElement;
-                handlePlayPause(index, audio);
-              }}
-            >
-              {playingIndex === index ? (
-                <PauseCircle className="w-4 h-4" />
-              ) : (
-                <PlayCircle className="w-4 h-4" />
-              )}
+            {playingIndex === index ? (
+              <PauseCircle className="w-4 h-4" />
+            ) : (
+              <PlayCircle className="w-4 h-4" />
+            )}
+          </Button>
+          <span>Voice sample {index + 1}</span>
+          <audio
+            id={`audio-${index}`}
+            src={previewUrl}
+            onEnded={() => setPlayingIndex(null)}
+          />
+          <a
+            href={previewUrl}
+            download={`voice-sample-${index + 1}.mp4`}
+            target="_blank"
+            className={"ml-auto"}
+          >
+            <Button variant="ghost" size="sm">
+              <DownloadIcon className="w-4 h-4"></DownloadIcon>
             </Button>
-            <span>Voice sample {index + 1}</span>
-            <audio
-              id={`audio-${index}`}
-              src={previewUrl}
-              onEnded={() => setPlayingIndex(null)}
-            />
-            <a
-              href={previewUrl}
-              download={`voice-sample-${index + 1}.mp4`}
-              target="_blank"
-              className={"ml-auto"}
-            >
-              <Button variant="ghost" size="sm">
-                <DownloadIcon className="w-4 h-4"></DownloadIcon>
-              </Button>
-            </a>
-
-          </div>
-        ),
-      )}
+          </a>
+        </div>
+      ))}
     </div>
   );
 }

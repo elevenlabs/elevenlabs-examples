@@ -1,11 +1,11 @@
-import { ElevenLabsClient } from 'elevenlabs';
+import { ElevenLabsClient } from "elevenlabs";
 
 const elevenlabs = new ElevenLabsClient();
 
 export const createAudioFileFromText = async (text: string, output: string) => {
   const audio = await elevenlabs.generate({
-    voice: 'Rachel',
-    model_id: 'eleven_multilingual_v2',
+    voice: "Rachel",
+    model_id: "eleven_multilingual_v2",
     text,
   });
 
@@ -17,7 +17,7 @@ export const createAudioFileFromText = async (text: string, output: string) => {
   const uint8Array = new Uint8Array(
     audioBuffer.buffer,
     audioBuffer.byteOffset,
-    audioBuffer.byteLength,
+    audioBuffer.byteLength
   );
 
   await Bun.write(output, uint8Array);

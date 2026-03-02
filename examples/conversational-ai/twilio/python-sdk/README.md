@@ -12,7 +12,6 @@
    ```
 
 2. **Activate the Virtual Environment**
-
    - On Windows:
      ```bash
      venv\Scripts\activate

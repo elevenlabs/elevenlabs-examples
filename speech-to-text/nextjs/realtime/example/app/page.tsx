@@ -14,23 +14,24 @@ export default function Home() {
     commitStrategy: CommitStrategy.VAD,
     vadSilenceThresholdSecs: 1.5,
     vadThreshold: 0.4,
-    onPartialTranscript: (data) => {
+    onPartialTranscript: data => {
       setPartialTranscript(data.text || "");
     },
-    onCommittedTranscript: (data) => {
+    onCommittedTranscript: data => {
       if (data.text && data.text.trim()) {
-        setCommittedHistory((prev) => [data.text, ...prev]);
+        setCommittedHistory(prev => [data.text, ...prev]);
       }
       setPartialTranscript("");
     },
-    onError: (err) => {
+    onError: err => {
       console.error("Scribe error:", err);
       setError("Connection error occurred. Please try again.");
     },
   });
 
   // Check both connected and transcribing states to properly show active status
-  const isActive = scribe.status === "connected" || scribe.status === "transcribing";
+  const isActive =
+    scribe.status === "connected" || scribe.status === "transcribing";
   const isConnecting = scribe.status === "connecting";
 
   const handleStart = useCallback(async () => {
@@ -56,7 +57,9 @@ export default function Home() {
       });
     } catch (err) {
       console.error("Failed to start transcription:", err);
-      setError("Failed to start transcription. Please check your permissions and try again.");
+      setError(
+        "Failed to start transcription. Please check your permissions and try again."
+      );
     }
   }, [scribe]);
 
@@ -100,8 +103,8 @@ export default function Home() {
                   isActive
                     ? "bg-red-500 text-white hover:bg-red-600"
                     : isConnecting
-                    ? "bg-neutral-200 text-neutral-400 cursor-not-allowed"
-                    : "bg-neutral-900 text-white hover:bg-neutral-800"
+                      ? "bg-neutral-200 text-neutral-400 cursor-not-allowed"
+                      : "bg-neutral-900 text-white hover:bg-neutral-800"
                 }`}
               >
                 {isConnecting ? "Connecting..." : isActive ? "Stop" : "Start"}
@@ -119,7 +122,9 @@ export default function Home() {
               {isActive ? (
                 <span className="flex items-center">
                   <span className="mr-1.5 h-2 w-2 rounded-full bg-green-500"></span>
-                  {scribe.status === "transcribing" ? "Transcribing" : "Connected"}
+                  {scribe.status === "transcribing"
+                    ? "Transcribing"
+                    : "Connected"}
                 </span>
               ) : (
                 <span>Disconnected</span>
@@ -149,7 +154,9 @@ export default function Home() {
           {/* Partial transcript */}
           {(isActive || partialTranscript) && (
             <div className="space-y-2">
-              <h2 className="text-xs text-neutral-400 uppercase tracking-wide">Live Transcript</h2>
+              <h2 className="text-xs text-neutral-400 uppercase tracking-wide">
+                Live Transcript
+              </h2>
               <div className="min-h-[3rem] rounded-md border border-neutral-200 px-4 py-3">
                 <p className="text-sm text-neutral-600">
                   {partialTranscript || (
@@ -163,7 +170,9 @@ export default function Home() {
           {/* Committed transcript history */}
           {committedHistory.length > 0 && (
             <div className="space-y-2">
-              <h2 className="text-xs text-neutral-400 uppercase tracking-wide">History</h2>
+              <h2 className="text-xs text-neutral-400 uppercase tracking-wide">
+                History
+              </h2>
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {committedHistory.map((text, index) => (
                   <div

@@ -1,5 +1,5 @@
-import 'dotenv/config';
-import 'colors';
-import { startApp } from './app';
+import "dotenv/config";
+import "colors";
+import { startApp } from "./app";
 
 startApp();

@@ -59,8 +59,8 @@ export default function RootLayout({
                 size={"xs"}
                 className="rounded-full z-50 text-sm text-gray-800"
               >
-                <span className={'sm:inline hidden'}>Create free account</span>
-                <span className={'inline sm:hidden'}>Sign up</span>
+                <span className={"sm:inline hidden"}>Create free account</span>
+                <span className={"inline sm:hidden"}>Sign up</span>
               </Button>
             </Link>
             <Link

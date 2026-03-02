@@ -44,7 +44,7 @@ export const useScrollAcceleratedClock = ({
     }
   }, [direction]);
 
-  useMotionValueEvent(scroll.velocity.y, "change", (velocity) => {
+  useMotionValueEvent(scroll.velocity.y, "change", velocity => {
     clock.setRate(baseRate + (velocity / 1000) * acceleration);
   });
 

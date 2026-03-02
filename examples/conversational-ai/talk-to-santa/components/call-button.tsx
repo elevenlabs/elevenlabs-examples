@@ -143,12 +143,10 @@ export function CallButton({
                 <ul className="list-disc pl-5 space-y-2">
                   <li>You are 18 years of age or older.</li>
                   <li>
-                    You understand that &quot;Santa&quot; is an AI character powered by
-                    ElevenLabs, not a real person.
+                    You understand that &quot;Santa&quot; is an AI character
+                    powered by ElevenLabs, not a real person.
                   </li>
-                  <li>
-                    You consent to your conversation being recorded.
-                  </li>
+                  <li>You consent to your conversation being recorded.</li>
                   <li>
                     You understand that your recording may be shared with third
                     parties for the purpose of generating your personalized
