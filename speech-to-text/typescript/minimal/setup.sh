@@ -17,6 +17,11 @@ rsync -a \
   --exclude example \
   template/ example/
 
+# Copy sample assets into example/
+if [ -d "$DIR/assets" ]; then
+  cp -a "$DIR/assets/." example/
+fi
+
 # Setup env
 if [ -f "$DIR/.env" ]; then
   cp "$DIR/.env" example/.env

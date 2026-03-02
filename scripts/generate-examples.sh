@@ -387,11 +387,27 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
     (
       cd "${project_dir}" || exit 1
       prompt_text="$(cat "PROMPT.md")"
-      if [[ -d "example" ]]; then
-        prompt_text="IMPORTANT: Check the existing code in example/ first. Only make changes if the requirements below are not already met. If everything is already implemented correctly, confirm that no changes are needed.
 
-${prompt_text}"
+      # Prepend repo-specific context that keeps PROMPT.md portable
+      preamble=""
+      if [[ -d "example" ]]; then
+        preamble+="IMPORTANT: Check the existing code in example/ first. Only make changes if the requirements below are not already met. If everything is already implemented correctly, confirm that no changes are needed."$'\n\n'
       fi
+      if [[ -f "setup.sh" ]]; then
+        setup_detail="Prerequisite: \`setup.sh\` has already been run. \`example/\` is ready with dependencies installed"
+        if [[ -d "assets" ]]; then
+          asset_list="$(ls -1 assets/ 2>/dev/null | paste -sd ', ' -)"
+          if [[ -n "${asset_list}" ]]; then
+            setup_detail+=" and sample assets (${asset_list})"
+          fi
+        fi
+        preamble+="${setup_detail}."$'\n\n'
+      fi
+      preamble+="Implement in \`example/\` only."
+      if [[ -f "${REPO_ROOT}/DESIGN.md" ]]; then
+        preamble+=$'\n\n'"Read \`DESIGN.md\` at the repo root for styling rules. Preserve any existing template header and layout container."
+      fi
+      prompt_text="${preamble}"$'\n\n'"${prompt_text}"
       claude_cmd=(claude --dangerously-skip-permissions)
       if [[ -n "${CLAUDE_MODEL}" ]]; then
         claude_cmd+=(--model "${CLAUDE_MODEL}")

@@ -1,8 +1,4 @@
-Before writing any code, invoke the `/speech-to-text` skill to learn the correct ElevenLabs SDK patterns. Then read `DESIGN.md` at the repo root for styling rules.
-
-Prerequisite: `setup.sh` has already been run. `example/` is ready with dependencies installed and template layout in place.
-
-Implement in `example/` only. Preserve the template's header and layout container.
+Before writing any code, invoke the `/speech-to-text` skill to learn the correct ElevenLabs SDK patterns.
 
 ## 1. `app/api/scribe-token/route.ts`
 
