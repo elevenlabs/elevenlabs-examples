@@ -12,6 +12,11 @@ __pycache__
 
 # dependencies
 node_modules
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+poetry.lock
+Pipfile.lock
 
 # IDEs and editors
 /.idea
