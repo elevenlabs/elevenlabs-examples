@@ -6,23 +6,26 @@
 
 Prompt-driven ElevenLabs examples for text-to-speech and speech-to-text. Each project includes:
 
-- `PROMPT.md` for agent-driven generation and updates
-- `README.md` with manual setup and run steps
+- `PROMPT.md` — instructions for agent-driven generation
+- `template/` — starter files copied before generation
+- `example/` — the generated, runnable example with its own `README.md`
 
 > The legacy `examples/` folder is being deprecated and can be ignored for new work.
 
 ## Current examples
 
-- [Text-to-Speech Minimal](text-to-speech/typescript/minimal/README.md) - Generate an MP3 from text with the ElevenLabs JS SDK.
-- [Speech-to-Text Minimal](speech-to-text/typescript/minimal/README.md) - Transcribe local audio files with Scribe v2.
-- [Real-Time Speech-to-Text (Next.js)](speech-to-text/nextjs/realtime/README.md) - Live microphone transcription with VAD in a Next.js app.
+- [Text-to-Speech Minimal (TypeScript)](text-to-speech/typescript/minimal/example/README.md) - Generate an MP3 from text with the ElevenLabs JS SDK.
+- [Text-to-Speech Minimal (Python)](text-to-speech/python/minimal/example/README.md) - Generate an MP3 from text with the ElevenLabs Python SDK.
+- [Speech-to-Text Minimal (TypeScript)](speech-to-text/typescript/minimal/example/README.md) - Transcribe local audio files with Scribe v2.
+- [Speech-to-Text Minimal (Python)](speech-to-text/python/minimal/example/README.md) - Transcribe local audio files with Scribe v2 using Python.
+- [Real-Time Speech-to-Text (Next.js)](speech-to-text/nextjs/realtime/example/README.md) - Live microphone transcription with VAD in a Next.js app.
 
 ## Generate examples from prompts
 
 The general prompt-runner workflow is in `scripts/generate-examples.sh` and is exposed as:
 
 ```bash
-pnpm run generate:examples
+pnpm run generate
 ```
 
 ### Prerequisites
@@ -41,47 +44,38 @@ pnpm install
 Run all example prompts:
 
 ```bash
-pnpm run generate:examples
+pnpm run generate
 ```
 
-Run only one example folder:
+Run only one example:
 
 ```bash
-pnpm run generate:examples -- speech-to-text/nextjs/realtime
+pnpm run generate speech-to-text/nextjs/realtime
 ```
 
-Run a specific prompt file directly:
+Optional flags:
 
 ```bash
-pnpm run generate:examples -- text-to-speech/typescript/minimal/PROMPT.md
-```
-
-Optional timeout (seconds) per prompt run:
-
-```bash
-CLAUDE_TIMEOUT_SECONDS=1200 pnpm run generate:examples
+pnpm run generate -t 1200                     # timeout per prompt in seconds (default: 600)
+pnpm run generate -m opus                     # model selection (default: sonnet)
+pnpm run generate -v                          # verbose output
+pnpm run generate -m opus -t 1200 -v          # combine flags
 ```
 
 Logs are written to `tmp/prompt-runs/<timestamp>/`.
 
 ## Try an example directly
 
-Use the project README that matches what you want to test:
-
-- Next.js real-time transcription: [speech-to-text/nextjs/realtime/README.md](speech-to-text/nextjs/realtime/README.md)
-- Speech-to-text CLI minimal: [speech-to-text/typescript/minimal/README.md](speech-to-text/typescript/minimal/README.md)
-- Text-to-speech CLI minimal: [text-to-speech/typescript/minimal/README.md](text-to-speech/typescript/minimal/README.md)
+Each example has an `example/` folder with a README containing setup and run instructions. See the links in [Current examples](#current-examples) above.
 
 ## Contributing
 
-We welcome contributions from the community. Before you start:
+We welcome contributions from the community. Install the pre-commit hook before submitting:
 
-1. Install the pre-commit hook:
-   ```bash
-   pip install pre-commit
-   pre-commit install
-   ```
-2. Review [Contributing Guidelines](CONTRIBUTING.md).
+```bash
+pip install pre-commit
+pre-commit install
+```
 
 ## Learn more
 

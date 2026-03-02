@@ -29,5 +29,5 @@ pnpm run start
 Transcribe a local file:
 
 ```bash
-pnpm run start -- ./audio.mp3
+pnpm run start ./audio.mp3
 ```

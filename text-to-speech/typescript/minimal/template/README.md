@@ -21,7 +21,7 @@ Generate an MP3 file from text using the ElevenLabs JS SDK.
 ## Run
 
 ```bash
-pnpm run start -- "Hello from ElevenLabs"
+pnpm run start "Hello from ElevenLabs"
 ```
 
 The generated audio is saved to `output.mp3`.

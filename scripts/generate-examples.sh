@@ -6,17 +6,35 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${REPO_ROOT}" || exit 1
 
-if [[ $# -gt 1 ]]; then
-  echo "Usage: $0 [folder-or-PROMPT.md]" >&2
+CLAUDE_TIMEOUT_SECONDS="${CLAUDE_TIMEOUT_SECONDS:-600}"
+CLAUDE_MODEL="${CLAUDE_MODEL:-sonnet}"
+PROMPT_RUN_OUTPUT="${PROMPT_RUN_OUTPUT:-simple}"
+
+usage() {
+  echo "Usage: $0 [-t seconds] [-m model] [-v] [folder-or-PROMPT.md]" >&2
+  echo "  -t  Timeout per prompt in seconds (default: 600)" >&2
+  echo "  -m  Claude model to use (default: sonnet)" >&2
+  echo "  -v  Verbose output" >&2
   exit 1
+}
+
+while getopts ":t:m:v" opt; do
+  case "${opt}" in
+    t) CLAUDE_TIMEOUT_SECONDS="${OPTARG}" ;;
+    m) CLAUDE_MODEL="${OPTARG}" ;;
+    v) PROMPT_RUN_OUTPUT="verbose" ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [[ $# -gt 1 ]]; then
+  usage
 fi
 
 TARGET_PATH="${1:-}"
 TIMESTAMP="$(date +"%Y%m%d-%H%M%S")"
 LOG_DIR="${REPO_ROOT}/tmp/prompt-runs/${TIMESTAMP}"
-CLAUDE_TIMEOUT_SECONDS="${CLAUDE_TIMEOUT_SECONDS:-600}"
-CLAUDE_MODEL="${CLAUDE_MODEL:-sonnet}"
-PROMPT_RUN_OUTPUT="${PROMPT_RUN_OUTPUT:-simple}"
 
 PROMPT_FILES=()
 if [[ -n "${TARGET_PATH}" ]]; then
