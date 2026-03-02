@@ -8,7 +8,7 @@ Implement in `example/` only.
 
 Minimal script that transcribes audio with ElevenLabs Scribe v2.
 
-- Call `load_dotenv()` **before** importing `elevenlabs` (the SDK's default `api_key` parameter is evaluated at import time via `os.getenv`).
+- Import everything at the top. Call `load_dotenv()` after imports, then pass `api_key=os.environ["ELEVENLABS_API_KEY"]` explicitly to the `ElevenLabs` client.
 - Read first CLI arg as optional audio file path; default to `./audio.mp3`.
 - Use `ElevenLabs` client and call Speech-to-Text with `model_id="scribe_v2"`.
 - Print transcript text to stdout.

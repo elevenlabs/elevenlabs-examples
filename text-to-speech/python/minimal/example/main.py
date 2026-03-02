@@ -1,9 +1,10 @@
+import os
 import sys
+
 from dotenv import load_dotenv
+from elevenlabs import ElevenLabs
 
 load_dotenv()
-
-from elevenlabs.client import ElevenLabs
 
 def main():
     if len(sys.argv) > 1:
@@ -12,7 +13,7 @@ def main():
         text = "Hello, welcome to ElevenLabs!"
 
     try:
-        client = ElevenLabs()
+        client = ElevenLabs(api_key=os.environ["ELEVENLABS_API_KEY"])
 
         audio = client.text_to_speech.convert(
             text=text,
@@ -24,7 +25,7 @@ def main():
             for chunk in audio:
                 f.write(chunk)
 
-        print(f"Success! Audio saved to output.mp3")
+        print("Success! Audio saved to output.mp3")
 
     except Exception as e:
         print(f"Error: {e}")

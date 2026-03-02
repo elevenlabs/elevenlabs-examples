@@ -1,18 +1,16 @@
+import os
 import sys
+
 from dotenv import load_dotenv
-
-# Load .env before importing elevenlabs (SDK reads api_key at import time)
-load_dotenv()
-
 from elevenlabs import ElevenLabs
 
+load_dotenv()
+
 def main():
-    # Get audio file path from CLI arg or use default
     audio_path = sys.argv[1] if len(sys.argv) > 1 else "./audio.mp3"
 
     try:
-        # Initialize ElevenLabs client
-        client = ElevenLabs()
+        client = ElevenLabs(api_key=os.environ["ELEVENLABS_API_KEY"])
 
         # Transcribe audio file
         with open(audio_path, "rb") as audio_file:
