@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "generate:examples": "bash scripts/generate-examples.sh"
+    "generate": "bash scripts/generate-examples.sh"
   },
   "dependencies": {
     "geist": "^1.3.0",

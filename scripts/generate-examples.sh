@@ -273,15 +273,14 @@ fi
 echo
 if (( VERBOSE_OUTPUT == 1 )); then
   echo "Pulling latest skills"
-fi
-if (( VERBOSE_OUTPUT == 1 )); then
   pnpm dlx skills add elevenlabs/skills --agent claude-code -y 2>&1 | tee "${LOG_DIR}/skills-add.log"
   SKILLS_EXIT=${PIPESTATUS[0]}
 else
+  printf "Updating skills... "
   pnpm dlx skills add elevenlabs/skills --agent claude-code -y > "${LOG_DIR}/skills-add.log" 2>&1
   SKILLS_EXIT=$?
   if [[ ${SKILLS_EXIT} -eq 0 ]]; then
-    echo "Skills updated."
+    echo "done."
   fi
 fi
 printf "exit_code=%s\n" "${SKILLS_EXIT}" >> "${LOG_DIR}/skills-add.log"
@@ -290,21 +289,27 @@ if [[ ${SKILLS_EXIT} -ne 0 ]]; then
   exit "${SKILLS_EXIT}"
 fi
 
+FAILED_RUNS=0
+GENERATED_RUNS=0
+VERIFIED_RUNS=0
+UPDATED_RUNS=0
+TOTAL_PROMPTS=${#PROMPT_FILES[@]}
+CURRENT_PROMPT=0
+OVERALL_START_TIME="$(date +%s)"
+
 echo
 if (( VERBOSE_OUTPUT == 1 )); then
   echo "Running prompts with fresh Claude processes"
   echo "Claude timeout per prompt: ${CLAUDE_TIMEOUT_SECONDS}s"
   echo "Claude model: ${CLAUDE_MODEL}"
   echo "Output mode: verbose"
+  echo "Examples: ${TOTAL_PROMPTS}"
 else
-  echo "Run config: model=${CLAUDE_MODEL} timeout=${CLAUDE_TIMEOUT_SECONDS}s"
+  printf "  Model: %s | Timeout: %ss | Examples: %s\n" "${CLAUDE_MODEL}" "${CLAUDE_TIMEOUT_SECONDS}" "${TOTAL_PROMPTS}"
 fi
-FAILED_RUNS=0
-GENERATED_RUNS=0
-VERIFIED_RUNS=0
-UPDATED_RUNS=0
 
 for prompt_file in "${PROMPT_FILES[@]}"; do
+  CURRENT_PROMPT=$((CURRENT_PROMPT + 1))
   project_dir="$(dirname "${prompt_file}")"
   relative_project_dir="${project_dir#${REPO_ROOT}/}"
   log_name="${relative_project_dir//\//__}.log"
@@ -326,14 +331,14 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
 
   echo
   if (( VERBOSE_OUTPUT == 1 )); then
-    echo "Running: ${relative_project_dir}/PROMPT.md"
+    echo "[${CURRENT_PROMPT}/${TOTAL_PROMPTS}] Running: ${relative_project_dir}/PROMPT.md"
     if [[ "${run_intent}" == "generating" ]]; then
-      echo "Mode: generating (example/ missing)"
+      echo "  Mode: generating (example/ missing)"
     else
-      echo "Mode: verifying (example/ already present)"
+      echo "  Mode: verifying (example/ already present)"
     fi
   else
-    echo "[${run_intent}] ${relative_project_dir}"
+    printf "[%s/%s] %s\n" "${CURRENT_PROMPT}" "${TOTAL_PROMPTS}" "${relative_project_dir}"
   fi
 
   # Run setup script if present, but skip if example/ already exists
@@ -357,9 +362,9 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
       if [[ ${SETUP_EXIT} -ne 0 ]]; then
         FAILED_RUNS=$((FAILED_RUNS + 1))
         if (( VERBOSE_OUTPUT == 1 )); then
-          echo "Setup failed: ${relative_project_dir} (see ${run_log})" >&2
+          echo "  ✗ Setup failed (see ${run_log})" >&2
         else
-          echo "  -> setup failed | log: ${run_log}" >&2
+          echo "      ✗ Setup failed (log: ${run_log})" >&2
         fi
         continue
       fi
@@ -429,14 +434,16 @@ ${prompt_text}"
     run_outcome="failed"
     FAILED_RUNS=$((FAILED_RUNS + 1))
     if (( VERBOSE_OUTPUT == 1 )); then
-      echo "Failed (${run_intent}): ${relative_project_dir} (see ${run_log})" >&2
+      echo "  ✗ Failed (${run_intent})" >&2
       if [[ -n "${CLAUDE_TOTAL_TOKENS}" ]]; then
-        echo "Claude session stats: ${claude_duration_human}, ${CLAUDE_TOTAL_TOKENS} token(s)"
+        echo "    ${claude_duration_human}, ${CLAUDE_TOTAL_TOKENS} token(s)" >&2
       else
-        echo "Claude session stats: ${claude_duration_human}, tokens unknown"
+        echo "    ${claude_duration_human}, tokens unknown" >&2
       fi
+      echo "    Log: ${run_log}" >&2
     else
-      echo "  -> failed | ${claude_duration_human} | ${token_display} | log: ${run_log}" >&2
+      echo "      ✗ Failed in ${claude_duration_human} (${token_display})" >&2
+      echo "        Log: ${run_log}" >&2
     fi
   else
     if command -v git >/dev/null 2>&1; then
@@ -452,45 +459,51 @@ ${prompt_text}"
       GENERATED_RUNS=$((GENERATED_RUNS + 1))
       if (( VERBOSE_OUTPUT == 1 )); then
         if [[ -n "${CLAUDE_TOTAL_TOKENS}" ]]; then
-          echo "Generated: ${relative_project_dir} (Claude: ${claude_duration_human}, ${CLAUDE_TOTAL_TOKENS} token(s))"
+          echo "  ✓ Generated (${claude_duration_human}, ${CLAUDE_TOTAL_TOKENS} tokens)"
         else
-          echo "Generated: ${relative_project_dir} (Claude: ${claude_duration_human}, tokens unknown)"
+          echo "  ✓ Generated (${claude_duration_human}, tokens unknown)"
         fi
       else
-        echo "  -> generated | ${claude_duration_human} | ${token_display}"
+        echo "      ✓ Generated in ${claude_duration_human} (${token_display})"
       fi
     elif (( run_changed == 0 )); then
       run_outcome="verified"
       VERIFIED_RUNS=$((VERIFIED_RUNS + 1))
       if (( VERBOSE_OUTPUT == 1 )); then
         if [[ -n "${CLAUDE_TOTAL_TOKENS}" ]]; then
-          echo "Verified: ${relative_project_dir} (already correct; no changes) (Claude: ${claude_duration_human}, ${CLAUDE_TOTAL_TOKENS} token(s))"
+          echo "  ✓ Verified, no changes (${claude_duration_human}, ${CLAUDE_TOTAL_TOKENS} tokens)"
         else
-          echo "Verified: ${relative_project_dir} (already correct; no changes) (Claude: ${claude_duration_human}, tokens unknown)"
+          echo "  ✓ Verified, no changes (${claude_duration_human}, tokens unknown)"
         fi
       else
-        echo "  -> verified | ${claude_duration_human} | ${token_display}"
+        echo "      ✓ Verified, no changes in ${claude_duration_human} (${token_display})"
       fi
     else
       run_outcome="updated"
       UPDATED_RUNS=$((UPDATED_RUNS + 1))
       if (( VERBOSE_OUTPUT == 1 )); then
         if [[ -n "${CLAUDE_TOTAL_TOKENS}" ]]; then
-          echo "Updated during verification: ${relative_project_dir} (changes were needed) (Claude: ${claude_duration_human}, ${CLAUDE_TOTAL_TOKENS} token(s))"
+          echo "  ~ Updated during verification (${claude_duration_human}, ${CLAUDE_TOTAL_TOKENS} tokens)"
         else
-          echo "Updated during verification: ${relative_project_dir} (changes were needed) (Claude: ${claude_duration_human}, tokens unknown)"
+          echo "  ~ Updated during verification (${claude_duration_human}, tokens unknown)"
         fi
       else
-        echo "  -> updated | ${claude_duration_human} | ${token_display}"
+        echo "      ~ Updated in ${claude_duration_human} (${token_display})"
       fi
     fi
   fi
   printf "run_outcome=%s\n" "${run_outcome}" >> "${run_log}"
 done
 
+OVERALL_END_TIME="$(date +%s)"
+OVERALL_DURATION="$(format_duration $((OVERALL_END_TIME - OVERALL_START_TIME)))"
+
 echo
-echo "Run summary: generated=${GENERATED_RUNS}, verified=${VERIFIED_RUNS}, updated=${UPDATED_RUNS}, failed=${FAILED_RUNS}"
+echo "────────────────────────────────────────────────"
+printf "  %s generated · %s verified · %s updated · %s failed\n" "${GENERATED_RUNS}" "${VERIFIED_RUNS}" "${UPDATED_RUNS}" "${FAILED_RUNS}"
+printf "  Total time: %s\n" "${OVERALL_DURATION}"
+echo "────────────────────────────────────────────────"
 if [[ ${FAILED_RUNS} -ne 0 ]]; then
-  echo "${FAILED_RUNS} prompt runs failed. Logs: ${LOG_DIR}" >&2
+  echo "${FAILED_RUNS} prompt run(s) failed. Logs: ${LOG_DIR}" >&2
   exit 1
 fi
