@@ -21,13 +21,15 @@ rsync -a \
 # Copy project-specific README
 cp README.md example/README.md
 
-# Add ElevenLabs dependencies
+# Add ElevenLabs dependencies (fetch latest versions at setup time)
 cd example
+export REACT_VER=$(npm view @elevenlabs/react version)
+export ELEVENLABS_VER=$(npm view @elevenlabs/elevenlabs-js version)
 node -e "
   const pkg = JSON.parse(require('fs').readFileSync('package.json', 'utf8'));
   pkg.name = 'realtime-transcription';
-  pkg.dependencies['@elevenlabs/react'] = '^0.14.1';
-  pkg.dependencies['@elevenlabs/elevenlabs-js'] = '^2.36.0';
+  pkg.dependencies['@elevenlabs/react'] = '^' + process.env.REACT_VER;
+  pkg.dependencies['@elevenlabs/elevenlabs-js'] = '^' + process.env.ELEVENLABS_VER;
   require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
 "
 
