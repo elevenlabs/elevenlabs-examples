@@ -2,7 +2,7 @@ Before writing any code, invoke the `/text-to-speech` skill to learn the correct
 
 ## `index.ts`
 
-Quickstart script that generates an MP3 from text using ElevenLabs Text-to-Speech.
+Create a minimal script that generates an MP3 from text using ElevenLabs Text-to-Speech.
 
 - Load env vars from `.env`.
 - Read text from CLI args; fall back to a short default sentence.

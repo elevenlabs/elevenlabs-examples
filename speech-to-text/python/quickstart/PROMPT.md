@@ -2,7 +2,7 @@ Before writing any code, invoke the `/speech-to-text` skill to learn the correct
 
 ## `main.py`
 
-Quickstart script that transcribes audio with ElevenLabs Scribe v2.
+Create a minimal script that transcribes audio with ElevenLabs Scribe v2.
 
 - Import everything at the top. Call `load_dotenv()` after imports, then pass `api_key=os.environ["ELEVENLABS_API_KEY"]` explicitly to the `ElevenLabs` client.
 - Read first CLI arg as optional audio file path; default to `./audio.mp3`.

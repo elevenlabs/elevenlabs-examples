@@ -2,7 +2,7 @@ Before writing any code, invoke the `/speech-to-text` skill to learn the correct
 
 ## `index.ts`
 
-Quickstart script that transcribes audio with ElevenLabs Scribe v2.
+Create a minimal script that transcribes audio with ElevenLabs Scribe v2.
 
 - Load env vars from `.env`.
 - Read first CLI arg as optional audio file path; default to `./audio.mp3`.
