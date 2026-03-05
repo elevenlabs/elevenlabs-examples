@@ -41,17 +41,13 @@ You must call the `triggerRemoveItemFromWishlist` function if the user no longer
 ```
 
 4. Add the following client-tools:
-
    1. name: `triggerName`
-
    - Description: When the person tells you their name, call this function to store in memory in all cases.
    - Parameter 1:
      1. Data type: String
      2. Identifier: name
      3. Description: The name of the user.
-
    2. name: `triggerAddItemToWishlist`
-
    - Description: When a person asks for something for christmas call this function.
    - Parameter 1:
      1. Data type: String
@@ -61,9 +57,7 @@ You must call the `triggerRemoveItemFromWishlist` function if the user no longer
      1. Data type: String
      2. Identifier: itemName
      3. Description: The name of the item to add to Wishlist, i.e. Dog, Cat, Toy, Playstation.
-
    3. name: `triggerRemoveItemFromWishlist`
-
    - Description: Removes an item from the wishlist which was previously generated. Try and figure out the key from the conversation.
    - Parameter 1:
      1. Data type: String

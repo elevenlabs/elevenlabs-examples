@@ -1,7 +1,5 @@
 // Helper function showing how to hit the ElevenLabs API directly without using the SDK.
-const scribeFile = async (
-  { file }: { file: File | Blob },
-) => {
+const scribeFile = async ({ file }: { file: File | Blob }) => {
   // Create a FormData object which is what ElevenLabs expects
   const formData = new FormData();
   formData.append("file", file);

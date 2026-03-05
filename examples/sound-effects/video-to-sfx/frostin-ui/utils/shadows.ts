@@ -44,7 +44,7 @@ export const shadows = {
     const components = toComponents(angle);
     const step = 45 / layers;
     return range(layers)
-      .map((i) => {
+      .map(i => {
         const d = tan(45 - step * i) * elevation;
         const xOffset = components.x * d;
         const yOffset = components.y * d;
@@ -80,7 +80,7 @@ export const shadows = {
     const base = distance ** (1 / layers);
     const getDistance = (layer: number) => base ** (layer + 1);
     return range(layers)
-      .map((layer) => {
+      .map(layer => {
         const d = getDistance(layer);
         const xOffset = components.x * d;
         const yOffset = components.y * d;
@@ -116,7 +116,7 @@ export const shadows = {
     const base = distance ** (1 / layers);
     const getDistance = (layer: number) => base ** (layer + 1);
     return range(layers)
-      .map((layer) => {
+      .map(layer => {
         const d = getDistance(layer);
         const xOffset = components.x * d;
         const yOffset = components.y * d;

@@ -1,6 +1,6 @@
-import EventEmitter from 'events';
-import { v4 as uuid } from 'uuid';
-import { WebSocket } from 'ws';
+import EventEmitter from "events";
+import { v4 as uuid } from "uuid";
+import { WebSocket } from "ws";
 
 export class Stream extends EventEmitter {
   ws: WebSocket;
@@ -14,7 +14,7 @@ export class Stream extends EventEmitter {
     this.ws = websocket;
     this.expectedAudioIndex = 0;
     this.audioBuffer = {};
-    this.streamSid = '';
+    this.streamSid = "";
   }
 
   setStreamSid(streamSid: string) {
@@ -32,7 +32,7 @@ export class Stream extends EventEmitter {
       while (
         Object.prototype.hasOwnProperty.call(
           this.audioBuffer,
-          this.expectedAudioIndex,
+          this.expectedAudioIndex
         )
       ) {
         const bufferedAudio = this.audioBuffer[this.expectedAudioIndex];
@@ -48,11 +48,11 @@ export class Stream extends EventEmitter {
     this.ws.send(
       JSON.stringify({
         streamSid: this.streamSid,
-        event: 'media',
+        event: "media",
         media: {
           payload: audio,
         },
-      }),
+      })
     );
 
     // When the media completes you will receive a `mark` message with the label
@@ -61,12 +61,12 @@ export class Stream extends EventEmitter {
     this.ws.send(
       JSON.stringify({
         streamSid: this.streamSid,
-        event: 'mark',
+        event: "mark",
         mark: {
           name: markLabel,
         },
-      }),
+      })
     );
-    this.emit('audiosent', markLabel);
+    this.emit("audiosent", markLabel);
   }
 }

@@ -17,7 +17,7 @@ export const tweetSchema = z.object({
   isRetweet: z.boolean(),
   isQuote: z.boolean(),
   isReply: z.boolean(),
-})
+});
 
 export const xProfileSchema = z.object({
   name: z.string(),
@@ -30,7 +30,7 @@ export const xProfileSchema = z.object({
   tweets: z.array(tweetSchema),
 });
 
-export type XProfile = z.infer<typeof xProfileSchema>
+export type XProfile = z.infer<typeof xProfileSchema>;
 
 export const humanSpecimenSchema = z.object({
   analysis: analysisSchema,
@@ -38,6 +38,6 @@ export const humanSpecimenSchema = z.object({
   timestamp: z.string(),
   videoJobs: z.array(z.string()).optional(),
   voicePreviews: z.array(z.string()).optional(),
-})
+});
 
-export type HumanSpecimen = z.infer<typeof humanSpecimenSchema>
+export type HumanSpecimen = z.infer<typeof humanSpecimenSchema>;

@@ -10,7 +10,12 @@ import { zodResponseFormat } from "openai/helpers/zod";
 import OpenAI from "openai";
 import { put } from "@vercel/blob";
 import { env } from "@/env.mjs";
-import { analysisSchema, humanSpecimenSchema, XProfile, xProfileSchema } from "@/app/types";
+import {
+  analysisSchema,
+  humanSpecimenSchema,
+  XProfile,
+  xProfileSchema,
+} from "@/app/types";
 
 const kv = new Redis({
   url: env.KV_REST_API_URL,
@@ -33,7 +38,7 @@ const uploadAudio = async (buffer: Buffer) => {
         "X-API-KEY": env.HEDRA_API_KEY,
       },
       body: formData,
-    },
+    }
   );
   const audioData = await audioResponse.json();
   return audioData as { url: string };
@@ -52,13 +57,17 @@ const uploadImage = async (imageUrl: string) => {
         "X-API-KEY": env.HEDRA_API_KEY,
       },
       body: formData,
-    },
+    }
   );
   const audioData = await audioResponse.json();
   return audioData as { url: string };
 };
 
-async function createVideo(requestBody: { voiceUrl: string; avatarImage?: string; audioSource: string }) {
+async function createVideo(requestBody: {
+  voiceUrl: string;
+  avatarImage?: string;
+  audioSource: string;
+}) {
   const statusResponse = await fetch(
     "https://mercury.dev.dream-ai.com/api/v1/characters",
     {
@@ -68,7 +77,7 @@ async function createVideo(requestBody: { voiceUrl: string; avatarImage?: string
         "Content-Type": "application/json",
       },
       body: JSON.stringify(requestBody),
-    },
+    }
   );
   const status = await statusResponse.json();
   return status;
@@ -82,15 +91,18 @@ export async function getJobStatus(jobId: string) {
       headers: {
         "X-API-KEY": env.HEDRA_API_KEY,
       },
-    },
+    }
   );
   const status = await statusResponse.json();
   return status;
 }
 
-const createCharacter = async ({ voiceBuffer, profilePicture }: {
-  voiceBuffer: Buffer,
-  profilePicture: string
+const createCharacter = async ({
+  voiceBuffer,
+  profilePicture,
+}: {
+  voiceBuffer: Buffer;
+  profilePicture: string;
 }): Promise<string | undefined> => {
   const [audioData, imageData] = await Promise.all([
     await uploadAudio(voiceBuffer),
@@ -98,7 +110,7 @@ const createCharacter = async ({ voiceBuffer, profilePicture }: {
   ]);
   const voiceUrl = audioData["url"];
   const avatarImage = imageData["url"];
-  const requestBody = { "audioSource": "audio", voiceUrl, avatarImage };
+  const requestBody = { audioSource: "audio", voiceUrl, avatarImage };
   const statusData = await createVideo(requestBody);
   return statusData["jobId"];
 };
@@ -175,7 +187,7 @@ export const synthesizeHumanAction = actionClient
         maxItems: 100,
       });
       console.info(
-        `[TTV-X] Apify run created with ID: ${run.defaultDatasetId}`,
+        `[TTV-X] Apify run created with ID: ${run.defaultDatasetId}`
       );
       const { items } = await apifyClient
         .dataset(run.defaultDatasetId)
@@ -197,7 +209,10 @@ export const synthesizeHumanAction = actionClient
       const user = xProfileSchema.parse({
         name: userProfile.name,
         userName: userProfile.userName,
-        profilePicture: userProfile.profilePicture.replace(/_normal(?=\.\w+$)/, ""),
+        profilePicture: userProfile.profilePicture.replace(
+          /_normal(?=\.\w+$)/,
+          ""
+        ),
         description: userProfile.description,
         location: userProfile.location,
         followers: userProfile.followers,
@@ -213,11 +228,14 @@ export const synthesizeHumanAction = actionClient
 
       console.info(`[TTV-X] Starting OpenAI analysis for ${handle}`);
       let analysis = await getAnalysis(user);
-      if (analysis.textToGenerate.length < 101 || analysis.textToGenerate.length > 700) {
+      if (
+        analysis.textToGenerate.length < 101 ||
+        analysis.textToGenerate.length > 700
+      ) {
         analysis = await getAnalysis(user);
       }
       console.info(
-        `[TTV-X] Human analysis complete: ${JSON.stringify(analysis)}`,
+        `[TTV-X] Human analysis complete: ${JSON.stringify(analysis)}`
       );
 
       if (!analysis) {
@@ -232,7 +250,7 @@ export const synthesizeHumanAction = actionClient
       };
       console.info(
         "[TTV-X] Request body:",
-        JSON.stringify(requestBody, null, 2),
+        JSON.stringify(requestBody, null, 2)
       );
       const voiceResponse = await fetch(
         "https://api.elevenlabs.io/v1/text-to-voice/create-previews",
@@ -243,7 +261,7 @@ export const synthesizeHumanAction = actionClient
             "Content-Type": "application/json",
           },
           body: JSON.stringify(requestBody),
-        },
+        }
       );
 
       const voiceRes = await voiceResponse.json();
@@ -263,15 +281,15 @@ export const synthesizeHumanAction = actionClient
         await Promise.all([
           uploadBase64ToBlob(
             audioBuffer1,
-            `audio/${voiceRes.previews[0].generated_voice_id}.mp3`,
+            `audio/${voiceRes.previews[0].generated_voice_id}.mp3`
           ),
           uploadBase64ToBlob(
             audioBuffer2,
-            `audio/${voiceRes.previews[1].generated_voice_id}.mp3`,
+            `audio/${voiceRes.previews[1].generated_voice_id}.mp3`
           ),
           uploadBase64ToBlob(
             audioBuffer3,
-            `audio/${voiceRes.previews[2].generated_voice_id}.mp3`,
+            `audio/${voiceRes.previews[2].generated_voice_id}.mp3`
           ),
         ]);
 
@@ -288,7 +306,7 @@ export const synthesizeHumanAction = actionClient
       }
 
       if (!jobId) {
-        throw Error("Couldn't create character.")
+        throw Error("Couldn't create character.");
       }
 
       const humanSpecimen = humanSpecimenSchema.parse({
@@ -329,7 +347,7 @@ function base64ToBuffer(base64Data: string) {
   // Remove the base64 prefix if present (if it's in the format 'data:audio/mpeg;base64,...')
   const base64WithoutPrefix = base64Data.replace(
     /^data:audio\/mpeg;base64,/,
-    "",
+    ""
   );
 
   // convert base64 string to Buffer

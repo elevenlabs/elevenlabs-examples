@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { DownloadIcon, PauseIcon, PlayIcon, Volume2Icon, VolumeOffIcon } from "lucide-react";
+import {
+  DownloadIcon,
+  PauseIcon,
+  PlayIcon,
+  Volume2Icon,
+  VolumeOffIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { HedraLogo } from "@/components/logos";
@@ -20,9 +26,7 @@ const ScrambleTextLazy2 = dynamic(() => import("./scramble-text"), {
   loading: () => <span>Avatar</span>,
 });
 
-export function AvatarPlayer({ jobId }: {
-  jobId: string,
-}) {
+export function AvatarPlayer({ jobId }: { jobId: string }) {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(true); // Track if the video is playing
   const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
@@ -51,7 +55,9 @@ export function AvatarPlayer({ jobId }: {
       return;
     }
     if (!isPlaying) {
-      videoRef.current.play().then(() => setIsPlaying(true)) // Set state to playing if playback is successful
+      videoRef.current
+        .play()
+        .then(() => setIsPlaying(true)) // Set state to playing if playback is successful
         .catch(error => console.error("Error playing video:", error));
     } else {
       videoRef.current.pause();
@@ -102,22 +108,40 @@ export function AvatarPlayer({ jobId }: {
 
   return (
     <div className={"flex flex-col border rounded-lg divide-y"}>
-      <div className={"relative overflow-hidden group cursor-pointer"} onClick={onCharacterClick}>
-        <div className={"flex h-[240px] w-[240px] rounded-t-lg overflow-hidden"}>
+      <div
+        className={"relative overflow-hidden group cursor-pointer"}
+        onClick={onCharacterClick}
+      >
+        <div
+          className={"flex h-[240px] w-[240px] rounded-t-lg overflow-hidden"}
+        >
           <div
-            className={cn("absolute inset-0 w-full h-full flex flex-col justify-center items-center text-gray-700 text-xs z-10", (isVideoLoaded) && "opacity-0")}>
+            className={cn(
+              "absolute inset-0 w-full h-full flex flex-col justify-center items-center text-gray-700 text-xs z-10",
+              isVideoLoaded && "opacity-0"
+            )}
+          >
             <ScrambleTextLazy1 text={"Generating"} loop />
             <ScrambleTextLazy2 text={"Avatar"} loop></ScrambleTextLazy2>
           </div>
           {isVideoLoaded && !isVideoClicked && (
-            <div className={"absolute inset-0 w-full h-full flex justify-center items-center"}>
+            <div
+              className={
+                "absolute inset-0 w-full h-full flex justify-center items-center"
+              }
+            >
               <div
-                className={cn("absolute inset-0 w-full h-full flex flex-col justify-center items-center text-gray-700 text-xs z-10 bg-black opacity-15")}>
-              </div>
-              <PlayIcon strokeWidth={4} className={"w-7 h-7 relative opacity-80"} fill={"white"}
-                        color={"white"}></PlayIcon>
+                className={cn(
+                  "absolute inset-0 w-full h-full flex flex-col justify-center items-center text-gray-700 text-xs z-10 bg-black opacity-15"
+                )}
+              ></div>
+              <PlayIcon
+                strokeWidth={4}
+                className={"w-7 h-7 relative opacity-80"}
+                fill={"white"}
+                color={"white"}
+              ></PlayIcon>
             </div>
-
           )}
 
           {videoUrl && !isLoading && (
@@ -140,7 +164,11 @@ export function AvatarPlayer({ jobId }: {
         {isVideoLoaded && (
           <div className={"absolute bottom-2 right-2"}>
             <div className={"relative"}>
-              <div className={"absolute inset-0 w-full h-full bg-black blur-lg z-0"}></div>
+              <div
+                className={
+                  "absolute inset-0 w-full h-full bg-black blur-lg z-0"
+                }
+              ></div>
               <Link href={"https://www.hedra.com/"}>
                 <HedraLogo className={"h-4 w-4 z-10 relative"}></HedraLogo>
               </Link>
@@ -150,8 +178,13 @@ export function AvatarPlayer({ jobId }: {
       </div>
       <div className={"flex flex-row divide-x rounded-0"}>
         <div className={"flex flex-grow"}>
-          <Button variant={"ghost"} className={"flex-grow"} size={"sm"} disabled={!isVideoLoaded}
-                  onClick={toggleVideo}>
+          <Button
+            variant={"ghost"}
+            className={"flex-grow"}
+            size={"sm"}
+            disabled={!isVideoLoaded}
+            onClick={toggleVideo}
+          >
             {!isPlaying ? (
               <PlayIcon className={"text-black"} radius={10} />
             ) : (
@@ -160,7 +193,13 @@ export function AvatarPlayer({ jobId }: {
           </Button>
         </div>
         <div className={"flex flex-grow"}>
-          <Button variant={"ghost"} className={"flex-grow"} size={"sm"} disabled={!isVideoLoaded} onClick={toggleMuted}>
+          <Button
+            variant={"ghost"}
+            className={"flex-grow"}
+            size={"sm"}
+            disabled={!isVideoLoaded}
+            onClick={toggleMuted}
+          >
             {!isMuted ? (
               <Volume2Icon className={"text-black"} radius={10} />
             ) : (
@@ -169,14 +208,21 @@ export function AvatarPlayer({ jobId }: {
           </Button>
         </div>
         <div className={"flex flex-grow"}>
-          <Link href={videoUrl || ''} target={"_blank"} className={"w-full flex"}>
-            <Button variant={"ghost"} className={"flex-grow"} size={"sm"} disabled={!isVideoLoaded}>
+          <Link
+            href={videoUrl || ""}
+            target={"_blank"}
+            className={"w-full flex"}
+          >
+            <Button
+              variant={"ghost"}
+              className={"flex-grow"}
+              size={"sm"}
+              disabled={!isVideoLoaded}
+            >
               <DownloadIcon className={"text-black"} radius={10} />
             </Button>
           </Link>
-
         </div>
-
       </div>
     </div>
   );

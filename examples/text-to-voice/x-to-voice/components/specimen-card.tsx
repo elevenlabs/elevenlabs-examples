@@ -12,16 +12,18 @@ import { AvatarPlayer } from "@/components/avatar-player";
 import { HumanSpecimen } from "@/app/types";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpecimen }) {
-
+export async function SpecimenCard({
+  humanSpecimen,
+}: {
+  humanSpecimen: HumanSpecimen;
+}) {
   const human = {
     // facts
     userName: humanSpecimen.user?.userName ?? "Something went wrong",
     origin: humanSpecimen.user?.location ?? "Earth",
     createdAt: humanSpecimen.timestamp,
     profilePicture:
-      humanSpecimen.user?.profilePicture.replace(/_normal(?=\.\w+$)/, "") ??
-      "",
+      humanSpecimen.user?.profilePicture.replace(/_normal(?=\.\w+$)/, "") ?? "",
     // openai-gen
     characteristics: humanSpecimen.analysis.characteristics ?? [],
     humorousDescription: humanSpecimen.analysis.humorousDescription ?? "",
@@ -52,11 +54,19 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
           <div className="flex justify-between items-start w-full py-4">
             <div className="flex sm:gap-16 md:gap-28 w-full">
               {videoJobId && (
-                <div className={"flex flex-grow my-auto justify-center sm:justify-end"}>
+                <div
+                  className={
+                    "flex flex-grow my-auto justify-center sm:justify-end"
+                  }
+                >
                   <AvatarPlayer jobId={videoJobId} />
                 </div>
               )}
-              <div className={"sm:flex flex-col flex-grow justify-center items-start hidden"}>
+              <div
+                className={
+                  "sm:flex flex-col flex-grow justify-center items-start hidden"
+                }
+              >
                 <div>
                   <h1 className="md:text-3xl text-2xl font-mono text-gray-900 mb-2">
                     <Link
@@ -72,7 +82,6 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
                     <CopyShareLink />
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
@@ -86,13 +95,38 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
               What is this?
             </h2>
             <blockquote className="border-l-2 pl-3 text-sm text-gray-700 leading-relaxed italic">
-              This fully open-source project shows what can be built with the new <Link
-              href={"https://elevenlabs.io/docs/api-reference/ttv-create-previews"} className={"font-semibold"}
-              target={"_blank"}>ElevenLabs Voice Design API</Link>. We use the data from the X/Twitter profile to
-              create a prompt for what the voice might sound like. We then create the voice using the <Link
-              href={"https://elevenlabs.io/docs/api-reference/ttv-create-previews"} className={"underline"}
-              target={"_blank"}>ElevenLabs Voice Design API</Link> and the video using the <Link
-              href={"https://www.hedra.com/"} className={"underline"} target={"_blank"}>Hedra video API</Link>.
+              This fully open-source project shows what can be built with the
+              new{" "}
+              <Link
+                href={
+                  "https://elevenlabs.io/docs/api-reference/ttv-create-previews"
+                }
+                className={"font-semibold"}
+                target={"_blank"}
+              >
+                ElevenLabs Voice Design API
+              </Link>
+              . We use the data from the X/Twitter profile to create a prompt
+              for what the voice might sound like. We then create the voice
+              using the{" "}
+              <Link
+                href={
+                  "https://elevenlabs.io/docs/api-reference/ttv-create-previews"
+                }
+                className={"underline"}
+                target={"_blank"}
+              >
+                ElevenLabs Voice Design API
+              </Link>{" "}
+              and the video using the{" "}
+              <Link
+                href={"https://www.hedra.com/"}
+                className={"underline"}
+                target={"_blank"}
+              >
+                Hedra video API
+              </Link>
+              .
             </blockquote>
           </div>
           <div className="mt-4">
@@ -114,9 +148,14 @@ export async function SpecimenCard({ humanSpecimen }: { humanSpecimen: HumanSpec
               <h2 className="text-xs uppercase tracking-wide text-gray-500 mb-1">
                 Date Analyzed
               </h2>
-              <p className="text-sm text-gray-700">{new Date(human.createdAt).toLocaleString()}</p>
+              <p className="text-sm text-gray-700">
+                {new Date(human.createdAt).toLocaleString()}
+              </p>
             </div>
-            <QRCodeSVG value={`https://x.com/${human.userName}`} className={"h-10 w-10 sm:h-20 sm:w-20"} />
+            <QRCodeSVG
+              value={`https://x.com/${human.userName}`}
+              className={"h-10 w-10 sm:h-20 sm:w-20"}
+            />
           </div>
           <Link href="/" className={"w-full sm:w-auto"}>
             <Button className="flex">

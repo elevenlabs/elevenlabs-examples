@@ -1,13 +1,13 @@
-import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { getAllPosts, getPostBySlug } from '@/lib/api';
-import { CMS_NAME } from '@/lib/constants';
-import markdownToHtml from '@/lib/markdownToHtml';
-import Container from '@/app/_components/container';
-import Header from '@/app/_components/header';
-import { PostBody } from '@/app/_components/post-body';
-import { PostHeader } from '@/app/_components/post-header';
-import ElevenLabsAudioNative from '@/app/_components/elevenlabs-audio-native';
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getAllPosts, getPostBySlug } from "@/lib/api";
+import { CMS_NAME } from "@/lib/constants";
+import markdownToHtml from "@/lib/markdownToHtml";
+import Container from "@/app/_components/container";
+import Header from "@/app/_components/header";
+import { PostBody } from "@/app/_components/post-body";
+import { PostHeader } from "@/app/_components/post-header";
+import ElevenLabsAudioNative from "@/app/_components/elevenlabs-audio-native";
 
 export default async function Post({ params }: Params) {
   const post = getPostBySlug(params.slug);
@@ -16,13 +16,13 @@ export default async function Post({ params }: Params) {
     return notFound();
   }
 
-  const content = await markdownToHtml(post.content || '');
+  const content = await markdownToHtml(post.content || "");
 
   return (
     <main>
       <Container>
         <Header />
-        <article className='mb-32'>
+        <article className="mb-32">
           <PostHeader
             title={post.title}
             coverImage={post.coverImage}
@@ -31,7 +31,7 @@ export default async function Post({ params }: Params) {
           />
 
           <ElevenLabsAudioNative
-            publicUserId={process.env.NEXT_PUBLIC_PUBLIC_USER_ID || ''}
+            publicUserId={process.env.NEXT_PUBLIC_PUBLIC_USER_ID || ""}
           />
           <PostBody content={content} />
         </article>
@@ -67,7 +67,7 @@ export function generateMetadata({ params }: Params): Metadata {
 export async function generateStaticParams() {
   const posts = getAllPosts();
 
-  return posts.map((post) => ({
+  return posts.map(post => ({
     slug: post.slug,
   }));
 }

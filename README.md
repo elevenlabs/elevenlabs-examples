@@ -4,62 +4,83 @@
   </a>
 </p>
 
-This collection of demos and projects showcases the ElevenLabs API and how you can start building next generation AI audio apps with it. Whether you're looking to integrate text-to-speech into your website, create dubbed content, or explore advanced conversational applications, you'll find valuable resources here.
+Prompt-driven ElevenLabs examples for text-to-speech and speech-to-text. Each project includes:
 
-## 🚀 Featured Projects
+- `PROMPT.md` — instructions for agent-driven generation
+- `template/` — starter files copied before generation
+- `example/` — the generated, runnable example with its own `README.md`
 
-### Conversational AI Demos
-These projects offer practical examples of building real-time, voice-driven applications with rich interactivity.
+> The legacy `examples/` folder is being deprecated and can be ignored for new work.
 
-### Text-to-Speech (TTS) Demos
-- **Standard TTS Demo**: A straightforward implementation of our core TTS functionality.
-- **TTS WebSocket Demo with Latency Measurement**: Explore real-time text-to-speech with performance metrics.
+## Current examples
 
-### Native Mac App (Open Source)
-A fully open-source native Mac application that brings ElevenLabs to your desktop. Written by Claude 3.5 and Cursor.
+- [Text-to-Speech Quickstart (TypeScript)](text-to-speech/typescript/quickstart/example/README.md) - Generate an MP3 from text with the ElevenLabs JS SDK.
+  - [Text-to-Speech Quickstart (Python)](text-to-speech/python/quickstart/example/README.md) - Generate an MP3 from text with the ElevenLabs Python SDK.
+  - [Speech-to-Text Quickstart (TypeScript)](speech-to-text/typescript/quickstart/example/README.md) - Transcribe local audio files with Scribe v2.
+  - [Speech-to-Text Quickstart (Python)](speech-to-text/python/quickstart/example/README.md) - Transcribe local audio files with Scribe v2 using Python.
+- [Real-Time Speech-to-Text (Next.js)](speech-to-text/nextjs/realtime/example/README.md) - Live microphone transcription with VAD in a Next.js app.
 
-### Sound Effects Generation
-Unleash your creativity with our sound effects generation demo. Create custom audio landscapes for your projects!
+## Generate examples from prompts
 
-### AudioNative React Demo
-Embed ElevenLabs' text-to-speech capabilities directly into your React-based websites. This demo shows you how to seamlessly integrate our technology for a native-like audio experience.
+The general prompt-runner workflow is in `scripts/generate-examples.sh` and is exposed as:
 
-### Dubbing API Demo
-Discover how to use our Dubbing API to create multilingual content effortlessly. Perfect for content creators and localization teams!
+```bash
+pnpm run generate
+```
 
-### Pronunciation Dictionaries
-Learn how to work with pronunciation dictionaries to fine-tune the output of our voice models.
+### Prerequisites
 
+- `pnpm`
+- `claude` CLI
 
-## 🛠 Getting Started
+Install root dependencies first:
 
-To get started with these examples:
+```bash
+pnpm install
+```
 
-1. Clone this repository
-2. Navigate to the project you're interested in
-3. Follow the project-specific README for setup instructions
+### Usage
 
-For detailed API documentation and guides, visit our [Developer Docs](https://elevenlabs.io/docs/api-reference/getting-started).
+Run all example prompts:
 
-## 🤝 Contributing
+```bash
+pnpm run generate
+```
 
-We welcome contributions from the community! Before you start:
+Run only one example:
 
-1. Install the pre-commit hook:
-   ```
-   pip install pre-commit
-   pre-commit install
-   ```
-2. Check out our [Contributing Guidelines](CONTRIBUTING.md) for more information on how to submit pull requests, report issues, and suggest improvements.
+```bash
+pnpm run generate speech-to-text/nextjs/realtime
+```
 
-## 📚 Learn More
+Optional flags:
+
+```bash
+pnpm run generate -t 1200                     # timeout per prompt in seconds (default: 600)
+pnpm run generate -m opus                     # model selection (default: sonnet)
+pnpm run generate -v                          # verbose output
+pnpm run generate -m opus -t 1200 -v          # combine flags
+```
+
+## Try an example directly
+
+Each example has an `example/` folder with a README containing setup and run instructions. See the links in [Current examples](#current-examples) above.
+
+## Contributing
+
+We welcome contributions from the community. Install the pre-commit hook before submitting:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+## Learn more
 
 - [ElevenLabs Developer Docs](https://elevenlabs.io/docs/api-reference/getting-started)
 - [API Reference](https://api.elevenlabs.io/docs)
 - [ElevenLabs app](https://elevenlabs.io/)
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.

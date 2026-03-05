@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useConversation } from "@elevenlabs/react";
 import { Orb } from "@/components/ui/orb";
 
-
 async function requestMicrophonePermission() {
   try {
     await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -41,7 +40,7 @@ export function ConvAI() {
     },
     onMessage: message => {
       console.log(message);
-    }
+    },
   });
 
   async function startConversation() {
@@ -52,16 +51,14 @@ export function ConvAI() {
     }
     const signedUrl = await getSignedUrl();
     const conversationId = await conversation.startSession({
-      signedUrl
+      signedUrl,
     });
     console.log(conversationId);
   }
 
-
   const stopConversation = useCallback(async () => {
     await conversation.endSession();
   }, [conversation]);
-
 
   function getAgentState() {
     if (conversation.status === "connected" && conversation.isSpeaking) {
@@ -90,15 +87,16 @@ export function ConvAI() {
             </CardTitle>
           </CardHeader>
           <div className={"flex flex-col gap-y-4 text-center items-center"}>
-            <Orb agentState={getAgentState()} className={"w-[250px] h-[250px]"} />
+            <Orb
+              agentState={getAgentState()}
+              className={"w-[250px] h-[250px]"}
+            />
 
             <Button
               variant={"outline"}
               className={"rounded-full"}
               size={"lg"}
-              disabled={
-                conversation.status !== "disconnected"
-              }
+              disabled={conversation.status !== "disconnected"}
               onClick={startConversation}
             >
               Start conversation

@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  webpack: (config) => {
+  webpack: config => {
     config.module.rules.push({
       test: /\.(glsl|vs|fs|vert|frag)$/,
       use: ["raw-loader"],

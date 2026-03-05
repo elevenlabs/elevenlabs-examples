@@ -1,6 +1,9 @@
 import { useScramble } from "use-scramble";
 
-export const ScrambleText = ({ text, loop = false }: {
+export const ScrambleText = ({
+  text,
+  loop = false,
+}: {
   text: string;
   loop?: boolean;
 }) => {
@@ -20,4 +23,4 @@ export const ScrambleText = ({ text, loop = false }: {
   return <span ref={ref} />;
 };
 
-export default ScrambleText
+export default ScrambleText;

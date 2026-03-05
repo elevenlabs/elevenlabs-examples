@@ -30,7 +30,7 @@ export function ScreenshotToSoundEffect() {
     if (file) {
       setImageFile(file);
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = event => {
         setImage(event.target?.result as string);
       };
       reader.readAsDataURL(file);
@@ -46,7 +46,7 @@ export function ScreenshotToSoundEffect() {
     if (file && file.type.startsWith("image/")) {
       setImageFile(file);
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = event => {
         setImage(event.target?.result as string);
       };
       reader.readAsDataURL(file);
@@ -68,7 +68,7 @@ export function ScreenshotToSoundEffect() {
         if (file) {
           setImageFile(file);
           const reader = new FileReader();
-          reader.onload = (event) => {
+          reader.onload = event => {
             setImage(event.target?.result as string);
           };
           reader.readAsDataURL(file);
@@ -168,7 +168,7 @@ export function ScreenshotToSoundEffect() {
   const playAudio = () => {
     if (audioRef.current && audioUrl) {
       audioRef.current.src = audioUrl;
-      audioRef.current.play().catch((error) => {
+      audioRef.current.play().catch(error => {
         console.error("Error playing audio:", error);
         toast({
           title: "Error playing audio",
@@ -317,7 +317,7 @@ export function ScreenshotToSoundEffect() {
                 <Textarea
                   placeholder="The analysis result will appear here..."
                   value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
+                  onChange={e => setPrompt(e.target.value)}
                   className="min-h-[100px]"
                 />
                 <p className="text-sm text-muted-foreground">

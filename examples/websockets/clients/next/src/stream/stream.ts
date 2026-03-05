@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 export interface ElevenStreamingPlugin {
   initStream(): Promise<void>;
@@ -23,7 +23,7 @@ export class ElevenStreamingWeb implements ElevenStreamingPlugin {
 
   async stop(): Promise<void> {
     // return this.audio.pause();
-    this.scheduledAudioChunks.forEach((source) => {
+    this.scheduledAudioChunks.forEach(source => {
       try {
         source.stop();
       } catch (e) {
@@ -54,7 +54,7 @@ export class ElevenStreamingWeb implements ElevenStreamingPlugin {
     const audioBuffer = this.audioContext.createBuffer(
       1,
       uint8Array.length / 2,
-      44100,
+      44100
     );
     const channelData = audioBuffer.getChannelData(0);
     for (let i = 0; i < data.byteLength; i += 2) {

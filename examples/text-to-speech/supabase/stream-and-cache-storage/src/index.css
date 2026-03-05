@@ -1,8 +1,7 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
     --background: 0 0% 3.9%;
@@ -27,7 +26,7 @@
     --radius: 0.75rem;
   }
 }
- 
+
 @layer base {
   * {
     @apply border-border;
@@ -43,13 +42,17 @@
 
 .textarea-container {
   position: relative;
-  background: linear-gradient(145deg, rgba(26, 44, 42, 0.5), rgba(26, 44, 42, 0.8));
+  background: linear-gradient(
+    145deg,
+    rgba(26, 44, 42, 0.5),
+    rgba(26, 44, 42, 0.8)
+  );
   border-radius: 1rem;
   overflow: hidden;
 }
 
 .textarea-container::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -57,9 +60,17 @@
   bottom: 0;
   border-radius: 1rem;
   padding: 2px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.05)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;

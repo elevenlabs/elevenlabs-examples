@@ -14,8 +14,6 @@ How it works:
 
 ![Screenshot elevenlabs-video-to-sfx vercel app (Arc) 2024-06-16 at 23 33@2x](https://github.com/elevenlabs/elevenlabs-examples/assets/22766134/20fba872-e8d1-4f30-92af-fcb52bab45da)
 
-
-
 ## Getting Started
 
 First, run the development server:

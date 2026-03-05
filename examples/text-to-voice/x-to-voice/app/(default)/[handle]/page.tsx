@@ -60,37 +60,44 @@ export async function generateMetadata({ params }): Promise<Metadata> {
     openGraph: {
       title: title,
       description,
-      images: avatarImageUrl ? [
-        {
-          url: avatarImageUrl,
-          width: 512,
-          height: 512,
-        },
-      ] : undefined,
-      videos: videoUrl ? [
-        {
-          url: videoUrl,
-          width: 512,
-          height: 512,
-        },
-      ] : undefined,
+      images: avatarImageUrl
+        ? [
+            {
+              url: avatarImageUrl,
+              width: 512,
+              height: 512,
+            },
+          ]
+        : undefined,
+      videos: videoUrl
+        ? [
+            {
+              url: videoUrl,
+              width: 512,
+              height: 512,
+            },
+          ]
+        : undefined,
       locale: "en_US",
       type: "website",
     },
-    twitter: videoUrl && avatarImageUrl ? {
-      card: "player",
-      title,
-      description,
-      site: "@elebenlabs.io",
-      creator: "@elevenlabsio",
-      images: [avatarImageUrl],
-      players: {
-        playerUrl: `${env.NEXT_PUBLIC_BASE_URL}/embed/${handle}`,
-        streamUrl: videoUrl,
-        width: 512,
-        height: 512,
-      },
-    } : undefined,
+    twitter:
+      videoUrl && avatarImageUrl
+        ? {
+            card: "player",
+            title,
+            description,
+            site: "@elebenlabs.io",
+            creator: "@elevenlabsio",
+            images: [avatarImageUrl],
+            players: {
+              playerUrl: `${env.NEXT_PUBLIC_BASE_URL}/embed/${handle}`,
+              streamUrl: videoUrl,
+              width: 512,
+              height: 512,
+            },
+          }
+        : undefined,
   };
 
   return {

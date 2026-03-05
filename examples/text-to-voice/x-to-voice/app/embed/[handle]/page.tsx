@@ -26,6 +26,6 @@ export default async function Page({ params }) {
 export async function generateMetadata({ params }): Promise<Metadata> {
   const { handle } = await params;
   return {
-    title: `Embed | ${handle}`
-  }
+    title: `Embed | ${handle}`,
+  };
 }

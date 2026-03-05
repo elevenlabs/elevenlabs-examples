@@ -10,7 +10,11 @@ import { AudioPlayer } from "./state/player";
 import { observer } from "mobx-react";
 import { cn } from "@/lib/utils";
 import { reaction } from "mobx";
-import { QueryClient, QueryClientProvider, useMutation } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useMutation,
+} from "@tanstack/react-query";
 import { convertVideoToSFX } from "@/lib/videoToSFX";
 import { ArrowRight, DownloadIcon, Github, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,7 +27,7 @@ const HoverOverlay = ({ className }: { className?: string }) => {
     <div
       className={cn(
         "absolute inset-[4px] bg-gradient-to-tr from-[#08B0D5] to-[#AD20D0] rounded-[inherit] opacity-0 -z-10 group-hover:inset-0 group-hover:opacity-[17.5%] transition-all duration-300",
-        className,
+        className
       )}
     ></div>
   );
@@ -147,16 +151,11 @@ const HomeDetails = observer(() => {
     false,
     false,
   ]);
-  const [progress, setProgress] = useState([
-    0,
-    0,
-    0,
-    0,
-  ]);
+  const [progress, setProgress] = useState([0, 0, 0, 0]);
 
   const previewUrl = useMemo(
     () => (file ? URL.createObjectURL(file) : null),
-    [file],
+    [file]
   );
 
   useEffect(() => {
@@ -187,7 +186,7 @@ const HomeDetails = observer(() => {
             videoRef.current.pause();
           }
         }
-      },
+      }
     );
   }, [orchestrator]);
 
@@ -242,7 +241,7 @@ const HomeDetails = observer(() => {
       <motion.div
         className={cn(
           "flex flex-col md:hidden text-black p-4 gap-4",
-          previewUrl && "hidden",
+          previewUrl && "hidden"
         )}
       >
         <a
@@ -290,7 +289,7 @@ const HomeDetails = observer(() => {
                     new Orchestrator({
                       soundEffects: sfx.soundEffects,
                       caption: sfx.caption,
-                    }),
+                    })
                   );
                 }
               }}
@@ -362,13 +361,17 @@ const HomeDetails = observer(() => {
                         newState[index] = true;
                         return newState;
                       });
-                      await mergeAndDownload(file, url, (newProgress: number) => {
-                        setProgress(prev => {
-                          const newState = [...prev];
-                          newState[index] = newProgress;
-                          return newState;
-                        });
-                      });
+                      await mergeAndDownload(
+                        file,
+                        url,
+                        (newProgress: number) => {
+                          setProgress(prev => {
+                            const newState = [...prev];
+                            newState[index] = newProgress;
+                            return newState;
+                          });
+                        }
+                      );
                       setIsDownloading(prev => {
                         const newState = [...prev];
                         newState[index] = false;
@@ -398,9 +401,9 @@ const Home = () => {
 
 const Waveform = observer(
   ({
-     player,
-     barBgColor = "bg-gray-800/30",
-   }: {
+    player,
+    barBgColor = "bg-gray-800/30",
+  }: {
     player: AudioPlayer;
     barBgColor: string;
   }) => {
@@ -425,20 +428,20 @@ const Waveform = observer(
         ))}
       </div>
     );
-  },
+  }
 );
 
 const SoundEffect = observer(
   ({
-     index,
-     player,
-     onPlay,
-     onPause,
-     active,
-     onDownload,
-     isDownloading,
-     progress,
-   }: {
+    index,
+    player,
+    onPlay,
+    onPause,
+    active,
+    onDownload,
+    isDownloading,
+    progress,
+  }: {
     index: number;
     player: AudioPlayer;
     onPlay: () => void;
@@ -446,7 +449,7 @@ const SoundEffect = observer(
     active: boolean;
     onDownload: () => void;
     isDownloading: boolean;
-    progress: number
+    progress: number;
   }) => {
     return (
       <motion.div
@@ -503,7 +506,7 @@ const SoundEffect = observer(
           className="self-center mr-3 rounded-full bg-transparent hover:bg-white/25 active:bg-white/40 border-gray-800/20"
         >
           {isDownloading ? (
-            <span className={'text-[10px] text-gray-900/50'}>{progress}%</span>
+            <span className={"text-[10px] text-gray-900/50"}>{progress}%</span>
           ) : (
             <DownloadIcon size={16} className="text-gray-800/50" />
           )}

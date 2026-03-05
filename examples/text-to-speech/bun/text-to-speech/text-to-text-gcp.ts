@@ -1,15 +1,15 @@
-import { ElevenLabsClient } from 'elevenlabs';
-import { Storage } from '@google-cloud/storage';
+import { ElevenLabsClient } from "elevenlabs";
+import { Storage } from "@google-cloud/storage";
 
 const elevenlabs = new ElevenLabsClient();
 const storage = new Storage(/* <enter-your-credentials> */);
-const bucket = storage.bucket('<enter-your-bucket-name>');
+const bucket = storage.bucket("<enter-your-bucket-name>");
 
 export const createAudioFromTextToGcp = async (
   text: string,
-  remotePath: string,
+  remotePath: string
 ) => {
-  const localPath = 'audio.mp3';
+  const localPath = "audio.mp3";
 
   await createAudioFileFromText(text, localPath);
 
@@ -21,8 +21,8 @@ export const createAudioFromTextToGcp = async (
 
 const createAudioFileFromText = async (text: string, output: string) => {
   const audio = await elevenlabs.generate({
-    voice: 'Rachel',
-    model_id: 'eleven_multilingual_v2',
+    voice: "Rachel",
+    model_id: "eleven_multilingual_v2",
     text,
   });
 
@@ -34,7 +34,7 @@ const createAudioFileFromText = async (text: string, output: string) => {
   const uint8Array = new Uint8Array(
     audioBuffer.buffer,
     audioBuffer.byteOffset,
-    audioBuffer.byteLength,
+    audioBuffer.byteLength
   );
 
   await Bun.write(output, uint8Array);
