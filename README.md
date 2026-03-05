@@ -1,24 +1,23 @@
-<p align="center">
-  <a href="https://elevenlabs.io">
-    <h3 align="center">ElevenLabs Examples</h3>
-  </a>
-</p>
+![ElevenLabs Examples Header](./examples-header.png)
 
 Prompt-driven ElevenLabs examples for text-to-speech and speech-to-text. Each project includes:
 
 - `PROMPT.md` — instructions for agent-driven generation
-- `template/` — starter files copied before generation
+- `setup.sh` — scaffolds the `example/` directory from a shared template
 - `example/` — the generated, runnable example with its own `README.md`
+
+Shared base templates live in `templates/` (Next.js, Python, TypeScript). UI styling rules are in `DESIGN.md`.
 
 > The legacy `examples/` folder is being deprecated and can be ignored for new work.
 
+
 ## Current examples
 
-- [Text-to-Speech Quickstart (TypeScript)](text-to-speech/typescript/quickstart/example/README.md) - Generate an MP3 from text with the ElevenLabs JS SDK.
-  - [Text-to-Speech Quickstart (Python)](text-to-speech/python/quickstart/example/README.md) - Generate an MP3 from text with the ElevenLabs Python SDK.
-  - [Speech-to-Text Quickstart (TypeScript)](speech-to-text/typescript/quickstart/example/README.md) - Transcribe local audio files with Scribe v2.
-  - [Speech-to-Text Quickstart (Python)](speech-to-text/python/quickstart/example/README.md) - Transcribe local audio files with Scribe v2 using Python.
-- [Real-Time Speech-to-Text (Next.js)](speech-to-text/nextjs/realtime/example/README.md) - Live microphone transcription with VAD in a Next.js app.
+- [Text-to-Speech Quickstart (TypeScript)](text-to-speech/typescript/quickstart/example/README.md) — Generate an MP3 from text with the ElevenLabs JS SDK.
+- [Text-to-Speech Quickstart (Python)](text-to-speech/python/quickstart/example/README.md) — Generate an MP3 from text with the ElevenLabs Python SDK.
+- [Speech-to-Text Quickstart (TypeScript)](speech-to-text/typescript/quickstart/example/README.md) — Transcribe local audio files with Scribe v2.
+- [Speech-to-Text Quickstart (Python)](speech-to-text/python/quickstart/example/README.md) — Transcribe local audio files with Scribe v2.
+- [Real-Time Speech-to-Text (Next.js)](speech-to-text/nextjs/realtime/example/README.md) — Live microphone transcription with VAD in a Next.js app.
 
 ## Generate examples from prompts
 
