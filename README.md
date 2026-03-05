@@ -10,7 +10,6 @@ Shared base templates live in `templates/` (Next.js, Python, TypeScript). UI sty
 
 > The legacy `examples/` folder is being deprecated and can be ignored for new work.
 
-
 ## Current examples
 
 - [Text-to-Speech Quickstart (TypeScript)](text-to-speech/typescript/quickstart/example/README.md) — Generate an MP3 from text with the ElevenLabs JS SDK.
