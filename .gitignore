@@ -12,7 +12,8 @@ __pycache__
 
 # dependencies
 node_modules
-package-lock.json
+**/package-lock.json
+!/package-lock.json
 pnpm-lock.yaml
 yarn.lock
 poetry.lock
