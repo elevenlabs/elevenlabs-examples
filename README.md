@@ -15,9 +15,9 @@ Prompt-driven ElevenLabs examples for text-to-speech and speech-to-text. Each pr
 ## Current examples
 
 - [Text-to-Speech Quickstart (TypeScript)](text-to-speech/typescript/quickstart/example/README.md) - Generate an MP3 from text with the ElevenLabs JS SDK.
-   - [Text-to-Speech Quickstart (Python)](text-to-speech/python/quickstart/example/README.md) - Generate an MP3 from text with the ElevenLabs Python SDK.
-   - [Speech-to-Text Quickstart (TypeScript)](speech-to-text/typescript/quickstart/example/README.md) - Transcribe local audio files with Scribe v2.
-   - [Speech-to-Text Quickstart (Python)](speech-to-text/python/quickstart/example/README.md) - Transcribe local audio files with Scribe v2 using Python.
+  - [Text-to-Speech Quickstart (Python)](text-to-speech/python/quickstart/example/README.md) - Generate an MP3 from text with the ElevenLabs Python SDK.
+  - [Speech-to-Text Quickstart (TypeScript)](speech-to-text/typescript/quickstart/example/README.md) - Transcribe local audio files with Scribe v2.
+  - [Speech-to-Text Quickstart (Python)](speech-to-text/python/quickstart/example/README.md) - Transcribe local audio files with Scribe v2 using Python.
 - [Real-Time Speech-to-Text (Next.js)](speech-to-text/nextjs/realtime/example/README.md) - Live microphone transcription with VAD in a Next.js app.
 
 ## Generate examples from prompts
