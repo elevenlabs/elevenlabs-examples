@@ -2,6 +2,7 @@
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$DIR/../../.." && pwd)"
 cd "$DIR"
 
 # Clean example/ but preserve node_modules for speed
@@ -10,12 +11,15 @@ if [ -d example ]; then
 fi
 mkdir -p example
 
-# Copy template structure (skip node_modules, .next, lock files, empty example/ dir)
+# Copy shared template structure (skip node_modules, .next, lock files, empty example/ dir)
 rsync -a \
   --exclude node_modules --exclude .next \
   --exclude pnpm-lock.yaml --exclude package-lock.json \
   --exclude example \
-  template/ example/
+  "$REPO_ROOT/templates/nextjs/" example/
+
+# Copy project-specific README
+cp README.md example/README.md
 
 # Add ElevenLabs dependencies
 cd example

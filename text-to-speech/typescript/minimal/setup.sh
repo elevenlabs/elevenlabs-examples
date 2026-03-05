@@ -2,6 +2,7 @@
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$DIR/../../.." && pwd)"
 cd "$DIR"
 
 # Clean example/ but preserve node_modules for speed
@@ -10,12 +11,15 @@ if [ -d example ]; then
 fi
 mkdir -p example
 
-# Copy template into example/
+# Copy shared template into example/
 rsync -a \
   --exclude node_modules \
   --exclude pnpm-lock.yaml --exclude package-lock.json \
   --exclude example \
-  template/ example/
+  "$REPO_ROOT/templates/typescript/" example/
+
+# Copy project-specific README
+cp README.md example/README.md
 
 # Setup env
 if [ -f "$DIR/.env" ]; then

@@ -2,6 +2,7 @@
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$DIR/../../.." && pwd)"
 cd "$DIR"
 
 # Clean example/ but preserve .venv for speed
@@ -10,11 +11,14 @@ if [ -d example ]; then
 fi
 mkdir -p example
 
-# Copy template into example/
+# Copy shared template into example/
 rsync -a \
   --exclude .venv \
   --exclude example \
-  template/ example/
+  "$REPO_ROOT/templates/python/" example/
+
+# Copy project-specific README
+cp README.md example/README.md
 
 # Copy sample assets into example/
 if [ -d "$DIR/assets" ]; then
