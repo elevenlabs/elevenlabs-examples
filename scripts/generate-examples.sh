@@ -407,6 +407,29 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
       if [[ -f "${REPO_ROOT}/DESIGN.md" ]]; then
         preamble+=$'\n\n'"Read \`DESIGN.md\` at the repo root for styling rules. Preserve any existing template header and layout container."
       fi
+
+      # Auto-load skills referenced in the prompt (skills cannot be invoked in pipe mode)
+      skills_dir="${REPO_ROOT}/.agents/skills"
+      if [[ -d "${skills_dir}" ]]; then
+        skill_context=""
+        bt='`'
+        while IFS= read -r skill_name; do
+          skill_path="${skills_dir}/${skill_name}"
+          if [[ -d "${skill_path}" && -f "${skill_path}/SKILL.md" ]]; then
+            skill_context+=$'\n\n'"$(cat "${skill_path}/SKILL.md")"
+            for ref_file in "${skill_path}"/references/*.md; do
+              if [[ -f "${ref_file}" ]]; then
+                skill_context+=$'\n\n'"$(cat "${ref_file}")"
+              fi
+            done
+          fi
+        done < <(grep -oE "${bt}/[a-zA-Z0-9_-]+${bt}" <<< "${prompt_text}" | tr -d "${bt}/" | sort -u)
+        if [[ -n "${skill_context}" ]]; then
+          preamble+=$'\n\n'"## SDK Reference"
+          preamble+="${skill_context}"
+        fi
+      fi
+
       prompt_text="${preamble}"$'\n\n'"${prompt_text}"
       claude_cmd=(claude --dangerously-skip-permissions)
       if [[ -n "${CLAUDE_MODEL}" ]]; then
