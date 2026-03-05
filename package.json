@@ -1,5 +1,10 @@
 {
+  "name": "examples",
+  "private": true,
   "scripts": {
     "generate": "bash scripts/generate-examples.sh"
+  },
+  "devDependencies": {
+    "prettier": "3.8.1"
   }
 }
