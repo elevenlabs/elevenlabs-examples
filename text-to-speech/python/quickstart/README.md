@@ -1,4 +1,4 @@
-# ElevenLabs Text-to-Speech — Minimal Python Example
+# ElevenLabs Text-to-Speech — Quickstart Python Example
 
 Generate an MP3 file from text using the ElevenLabs Python SDK.
 

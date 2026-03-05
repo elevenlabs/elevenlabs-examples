@@ -1,4 +1,4 @@
-# ElevenLabs Text-to-Speech — Minimal Example
+# ElevenLabs Text-to-Speech — Quickstart Example
 
 Generate an MP3 file from text using the ElevenLabs JS SDK.
 

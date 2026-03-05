@@ -1,4 +1,4 @@
-# ElevenLabs Speech-to-Text — Minimal Example
+# ElevenLabs Speech-to-Text — Quickstart Python Example
 
 Transcribe audio to text using ElevenLabs Scribe v2.
 
@@ -12,10 +12,11 @@ Transcribe audio to text using ElevenLabs Scribe v2.
 
    Then edit `.env` and add your [ElevenLabs API key](https://elevenlabs.io/app/settings/api-keys).
 
-2. Install dependencies:
+2. Create a virtual environment and install dependencies:
 
    ```bash
-   pnpm install
+   python3 -m venv .venv
+   .venv/bin/pip install -r requirements.txt
    ```
 
 ## Run
@@ -23,11 +24,11 @@ Transcribe audio to text using ElevenLabs Scribe v2.
 Transcribe the bundled quickstart sample:
 
 ```bash
-pnpm run start
+.venv/bin/python main.py
 ```
 
 Transcribe a local file:
 
 ```bash
-pnpm run start ./audio.mp3
+.venv/bin/python main.py ./audio.mp3
 ```

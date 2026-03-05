@@ -2,7 +2,7 @@ Before writing any code, invoke the `/text-to-speech` skill to learn the correct
 
 ## `main.py`
 
-Minimal script that generates an MP3 from text using ElevenLabs Text-to-Speech.
+Quickstart script that generates an MP3 from text using ElevenLabs Text-to-Speech.
 
 - Import everything at the top. Call `load_dotenv()` after imports, then pass `api_key=os.environ["ELEVENLABS_API_KEY"]` explicitly to the `ElevenLabs` client.
 - Read text from CLI args; fall back to a short default sentence.
