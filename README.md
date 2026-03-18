@@ -29,7 +29,7 @@ pnpm run generate
 ### Prerequisites
 
 - `pnpm`
-- `claude` CLI
+- `cursor` CLI
 
 Install root dependencies first:
 
@@ -55,9 +55,9 @@ Optional flags:
 
 ```bash
 pnpm run generate -t 1200                     # timeout per prompt in seconds (default: 600)
-pnpm run generate -m opus                     # model selection (default: sonnet)
+pnpm run generate -m "claude-4-sonnet"        # model selection (default: Cursor auto-select)
 pnpm run generate -v                          # verbose output
-pnpm run generate -m opus -t 1200 -v          # combine flags
+pnpm run generate -m "claude-4-sonnet" -t 1200 -v
 ```
 
 ## Try an example directly
