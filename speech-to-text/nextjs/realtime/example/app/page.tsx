@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useScribe, CommitStrategy } from "@elevenlabs/react";
 import { LiveWaveform } from "@/components/ui/live-waveform";
 
@@ -28,6 +28,12 @@ export default function Home() {
       setError("Connection error occurred. Please try again.");
     },
   });
+
+  useEffect(() => {
+    if (scribe.status === "disconnected" || scribe.status === "error") {
+      setPartialTranscript("");
+    }
+  }, [scribe.status]);
 
   // Check both connected and transcribing states to properly show active status
   const isActive =

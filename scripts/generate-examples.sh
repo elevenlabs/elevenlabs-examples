@@ -6,22 +6,22 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${REPO_ROOT}" || exit 1
 
-CLAUDE_TIMEOUT_SECONDS="${CLAUDE_TIMEOUT_SECONDS:-600}"
-CLAUDE_MODEL="${CLAUDE_MODEL:-sonnet}"
+CURSOR_TIMEOUT_SECONDS="${CURSOR_TIMEOUT_SECONDS:-${CLAUDE_TIMEOUT_SECONDS:-600}}"
+CURSOR_MODEL="${CURSOR_MODEL:-${CLAUDE_MODEL:-}}"
 PROMPT_RUN_OUTPUT="${PROMPT_RUN_OUTPUT:-simple}"
 
 usage() {
   echo "Usage: $0 [-t seconds] [-m model] [-v] [folder-or-PROMPT.md]" >&2
   echo "  -t  Timeout per prompt in seconds (default: 600)" >&2
-  echo "  -m  Claude model to use (default: sonnet)" >&2
+  echo "  -m  Cursor model to use (default: auto)" >&2
   echo "  -v  Verbose output" >&2
   exit 1
 }
 
 while getopts ":t:m:v" opt; do
   case "${opt}" in
-    t) CLAUDE_TIMEOUT_SECONDS="${OPTARG}" ;;
-    m) CLAUDE_MODEL="${OPTARG}" ;;
+    t) CURSOR_TIMEOUT_SECONDS="${OPTARG}" ;;
+    m) CURSOR_MODEL="${OPTARG}" ;;
     v) PROMPT_RUN_OUTPUT="verbose" ;;
     *) usage ;;
   esac
@@ -192,7 +192,7 @@ extract_with_jq() {
   return 1
 }
 
-extract_claude_usage() {
+extract_cursor_usage() {
   local output_json="$1"
   local input_for_total=0
   local output_for_total=0
@@ -203,55 +203,55 @@ extract_claude_usage() {
   local has_cache_write_tokens=0
   local has_cache_read_tokens=0
 
-  CLAUDE_INPUT_TOKENS=""
-  CLAUDE_OUTPUT_TOKENS=""
-  CLAUDE_CACHE_WRITE_TOKENS=""
-  CLAUDE_CACHE_READ_TOKENS=""
-  CLAUDE_TOTAL_TOKENS=""
+  CURSOR_INPUT_TOKENS=""
+  CURSOR_OUTPUT_TOKENS=""
+  CURSOR_CACHE_WRITE_TOKENS=""
+  CURSOR_CACHE_READ_TOKENS=""
+  CURSOR_TOTAL_TOKENS=""
 
-  CLAUDE_INPUT_TOKENS="$(extract_with_jq "${output_json}" '.usage.input_tokens // .usage.inputTokens // empty')"
-  CLAUDE_OUTPUT_TOKENS="$(extract_with_jq "${output_json}" '.usage.output_tokens // .usage.outputTokens // empty')"
-  CLAUDE_CACHE_WRITE_TOKENS="$(extract_with_jq "${output_json}" '.usage.cache_creation_input_tokens // .usage.cacheCreationInputTokens // empty')"
-  CLAUDE_CACHE_READ_TOKENS="$(extract_with_jq "${output_json}" '.usage.cache_read_input_tokens // .usage.cacheReadInputTokens // empty')"
-  CLAUDE_TOTAL_TOKENS="$(extract_with_jq "${output_json}" '.usage.total_tokens // .usage.totalTokens // empty')"
+  CURSOR_INPUT_TOKENS="$(extract_with_jq "${output_json}" '.usage.input_tokens // .usage.inputTokens // empty')"
+  CURSOR_OUTPUT_TOKENS="$(extract_with_jq "${output_json}" '.usage.output_tokens // .usage.outputTokens // empty')"
+  CURSOR_CACHE_WRITE_TOKENS="$(extract_with_jq "${output_json}" '.usage.cache_creation_input_tokens // .usage.cacheCreationInputTokens // empty')"
+  CURSOR_CACHE_READ_TOKENS="$(extract_with_jq "${output_json}" '.usage.cache_read_input_tokens // .usage.cacheReadInputTokens // empty')"
+  CURSOR_TOTAL_TOKENS="$(extract_with_jq "${output_json}" '.usage.total_tokens // .usage.totalTokens // .total_tokens // .totalTokens // empty')"
 
-  if [[ -z "${CLAUDE_INPUT_TOKENS}${CLAUDE_OUTPUT_TOKENS}${CLAUDE_CACHE_WRITE_TOKENS}${CLAUDE_CACHE_READ_TOKENS}${CLAUDE_TOTAL_TOKENS}" ]]; then
-    CLAUDE_INPUT_TOKENS="$(extract_json_number_for_keys "${output_json}" "input_tokens" "inputTokens")"
-    CLAUDE_OUTPUT_TOKENS="$(extract_json_number_for_keys "${output_json}" "output_tokens" "outputTokens")"
-    CLAUDE_CACHE_WRITE_TOKENS="$(extract_json_number_for_keys "${output_json}" "cache_creation_input_tokens" "cacheCreationInputTokens")"
-    CLAUDE_CACHE_READ_TOKENS="$(extract_json_number_for_keys "${output_json}" "cache_read_input_tokens" "cacheReadInputTokens")"
-    CLAUDE_TOTAL_TOKENS="$(extract_json_number_for_keys "${output_json}" "total_tokens" "totalTokens")"
+  if [[ -z "${CURSOR_INPUT_TOKENS}${CURSOR_OUTPUT_TOKENS}${CURSOR_CACHE_WRITE_TOKENS}${CURSOR_CACHE_READ_TOKENS}${CURSOR_TOTAL_TOKENS}" ]]; then
+    CURSOR_INPUT_TOKENS="$(extract_json_number_for_keys "${output_json}" "input_tokens" "inputTokens")"
+    CURSOR_OUTPUT_TOKENS="$(extract_json_number_for_keys "${output_json}" "output_tokens" "outputTokens")"
+    CURSOR_CACHE_WRITE_TOKENS="$(extract_json_number_for_keys "${output_json}" "cache_creation_input_tokens" "cacheCreationInputTokens")"
+    CURSOR_CACHE_READ_TOKENS="$(extract_json_number_for_keys "${output_json}" "cache_read_input_tokens" "cacheReadInputTokens")"
+    CURSOR_TOTAL_TOKENS="$(extract_json_number_for_keys "${output_json}" "total_tokens" "totalTokens")"
   fi
 
-  if [[ -z "${CLAUDE_TOTAL_TOKENS}" ]]; then
-    if [[ "${CLAUDE_INPUT_TOKENS}" =~ ^[0-9]+$ ]]; then
-      input_for_total="${CLAUDE_INPUT_TOKENS}"
+  if [[ -z "${CURSOR_TOTAL_TOKENS}" ]]; then
+    if [[ "${CURSOR_INPUT_TOKENS}" =~ ^[0-9]+$ ]]; then
+      input_for_total="${CURSOR_INPUT_TOKENS}"
       has_input_tokens=1
     fi
-    if [[ "${CLAUDE_OUTPUT_TOKENS}" =~ ^[0-9]+$ ]]; then
-      output_for_total="${CLAUDE_OUTPUT_TOKENS}"
+    if [[ "${CURSOR_OUTPUT_TOKENS}" =~ ^[0-9]+$ ]]; then
+      output_for_total="${CURSOR_OUTPUT_TOKENS}"
       has_output_tokens=1
     fi
-    if [[ "${CLAUDE_CACHE_WRITE_TOKENS}" =~ ^[0-9]+$ ]]; then
-      cache_write_for_total="${CLAUDE_CACHE_WRITE_TOKENS}"
+    if [[ "${CURSOR_CACHE_WRITE_TOKENS}" =~ ^[0-9]+$ ]]; then
+      cache_write_for_total="${CURSOR_CACHE_WRITE_TOKENS}"
       has_cache_write_tokens=1
     fi
-    if [[ "${CLAUDE_CACHE_READ_TOKENS}" =~ ^[0-9]+$ ]]; then
-      cache_read_for_total="${CLAUDE_CACHE_READ_TOKENS}"
+    if [[ "${CURSOR_CACHE_READ_TOKENS}" =~ ^[0-9]+$ ]]; then
+      cache_read_for_total="${CURSOR_CACHE_READ_TOKENS}"
       has_cache_read_tokens=1
     fi
 
     if (( has_input_tokens == 1 || has_output_tokens == 1 || has_cache_write_tokens == 1 || has_cache_read_tokens == 1 )); then
-      CLAUDE_TOTAL_TOKENS=$((input_for_total + output_for_total + cache_write_for_total + cache_read_for_total))
+      CURSOR_TOTAL_TOKENS=$((input_for_total + output_for_total + cache_write_for_total + cache_read_for_total))
     fi
   fi
 }
 
 require_cmd "pnpm"
-require_cmd "claude"
+require_cmd "cursor"
 
-if ! [[ "${CLAUDE_TIMEOUT_SECONDS}" =~ ^[1-9][0-9]*$ ]]; then
-  echo "CLAUDE_TIMEOUT_SECONDS must be a positive integer: ${CLAUDE_TIMEOUT_SECONDS}" >&2
+if ! [[ "${CURSOR_TIMEOUT_SECONDS}" =~ ^[1-9][0-9]*$ ]]; then
+  echo "CURSOR_TIMEOUT_SECONDS must be a positive integer: ${CURSOR_TIMEOUT_SECONDS}" >&2
   exit 1
 fi
 
@@ -281,11 +281,11 @@ echo
 skills_add_output=""
 if (( VERBOSE_OUTPUT == 1 )); then
   echo "Pulling latest skills"
-  pnpm dlx skills add elevenlabs/skills --agent claude-code -y
+  pnpm dlx skills add elevenlabs/skills --agent cursor -y
   SKILLS_EXIT=$?
 else
   printf "Updating skills... "
-  skills_add_output="$(pnpm dlx skills add elevenlabs/skills --agent claude-code -y 2>&1)"
+  skills_add_output="$(pnpm dlx skills add elevenlabs/skills --agent cursor -y 2>&1)"
   SKILLS_EXIT=$?
   if [[ ${SKILLS_EXIT} -eq 0 ]]; then
     echo "done."
@@ -311,13 +311,17 @@ OVERALL_START_TIME="$(date +%s)"
 
 echo
 if (( VERBOSE_OUTPUT == 1 )); then
-  echo "Running prompts with fresh Claude processes"
-  echo "Claude timeout per prompt: ${CLAUDE_TIMEOUT_SECONDS}s"
-  echo "Claude model: ${CLAUDE_MODEL}"
+  echo "Running prompts with fresh Cursor cloud agent sessions"
+  echo "Cursor timeout per prompt: ${CURSOR_TIMEOUT_SECONDS}s"
+  if [[ -n "${CURSOR_MODEL}" ]]; then
+    echo "Cursor model: ${CURSOR_MODEL}"
+  else
+    echo "Cursor model: auto"
+  fi
   echo "Output mode: verbose"
   echo "Examples: ${TOTAL_PROMPTS}"
 else
-  printf "  Model: %s | Timeout: %ss | Examples: %s\n" "${CLAUDE_MODEL}" "${CLAUDE_TIMEOUT_SECONDS}" "${TOTAL_PROMPTS}"
+  printf "  Model: %s | Timeout: %ss | Examples: %s\n" "${CURSOR_MODEL:-auto}" "${CURSOR_TIMEOUT_SECONDS}" "${TOTAL_PROMPTS}"
 fi
 
 for prompt_file in "${PROMPT_FILES[@]}"; do
@@ -332,7 +336,7 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
   project_status_after=""
   run_changed=0
   setup_output=""
-  claude_raw_output=""
+  cursor_raw_output=""
 
   if command -v git >/dev/null 2>&1; then
     project_status_before="$(git -C "${REPO_ROOT}" status --porcelain -- "${relative_project_dir}" 2>/dev/null || true)"
@@ -382,8 +386,8 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
     fi
   fi
 
-  claude_started_at="$(date +%s)"
-  claude_raw_output="$(
+  cursor_started_at="$(date +%s)"
+  cursor_raw_output="$(
     (
       cd "${project_dir}" || exit 1
       prompt_text="$(cat "PROMPT.md")"
@@ -431,46 +435,46 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
       fi
 
       prompt_text="${preamble}"$'\n\n'"${prompt_text}"
-      claude_cmd=(claude --dangerously-skip-permissions)
-      if [[ -n "${CLAUDE_MODEL}" ]]; then
-        claude_cmd+=(--model "${CLAUDE_MODEL}")
+      cursor_cmd=(cursor agent --print --output-format json --force --trust)
+      if [[ -n "${CURSOR_MODEL}" ]]; then
+        cursor_cmd+=(--model "${CURSOR_MODEL}")
       fi
-      claude_cmd+=(-p --output-format json "${prompt_text}")
+      cursor_cmd+=("${prompt_text}")
       run_with_timeout \
-        "${CLAUDE_TIMEOUT_SECONDS}" \
-        "${claude_cmd[@]}"
+        "${CURSOR_TIMEOUT_SECONDS}" \
+        "${cursor_cmd[@]}"
     ) 2>&1
   )"
   RUN_EXIT=$?
 
-  if command -v jq >/dev/null 2>&1 && jq -e '.result != null and .result != ""' >/dev/null 2>&1 <<< "${claude_raw_output}"; then
+  if command -v jq >/dev/null 2>&1 && jq -e '.result != null and .result != ""' >/dev/null 2>&1 <<< "${cursor_raw_output}"; then
     if (( VERBOSE_OUTPUT == 1 )); then
-      jq -r '.result' <<< "${claude_raw_output}"
+      jq -r '.result' <<< "${cursor_raw_output}"
     fi
   elif (( VERBOSE_OUTPUT == 1 )); then
-    printf "%s\n" "${claude_raw_output}"
+    printf "%s\n" "${cursor_raw_output}"
   fi
 
-  claude_finished_at="$(date +%s)"
-  claude_duration_seconds=$((claude_finished_at - claude_started_at))
-  claude_duration_human="$(format_duration "${claude_duration_seconds}")"
-  extract_claude_usage "${claude_raw_output}"
-  token_display="$(format_token_display "${CLAUDE_TOTAL_TOKENS}")"
+  cursor_finished_at="$(date +%s)"
+  cursor_duration_seconds=$((cursor_finished_at - cursor_started_at))
+  cursor_duration_human="$(format_duration "${cursor_duration_seconds}")"
+  extract_cursor_usage "${cursor_raw_output}"
+  token_display="$(format_token_display "${CURSOR_TOTAL_TOKENS}")"
 
   if [[ ${RUN_EXIT} -ne 0 ]]; then
     FAILED_RUNS=$((FAILED_RUNS + 1))
     if (( VERBOSE_OUTPUT == 1 )); then
       echo "  ✗ Failed (${run_intent})" >&2
-      if [[ -n "${CLAUDE_TOTAL_TOKENS}" ]]; then
-        echo "    ${claude_duration_human}, ${CLAUDE_TOTAL_TOKENS} token(s)" >&2
+      if [[ -n "${CURSOR_TOTAL_TOKENS}" ]]; then
+        echo "    ${cursor_duration_human}, ${CURSOR_TOTAL_TOKENS} token(s)" >&2
       else
-        echo "    ${claude_duration_human}, tokens unknown" >&2
+        echo "    ${cursor_duration_human}, tokens unknown" >&2
       fi
     else
-      echo "      ✗ Failed in ${claude_duration_human} (${token_display})" >&2
-      if [[ -n "${claude_raw_output}" ]]; then
-        echo "        Claude output:" >&2
-        printf "%s\n" "${claude_raw_output}" >&2
+      echo "      ✗ Failed in ${cursor_duration_human} (${token_display})" >&2
+      if [[ -n "${cursor_raw_output}" ]]; then
+        echo "        Cursor output:" >&2
+        printf "%s\n" "${cursor_raw_output}" >&2
       fi
     fi
   else
@@ -484,35 +488,35 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
     if [[ "${run_intent}" == "generating" ]]; then
       GENERATED_RUNS=$((GENERATED_RUNS + 1))
       if (( VERBOSE_OUTPUT == 1 )); then
-        if [[ -n "${CLAUDE_TOTAL_TOKENS}" ]]; then
-          echo "  ✓ Generated (${claude_duration_human}, ${CLAUDE_TOTAL_TOKENS} tokens)"
+        if [[ -n "${CURSOR_TOTAL_TOKENS}" ]]; then
+          echo "  ✓ Generated (${cursor_duration_human}, ${CURSOR_TOTAL_TOKENS} tokens)"
         else
-          echo "  ✓ Generated (${claude_duration_human}, tokens unknown)"
+          echo "  ✓ Generated (${cursor_duration_human}, tokens unknown)"
         fi
       else
-        echo "      ✓ Generated in ${claude_duration_human} (${token_display})"
+        echo "      ✓ Generated in ${cursor_duration_human} (${token_display})"
       fi
     elif (( run_changed == 0 )); then
       VERIFIED_RUNS=$((VERIFIED_RUNS + 1))
       if (( VERBOSE_OUTPUT == 1 )); then
-        if [[ -n "${CLAUDE_TOTAL_TOKENS}" ]]; then
-          echo "  ✓ Verified, no changes (${claude_duration_human}, ${CLAUDE_TOTAL_TOKENS} tokens)"
+        if [[ -n "${CURSOR_TOTAL_TOKENS}" ]]; then
+          echo "  ✓ Verified, no changes (${cursor_duration_human}, ${CURSOR_TOTAL_TOKENS} tokens)"
         else
-          echo "  ✓ Verified, no changes (${claude_duration_human}, tokens unknown)"
+          echo "  ✓ Verified, no changes (${cursor_duration_human}, tokens unknown)"
         fi
       else
-        echo "      ✓ Verified, no changes in ${claude_duration_human} (${token_display})"
+        echo "      ✓ Verified, no changes in ${cursor_duration_human} (${token_display})"
       fi
     else
       UPDATED_RUNS=$((UPDATED_RUNS + 1))
       if (( VERBOSE_OUTPUT == 1 )); then
-        if [[ -n "${CLAUDE_TOTAL_TOKENS}" ]]; then
-          echo "  ~ Updated during verification (${claude_duration_human}, ${CLAUDE_TOTAL_TOKENS} tokens)"
+        if [[ -n "${CURSOR_TOTAL_TOKENS}" ]]; then
+          echo "  ~ Updated during verification (${cursor_duration_human}, ${CURSOR_TOTAL_TOKENS} tokens)"
         else
-          echo "  ~ Updated during verification (${claude_duration_human}, tokens unknown)"
+          echo "  ~ Updated during verification (${cursor_duration_human}, tokens unknown)"
         fi
       else
-        echo "      ~ Updated in ${claude_duration_human} (${token_display})"
+        echo "      ~ Updated in ${cursor_duration_human} (${token_display})"
       fi
     fi
   fi
