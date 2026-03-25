@@ -32,6 +32,7 @@ node -e "
   pkg.name = 'agents-guardrails-demo';
   pkg.dependencies['@elevenlabs/react'] = '^' + process.env.REACT_VER;
   pkg.dependencies['@elevenlabs/elevenlabs-js'] = '^' + process.env.ELEVENLABS_VER;
+  delete pkg.dependencies['@elevenlabs/client'];
   require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
 "
 

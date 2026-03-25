@@ -4,6 +4,7 @@ Before writing any code, invoke the `/agents` skill to learn the correct ElevenL
 
 - Add the official ElevenLabs React SDK dependency needed to run browser conversations with the Agents Platform.
 - Add the official ElevenLabs JavaScript SDK dependency needed to create agents and conversation tokens from Next.js API routes.
+- Use a version of `@elevenlabs/react` that includes the released `onGuardrailTriggered` callback support.
 
 ## 2. `app/api/agent/route.ts`
 
@@ -69,11 +70,9 @@ Minimal Next.js voice guardrails demo page.
 - Render a Start / Stop toggle and connection status.
 - Show the interaction as a real conversation transcript instead of replacing the text each turn.
 - Keep a running history of user and agent messages during the active session so it reads like chat.
-- Use the React SDK callback shapes correctly:
-  - `onMessage` from `useConversation` should be treated as high-level transcript messages from the React SDK, not as raw `IncomingSocketEvent` websocket payloads.
-  - Read the sender from a `source` field such as `user` or `ai`, and read the text from the message payload.
-  - Do not type or implement the main transcript logic as if `onMessage` were receiving low-level socket event unions from `@elevenlabs/client`.
-- Use `onGuardrailTriggered` to show a clear in-app indication that a guardrail fired.
+- Use the `useConversation` callback options, including `onConnect`, `onDisconnect`, `onError`, `onMessage`, and `onGuardrailTriggered`.
+- Read transcript messages from the high-level `onMessage` callback payload and derive the speaker from a field such as `source`.
+- Use `onGuardrailTriggered` directly instead of routing the event through `onDebug`.
 - Surface a visible trigger phrase somewhere near the controls so a user knows what to say to test the guardrail.
 - Note in the UI that the trigger phrase is intended for agents created by this app.
 - If the guardrail triggers, show a persistent status message even after the call ends.

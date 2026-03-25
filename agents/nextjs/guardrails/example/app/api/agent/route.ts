@@ -80,7 +80,7 @@ export async function POST() {
           language: "en",
           prompt: {
             prompt: SYSTEM_PROMPT,
-            llm: "gemini-2.0-flash",
+            llm: "gemini-2.5-flash",
             temperature: 0.6,
           },
         },
@@ -105,7 +105,7 @@ export async function POST() {
                   name: "Demo safety phrase",
                   isEnabled: true,
                   executionMode: "blocking",
-                  prompt: `End the conversation immediately if the user says the exact phrase "${DEMO_GUARDRAIL_PHRASE}" (case-insensitive), or clearly attempts that exact wording.`,
+                  prompt: `End the conversation immediately if the user says the exact phrase "${DEMO_GUARDRAIL_PHRASE}", or clearly attempts that exact wording.`,
                   triggerAction: { type: "end_call" },
                 },
               ],

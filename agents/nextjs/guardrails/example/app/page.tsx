@@ -13,22 +13,12 @@ type TranscriptLine = {
   eventId?: number;
 };
 
-function isGuardrailTriggeredEvent(raw: unknown): raw is { type: "guardrail_triggered" } {
-  return (
-    typeof raw === "object" &&
-    raw !== null &&
-    "type" in raw &&
-    (raw as { type: string }).type === "guardrail_triggered"
-  );
-}
+type ConversationMessage = {
+  message: string;
+  source?: string;
+  event_id?: number;
+};
 
-/**
- * ElevenLabs client SDK routes unknown socket event types to `onDebug`, including
- * `guardrail_triggered` in current releases. Newer SDKs may also expose a dedicated callback.
- *
- * Transcript and guardrail signals assume the agent enables the same `client_events` as
- * `POST /api/agent`. External agent IDs may lack those events.
- */
 export default function Home() {
   const [agentIdInput, setAgentIdInput] = useState("");
   const [lookupStatus, setLookupStatus] = useState<"idle" | "loading" | "ok" | "error">(
@@ -56,7 +46,20 @@ export default function Home() {
   }, []);
 
   const conversation = useConversation({
-    onMessage: (props) => {
+    onConnect: () => {
+      setSessionError(null);
+    },
+    onDisconnect: () => {
+      setSessionError(null);
+    },
+    onError: (error: unknown) => {
+      const message = error instanceof Error ? error.message : String(error);
+      setSessionError(message);
+    },
+    onGuardrailTriggered: () => {
+      onGuardrailTriggered();
+    },
+    onMessage: (props: ConversationMessage) => {
       const { message, source, event_id: eventId } = props;
       const role: TranscriptRole = source === "user" ? "user" : "agent";
       setTranscript((prev) => {
@@ -78,16 +81,6 @@ export default function Home() {
           },
         ];
       });
-    },
-    onDebug: (event: unknown) => {
-      // `guardrail_triggered` is delivered here on @elevenlabs/client 0.15.x (unknown types → onDebug).
-      if (isGuardrailTriggeredEvent(event)) onGuardrailTriggered();
-    },
-    onError: (message) => {
-      setSessionError(message);
-    },
-    onDisconnect: () => {
-      setSessionError(null);
     },
   });
 
@@ -127,16 +120,20 @@ export default function Home() {
     lookupStatus !== "error";
 
   let statusLabel = "Disconnected";
-  if (conversation.status === "connected") statusLabel = "Connected";
-  else if (conversation.status === "connecting") statusLabel = "Connecting…";
-  else if (conversation.status === "disconnecting") statusLabel = "Disconnecting…";
+  if (conversation.status === "connected") {
+    statusLabel = conversation.isSpeaking ? "Speaking" : "Listening";
+  } else if (conversation.status === "connecting") {
+    statusLabel = "Connecting…";
+  } else if (conversation.status === "disconnecting") {
+    statusLabel = "Disconnecting…";
+  }
 
   const sessionLive =
     conversation.status === "connected" || conversation.status === "connecting";
 
   const startOrStop = async () => {
     setSessionError(null);
-    if (conversation.status === "connected" || conversation.status === "connecting") {
+    if (sessionLive) {
       await conversation.endSession();
       return;
     }
@@ -260,9 +257,7 @@ export default function Home() {
               disabled={!sessionLive && !canStart}
               onClick={() => void startOrStop()}
             >
-              {conversation.status === "connected" || conversation.status === "connecting"
-                ? "Stop"
-                : "Start"}
+              {sessionLive ? "Stop" : "Start"}
             </button>
             <span className="text-xs text-neutral-400">{statusLabel}</span>
           </div>
