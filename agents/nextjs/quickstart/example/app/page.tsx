@@ -78,8 +78,14 @@ export default function Home() {
       const role = event.source === "ai" ? "agent" : "user";
       const last = prev[prev.length - 1];
 
+      if (last?.role === role && last.tentative) {
+        const copy = [...prev];
+        copy[copy.length - 1] = { ...last, text, tentative: false };
+        return copy;
+      }
+
       // The React SDK emits transcript-level messages, so append turns directly.
-      if (last && !last.tentative && last.role === role && last.text === text) {
+      if (last && last.role === role && last.text === text) {
         return prev;
       }
 

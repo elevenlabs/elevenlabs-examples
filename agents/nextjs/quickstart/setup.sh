@@ -30,11 +30,13 @@ node -e "
   pkg.name = 'realtime-transcription';
   pkg.dependencies['@elevenlabs/react'] = '^' + process.env.REACT_VER;
   pkg.dependencies['@elevenlabs/elevenlabs-js'] = '^' + process.env.ELEVENLABS_VER;
+  delete pkg.dependencies['@elevenlabs/client'];
   require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
 "
 
-# Create API route directory
-mkdir -p app/api/scribe-token
+# Create API route directories
+mkdir -p app/api/agent
+mkdir -p app/api/conversation-token
 
 # Setup env
 if [ -f "$DIR/.env" ]; then
