@@ -22,7 +22,7 @@ Never expose `ELEVENLABS_API_KEY` to the client.
 - Use a simple default name and a default system prompt suitable for a guardrails demo assistant.
 - Include a `# Guardrails` section in the system prompt with concise high-priority behavioral rules.
 - Create the agent with guardrails enabled so the demo shows both prompt hardening and platform guardrails.
-- Add at least one custom guardrail that is easy to trigger in a demo with a spoken phrase.
+- Use a realistic business policy example for the custom guardrail, such as: a banking agent should not recommend investments.
 - Make the custom guardrail terminate the conversation when it fires so the client can observe the guardrail-triggered event.
 - Enable prompt-injection protection as part of the guardrails configuration.
 - For an English voice agent, use a real voice TTS config with both `voiceId` and `modelId`.
@@ -73,8 +73,8 @@ Minimal Next.js voice guardrails demo page.
 - Use the `useConversation` callback options, including `onConnect`, `onDisconnect`, `onError`, `onMessage`, and `onGuardrailTriggered`.
 - Read transcript messages from the high-level `onMessage` callback payload and derive the speaker from a field such as `source`.
 - Use `onGuardrailTriggered` directly instead of routing the event through `onDebug`.
-- Surface a visible trigger phrase somewhere near the controls so a user knows what to say to test the guardrail.
-- Note in the UI that the trigger phrase is intended for agents created by this app.
+- Surface a few normal example prompts near the controls so a user knows how to test the guardrail, such as asking what to invest in or whether to buy Bitcoin.
+- Explain in the UI that the custom guardrail is designed to catch investment recommendations if the agent starts giving them.
 - If the guardrail triggers, show a persistent status message even after the call ends.
 - If useful, also append a short system-style line to the transcript when the guardrail is triggered.
 - It is fine to style tentative agent text differently, but do not discard prior turns when a new message arrives.

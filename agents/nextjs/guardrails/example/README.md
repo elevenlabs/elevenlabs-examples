@@ -30,7 +30,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## Usage
 
 - Click **Create agent** to create a voice-first demo agent with guardrails enabled.
-- The page shows a demo trigger phrase for agents created by this app.
 - Click **Start** and allow microphone access when prompted.
-- Say the trigger phrase and the agent should hit its custom guardrail, end the session, and show a visible guardrail-triggered notice.
-- You can also paste an existing agent id, but the trigger phrase and guardrail indicator are only guaranteed for agents created by this demo.
+- This demo models a banking-style policy: the agent should not recommend investments.
+- Ask normal investment-advice questions such as "What should I invest ten thousand dollars in?" or "Should I buy Bitcoin or index funds right now?"
+- If the agent crosses the line into investment recommendations, the custom guardrail should block the response before delivery, end the session, and show a visible guardrail-triggered notice.
+- You can also paste an existing agent id, but the guardrail indicator is only guaranteed when that agent has the required client events enabled.

@@ -2,7 +2,6 @@
 
 import { useConversation } from "@elevenlabs/react";
 import { useCallback, useEffect, useState } from "react";
-import { DEMO_GUARDRAIL_PHRASE } from "@/lib/demo-guardrail";
 
 type TranscriptRole = "user" | "agent" | "system";
 
@@ -195,7 +194,7 @@ export default function Home() {
             Voice agent guardrails
           </h1>
           <p className="text-sm text-neutral-500">
-            WebRTC voice session with platform guardrails and a custom safety phrase.
+            WebRTC voice session with platform guardrails and a banking-style custom investment-advice policy.
           </p>
         </header>
 
@@ -234,19 +233,19 @@ export default function Home() {
           ) : null}
 
           <div className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">
-            <p>
-              <span className="font-medium text-neutral-900">Demo safety phrase</span> (for
-              agents created with &quot;Create Agent&quot; above):{" "}
-              <span className="font-mono text-neutral-800">{DEMO_GUARDRAIL_PHRASE}</span>
-            </p>
+            <p className="font-medium text-neutral-900">Try asking for investment advice</p>
             <p className="mt-1 text-xs text-neutral-500">
-              Say that exact phrase to trigger the custom guardrail (session should end).
+              Example questions: &quot;What should I invest ten thousand dollars in right now?&quot;
+              or &quot;Should I buy Bitcoin or index funds this month?&quot; If the agent crosses the
+              line into investment recommendations, the guardrail should block the response and end
+              the session.
             </p>
           </div>
 
           {guardrailFired ? (
             <p className="text-sm font-medium text-amber-800">
-              A guardrail fired in this session (status persists after the call ends).
+              A guardrail fired in this session because the agent attempted blocked investment advice.
+              This status persists after the call ends.
             </p>
           ) : null}
 
