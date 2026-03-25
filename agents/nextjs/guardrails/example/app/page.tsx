@@ -145,6 +145,7 @@ export default function Home() {
     const id = agentIdInput.trim();
     if (!id || !canStart) return;
 
+    setGuardrailFired(false);
     setTranscript([]);
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true });
