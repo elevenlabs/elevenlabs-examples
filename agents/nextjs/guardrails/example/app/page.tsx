@@ -1,0 +1,308 @@
+"use client";
+
+import { useConversation } from "@elevenlabs/react";
+import { useCallback, useEffect, useState } from "react";
+import { DEMO_GUARDRAIL_PHRASE } from "@/lib/demo-guardrail";
+
+type TranscriptRole = "user" | "agent" | "system";
+
+type TranscriptLine = {
+  id: string;
+  role: TranscriptRole;
+  text: string;
+  eventId?: number;
+};
+
+function isGuardrailTriggeredEvent(raw: unknown): raw is { type: "guardrail_triggered" } {
+  return (
+    typeof raw === "object" &&
+    raw !== null &&
+    "type" in raw &&
+    (raw as { type: string }).type === "guardrail_triggered"
+  );
+}
+
+/**
+ * ElevenLabs client SDK routes unknown socket event types to `onDebug`, including
+ * `guardrail_triggered` in current releases. Newer SDKs may also expose a dedicated callback.
+ *
+ * Transcript and guardrail signals assume the agent enables the same `client_events` as
+ * `POST /api/agent`. External agent IDs may lack those events.
+ */
+export default function Home() {
+  const [agentIdInput, setAgentIdInput] = useState("");
+  const [lookupStatus, setLookupStatus] = useState<"idle" | "loading" | "ok" | "error">(
+    "idle",
+  );
+  const [lookupError, setLookupError] = useState<string | null>(null);
+
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+
+  const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
+  const [guardrailFired, setGuardrailFired] = useState(false);
+  const [sessionError, setSessionError] = useState<string | null>(null);
+
+  const onGuardrailTriggered = useCallback(() => {
+    setGuardrailFired(true);
+    setTranscript((prev) => [
+      ...prev,
+      {
+        id: `guardrail-${Date.now()}`,
+        role: "system",
+        text: "Guardrail triggered — session ended by policy.",
+      },
+    ]);
+  }, []);
+
+  const conversation = useConversation({
+    onMessage: (props) => {
+      const { message, source, event_id: eventId } = props;
+      const role: TranscriptRole = source === "user" ? "user" : "agent";
+      setTranscript((prev) => {
+        if (eventId !== undefined) {
+          const idx = prev.findIndex((l) => l.eventId === eventId && l.role === role);
+          if (idx >= 0) {
+            const next = [...prev];
+            next[idx] = { ...next[idx], text: message };
+            return next;
+          }
+        }
+        return [
+          ...prev,
+          {
+            id: eventId !== undefined ? `${role}-${eventId}` : `${role}-${crypto.randomUUID()}`,
+            role,
+            text: message,
+            eventId,
+          },
+        ];
+      });
+    },
+    onDebug: (event: unknown) => {
+      // `guardrail_triggered` is delivered here on @elevenlabs/client 0.15.x (unknown types → onDebug).
+      if (isGuardrailTriggeredEvent(event)) onGuardrailTriggered();
+    },
+    onError: (message) => {
+      setSessionError(message);
+    },
+    onDisconnect: () => {
+      setSessionError(null);
+    },
+  });
+
+  useEffect(() => {
+    const id = agentIdInput.trim();
+    if (!id) {
+      setLookupStatus("idle");
+      setLookupError(null);
+      return;
+    }
+
+    setLookupStatus("loading");
+    const handle = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/agent?agentId=${encodeURIComponent(id)}`);
+        const data: { agentId?: string; error?: string } = await res.json();
+        if (!res.ok) {
+          setLookupStatus("error");
+          setLookupError(data.error ?? "Could not load agent.");
+          return;
+        }
+        setLookupStatus("ok");
+        setLookupError(null);
+      } catch {
+        setLookupStatus("error");
+        setLookupError("Network error while loading agent.");
+      }
+    }, 450);
+
+    return () => clearTimeout(handle);
+  }, [agentIdInput]);
+
+  const trimmedId = agentIdInput.trim();
+  const canStart =
+    trimmedId.length > 0 &&
+    lookupStatus !== "loading" &&
+    lookupStatus !== "error";
+
+  let statusLabel = "Disconnected";
+  if (conversation.status === "connected") statusLabel = "Connected";
+  else if (conversation.status === "connecting") statusLabel = "Connecting…";
+  else if (conversation.status === "disconnecting") statusLabel = "Disconnecting…";
+
+  const sessionLive =
+    conversation.status === "connected" || conversation.status === "connecting";
+
+  const startOrStop = async () => {
+    setSessionError(null);
+    if (conversation.status === "connected" || conversation.status === "connecting") {
+      await conversation.endSession();
+      return;
+    }
+
+    const id = agentIdInput.trim();
+    if (!id || !canStart) return;
+
+    setTranscript([]);
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+      setSessionError("Microphone permission is required for voice.");
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `/api/conversation-token?agentId=${encodeURIComponent(id)}`,
+      );
+      const data: { token?: string; error?: string } = await res.json();
+      if (!res.ok || !data.token) {
+        setSessionError(data.error ?? "Could not get conversation token.");
+        return;
+      }
+
+      await conversation.startSession({
+        connectionType: "webrtc",
+        conversationToken: data.token,
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Failed to start session.";
+      setSessionError(msg);
+    }
+  };
+
+  const createAgent = async () => {
+    setCreateError(null);
+    setCreating(true);
+    try {
+      const res = await fetch("/api/agent", { method: "POST" });
+      const data: { agentId?: string; error?: string } = await res.json();
+      if (!res.ok || !data.agentId) {
+        setCreateError(data.error ?? "Failed to create agent.");
+        return;
+      }
+      setAgentIdInput(data.agentId);
+    } catch {
+      setCreateError("Network error while creating agent.");
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  return (
+    <main className="min-h-screen bg-white text-neutral-900">
+      <div className="mx-auto w-full max-w-2xl px-6 py-12 sm:py-16">
+        <header className="space-y-2">
+          <h1 className="text-2xl font-medium tracking-tight sm:text-3xl">
+            Voice agent guardrails
+          </h1>
+          <p className="text-sm text-neutral-500">
+            WebRTC voice session with platform guardrails and a custom safety phrase.
+          </p>
+        </header>
+
+        <section className="mt-10 space-y-6">
+          <div className="flex flex-wrap items-end gap-3">
+            <button
+              type="button"
+              className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+              disabled={creating}
+              onClick={() => void createAgent()}
+            >
+              {creating ? "Creating…" : "Create Agent"}
+            </button>
+            <div className="flex min-w-[200px] flex-1 flex-col gap-1">
+              <label className="text-xs text-neutral-400" htmlFor="agent-id">
+                Agent ID
+              </label>
+              <input
+                id="agent-id"
+                className="rounded-md border border-neutral-200 px-3 py-2 text-sm"
+                placeholder="Paste or create an agent id"
+                value={agentIdInput}
+                onChange={(e) => setAgentIdInput(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {createError ? (
+            <p className="text-sm text-red-600">{createError}</p>
+          ) : null}
+          {lookupStatus === "loading" && trimmedId ? (
+            <p className="text-xs text-neutral-400">Checking agent…</p>
+          ) : null}
+          {lookupStatus === "error" && lookupError ? (
+            <p className="text-sm text-red-600">{lookupError}</p>
+          ) : null}
+
+          <div className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">
+            <p>
+              <span className="font-medium text-neutral-900">Demo safety phrase</span> (for
+              agents created with &quot;Create Agent&quot; above):{" "}
+              <span className="font-mono text-neutral-800">{DEMO_GUARDRAIL_PHRASE}</span>
+            </p>
+            <p className="mt-1 text-xs text-neutral-500">
+              Say that exact phrase to trigger the custom guardrail (session should end).
+            </p>
+          </div>
+
+          {guardrailFired ? (
+            <p className="text-sm font-medium text-amber-800">
+              A guardrail fired in this session (status persists after the call ends).
+            </p>
+          ) : null}
+
+          <div className="flex flex-wrap items-center gap-4">
+            <button
+              type="button"
+              className="rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm font-medium disabled:opacity-50"
+              disabled={!sessionLive && !canStart}
+              onClick={() => void startOrStop()}
+            >
+              {conversation.status === "connected" || conversation.status === "connecting"
+                ? "Stop"
+                : "Start"}
+            </button>
+            <span className="text-xs text-neutral-400">{statusLabel}</span>
+          </div>
+
+          {sessionError ? (
+            <p className="text-sm text-red-600">{sessionError}</p>
+          ) : null}
+
+          <div className="space-y-2">
+            <h2 className="text-sm font-medium text-neutral-800">Transcript</h2>
+            <ul className="space-y-2 text-sm">
+              {transcript.length === 0 ? (
+                <li className="text-neutral-400">No messages yet.</li>
+              ) : (
+                transcript.map((line) => (
+                  <li
+                    key={line.id}
+                    className={
+                      line.role === "user"
+                        ? "text-neutral-900"
+                        : line.role === "agent"
+                          ? "text-neutral-700"
+                          : "text-neutral-500"
+                    }
+                  >
+                    <span className="text-xs uppercase text-neutral-400">
+                      {line.role === "user"
+                        ? "You"
+                        : line.role === "agent"
+                          ? "Agent"
+                          : "System"}
+                    </span>{" "}
+                    {line.text}
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
