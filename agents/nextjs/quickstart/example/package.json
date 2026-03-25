@@ -17,6 +17,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "tailwind-merge": "^3.5.0",
+    "@elevenlabs/client": "^0.15.2",
     "@elevenlabs/react": "^0.14.3",
     "@elevenlabs/elevenlabs-js": "^2.40.0"
   },

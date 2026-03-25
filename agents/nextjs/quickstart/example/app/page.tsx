@@ -1,258 +1,393 @@
 "use client";
 
 import { useConversation } from "@elevenlabs/react";
-import { useCallback, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
-type ConversationMessage = {
-  message: string;
-  event_id?: number;
-  role: "user" | "agent";
-};
-
-type TranscriptEntry = {
+type TranscriptLine = {
   id: string;
   role: "user" | "agent";
   text: string;
-  /** Agent line still receiving streamed text */
-  isStreaming?: boolean;
+  tentative: boolean;
 };
 
-async function ensureMicrophonePermission(): Promise<void> {
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  stream.getTracks().forEach((t) => t.stop());
+type ConversationMessage = {
+  source: "user" | "ai";
+  message: unknown;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function extractMessageText(value: unknown): string | null {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  if (typeof value.message === "string") {
+    return value.message;
+  }
+
+  if (typeof value.text === "string") {
+    return value.text;
+  }
+
+  return null;
+}
+
+function isConversationMessage(value: unknown): value is ConversationMessage {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  if (value.source !== "user" && value.source !== "ai") {
+    return false;
+  }
+
+  return extractMessageText(value.message) !== null;
 }
 
 export default function Home() {
-  const { startSession, endSession, status, isSpeaking } = useConversation();
-  const [entries, setEntries] = useState<TranscriptEntry[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [agentIdInput, setAgentIdInput] = useState("");
+  const [agentLookupError, setAgentLookupError] = useState<string | null>(
+    null,
+  );
+  const [agentLookupOk, setAgentLookupOk] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [sessionError, setSessionError] = useState<string | null>(null);
+  const [starting, setStarting] = useState(false);
+  const [lines, setLines] = useState<TranscriptLine[]>([]);
 
-  const appendUserMessage = useCallback((message: string, eventId?: number) => {
-    setEntries((prev) => [
-      ...prev,
-      {
-        id: `u-${eventId ?? "e"}-${crypto.randomUUID()}`,
-        role: "user",
-        text: message,
-      },
-    ]);
+  const lookupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const nextLineId = useRef(0);
+
+  const onMessage = useCallback((event: unknown) => {
+    if (!isConversationMessage(event)) {
+      return;
+    }
+
+    const text = extractMessageText(event.message)?.trim();
+    if (!text) {
+      return;
+    }
+
+    setLines((prev) => {
+      const role = event.source === "ai" ? "agent" : "user";
+      const last = prev[prev.length - 1];
+
+      // The React SDK emits transcript-level messages, so append turns directly.
+      if (last && !last.tentative && last.role === role && last.text === text) {
+        return prev;
+      }
+
+      nextLineId.current += 1;
+      return [
+        ...prev,
+        {
+          id: `line-${nextLineId.current}`,
+          role,
+          text,
+          tentative: false,
+        },
+      ];
+    });
   }, []);
 
-  const onMessage = useCallback(
-    (props: ConversationMessage) => {
-      if (props.role === "user") {
-        appendUserMessage(props.message, props.event_id);
-        return;
-      }
-      setEntries((prev) => {
-        const next = [...prev];
-        const last = next[next.length - 1];
-        if (last?.role === "agent" && last.isStreaming) {
-          next[next.length - 1] = {
-            ...last,
-            text: props.message,
-            isStreaming: false,
-          };
-          return next;
-        }
-        return [
-          ...next,
-          {
-            id: `a-${props.event_id ?? "e"}`,
-            role: "agent",
-            text: props.message,
-          },
-        ];
-      });
-    },
-    [appendUserMessage],
-  );
-
-  const onAgentChatResponsePart = useCallback(
-    (part: { text: string; type: "start" | "delta" | "stop"; event_id: number }) => {
-      setEntries((prev) => {
-        const next = [...prev];
-        const last = next[next.length - 1];
-
-        if (part.type === "start") {
-          return [
-            ...next,
-            {
-              id: `a-stream-${part.event_id}`,
-              role: "agent",
-              text: "",
-              isStreaming: true,
-            },
-          ];
-        }
-
-        if (part.type === "delta") {
-          if (last?.role === "agent" && last.isStreaming) {
-            next[next.length - 1] = { ...last, text: last.text + part.text };
-            return next;
-          }
-          return [
-            ...next,
-            {
-              id: `a-stream-${part.event_id}`,
-              role: "agent",
-              text: part.text,
-              isStreaming: true,
-            },
-          ];
-        }
-
-        if (part.type === "stop" && last?.role === "agent" && last.isStreaming) {
-          next[next.length - 1] = { ...last, isStreaming: false };
-          return next;
-        }
-
-        return next;
-      });
-    },
-    [],
-  );
-
-  const handleStart = async () => {
-    setError(null);
-    setEntries([]);
-
-    try {
-      await ensureMicrophonePermission();
-    } catch {
-      setError("Microphone permission is required to talk to the agent.");
+  const onDebug = useCallback((event: unknown) => {
+    if (!isRecord(event) || event.type !== "internal_tentative_agent_response") {
       return;
     }
 
-    let token: string;
+    const payload = event.tentative_agent_response_internal_event;
+    if (!isRecord(payload)) {
+      return;
+    }
+
+    const text =
+      typeof payload.tentative_agent_response === "string"
+        ? payload.tentative_agent_response.trim()
+        : "";
+
+    if (!text) {
+      return;
+    }
+
+    setLines((prev) => {
+      const last = prev[prev.length - 1];
+      if (last?.role === "agent" && last.tentative) {
+        const copy = [...prev];
+        copy[copy.length - 1] = { ...last, text };
+        return copy;
+      }
+
+      nextLineId.current += 1;
+      return [
+        ...prev,
+        {
+          id: `line-${nextLineId.current}`,
+          role: "agent",
+          text,
+          tentative: true,
+        },
+      ];
+    });
+  }, []);
+
+  const conversation = useConversation({
+    onMessage,
+    onDebug,
+    onError: (e: unknown) => {
+      setSessionError(e instanceof Error ? e.message : String(e));
+    },
+    onDisconnect: () => {
+      setStarting(false);
+    },
+  });
+
+  const trimmedId = agentIdInput.trim();
+  const canStart = trimmedId.length > 0 && !starting;
+
+  useEffect(() => {
+    if (!trimmedId) {
+      setAgentLookupOk(false);
+      setAgentLookupError(null);
+      return;
+    }
+
+    if (lookupTimer.current) clearTimeout(lookupTimer.current);
+    lookupTimer.current = setTimeout(async () => {
+      setAgentLookupError(null);
+      setAgentLookupOk(false);
+      try {
+        const res = await fetch(
+          `/api/agent?agentId=${encodeURIComponent(trimmedId)}`,
+        );
+        const data = await res.json();
+        if (!res.ok) {
+          setAgentLookupError(
+            typeof data.error === "string" ? data.error : "Agent lookup failed",
+          );
+          return;
+        }
+        setAgentLookupOk(true);
+      } catch {
+        setAgentLookupError("Network error while loading agent.");
+      }
+    }, 450);
+
+    return () => {
+      if (lookupTimer.current) clearTimeout(lookupTimer.current);
+    };
+  }, [trimmedId]);
+
+  const statusLabel = useMemo(() => {
+    switch (conversation.status) {
+      case "connected":
+        return "Connected";
+      case "connecting":
+        return "Connecting…";
+      case "disconnecting":
+        return "Disconnecting…";
+      case "disconnected":
+        return "Disconnected";
+      default:
+        return conversation.status;
+    }
+  }, [conversation.status]);
+
+  async function handleCreateAgent() {
+    setCreateError(null);
+    setCreating(true);
     try {
-      const res = await fetch("/api/conversation-token");
-      const data: { token?: string; error?: string } = await res.json();
+      const res = await fetch("/api/agent", { method: "POST" });
+      const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Could not get a conversation token.");
+        setCreateError(
+          typeof data.error === "string" ? data.error : "Failed to create agent",
+        );
         return;
       }
-      if (!data.token) {
-        setError("Server did not return a conversation token.");
-        return;
-      }
-      token = data.token;
+      const id = data.agentId as string;
+      setAgentIdInput(id);
+      setAgentLookupOk(true);
+      setAgentLookupError(null);
     } catch {
-      setError("Network error while requesting a conversation token.");
+      setCreateError("Network error while creating agent.");
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  async function handleToggleSession() {
+    setSessionError(null);
+
+    if (
+      conversation.status === "connected" ||
+      conversation.status === "connecting" ||
+      conversation.status === "disconnecting"
+    ) {
+      await conversation.endSession();
+      setStarting(false);
+      return;
+    }
+
+    const id = agentIdInput.trim();
+    if (!id) return;
+
+    setStarting(true);
+    nextLineId.current = 0;
+    setLines([]);
+
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+      setSessionError("Microphone permission is required to talk.");
+      setStarting(false);
       return;
     }
 
     try {
-      await startSession({
+      const res = await fetch(
+        `/api/conversation-token?agentId=${encodeURIComponent(id)}`,
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        setSessionError(
+          typeof data.error === "string"
+            ? data.error
+            : "Could not get conversation token.",
+        );
+        setStarting(false);
+        return;
+      }
+      const token = data.token as string;
+      await conversation.startSession({
         conversationToken: token,
         connectionType: "webrtc",
-        onMessage,
-        onAgentChatResponsePart,
-        onError: (message) => setError(message),
       });
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Failed to start the session.";
-      setError(message);
+      setSessionError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setStarting(false);
     }
-  };
+  }
 
-  const handleStop = async () => {
-    setError(null);
-    try {
-      await endSession();
-    } catch (e) {
-      const message = e instanceof Error ? e.message : "Failed to end the session.";
-      setError(message);
-    }
-  };
-
-  const live =
-    status === "connected" ||
-    status === "connecting" ||
-    status === "disconnecting";
+  const sessionActive =
+    conversation.status === "connected" ||
+    conversation.status === "connecting" ||
+    conversation.status === "disconnecting";
 
   return (
     <main className="min-h-screen bg-white text-neutral-900">
       <div className="mx-auto w-full max-w-2xl px-6 py-12 sm:py-16">
         <header className="space-y-2">
           <h1 className="text-2xl font-medium tracking-tight sm:text-3xl">
-            Voice Agent
+            Voice agent
           </h1>
           <p className="text-sm text-neutral-500">
-            Live voice conversation with ElevenLabs Agents.
+            Talk in real time with an ElevenLabs conversational agent (WebRTC).
           </p>
         </header>
 
-        <div className="mt-10 space-y-6">
+        <section className="mt-10 space-y-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+            <div className="min-w-0 flex-1 space-y-1">
+              <label
+                htmlFor="agent-id"
+                className="text-xs text-neutral-400"
+              >
+                Agent id
+              </label>
+              <input
+                id="agent-id"
+                className="w-full rounded-md border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-400"
+                placeholder="Paste or create an agent id"
+                value={agentIdInput}
+                onChange={(e) => setAgentIdInput(e.target.value)}
+              />
+              {agentLookupError ? (
+                <p className="text-xs text-red-600">{agentLookupError}</p>
+              ) : trimmedId && agentLookupOk ? (
+                <p className="text-xs text-neutral-400">Agent found.</p>
+              ) : null}
+            </div>
+            <button
+              type="button"
+              className="rounded-md border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-50 disabled:opacity-50 sm:mt-6"
+              onClick={handleCreateAgent}
+              disabled={creating}
+            >
+              {creating ? "Creating…" : "Create agent"}
+            </button>
+          </div>
+          {createError ? (
+            <p className="text-xs text-red-600">{createError}</p>
+          ) : null}
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
-              className="rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-900 disabled:opacity-50"
-              disabled={live}
-              onClick={() => void handleStart()}
+              className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-50"
+              onClick={handleToggleSession}
+              disabled={!canStart && !sessionActive}
             >
-              Start
+              {sessionActive ? "Stop" : starting ? "Starting…" : "Start"}
             </button>
-            <button
-              type="button"
-              className="rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-900 disabled:opacity-50"
-              disabled={!live}
-              onClick={() => void handleStop()}
-            >
-              Stop
-            </button>
+            <span className="text-xs text-neutral-400">
+              Status: {statusLabel}
+            </span>
           </div>
-
-          <div className="space-y-1 text-xs text-neutral-400">
-            <p>
-              Status: <span className="text-neutral-600">{status}</span>
-            </p>
-            <p>
-              Agent speaking:{" "}
-              <span className="text-neutral-600">{isSpeaking ? "yes" : "no"}</span>
-            </p>
-          </div>
-
-          {error ? (
-            <p className="text-sm text-red-600" role="alert">
-              {error}
-            </p>
+          {sessionError ? (
+            <p className="text-sm text-red-600">{sessionError}</p>
           ) : null}
 
-          <section aria-label="Conversation transcript" className="space-y-3">
-            <h2 className="text-xs font-medium uppercase tracking-wide text-neutral-400">
-              Transcript
-            </h2>
-            {entries.length === 0 ? (
-              <p className="text-sm text-neutral-500">
-                Start a session to see the conversation here.
-              </p>
-            ) : (
-              <ul className="space-y-3">
-                {entries.map((line) => (
-                  <li
-                    key={line.id}
-                    className={
-                      line.role === "user"
-                        ? "text-sm text-neutral-900"
-                        : line.isStreaming
-                          ? "text-sm italic text-neutral-400"
-                          : "text-sm text-neutral-700"
-                    }
-                  >
-                    <span className="font-medium text-neutral-500">
+          <div className="space-y-2">
+            <p className="text-xs text-neutral-400">Transcript</p>
+            <div
+              className="max-h-[min(24rem,50vh)] space-y-2 overflow-y-auto pt-1"
+              aria-live="polite"
+            >
+              {lines.length === 0 ? (
+                <p className="text-sm text-neutral-500">
+                  {sessionActive
+                    ? "Listening…"
+                    : "Start a session to see the conversation here."}
+                </p>
+              ) : (
+                lines.map((line) => (
+                  <div key={line.id} className="text-sm">
+                    <span
+                      className={
+                        line.role === "user"
+                          ? "font-medium text-neutral-900"
+                          : "font-medium text-neutral-700"
+                      }
+                    >
                       {line.role === "user" ? "You" : "Agent"}
-                      {line.isStreaming ? " (typing)" : ""}
                     </span>
-                    <span className="mt-0.5 block whitespace-pre-wrap">
-                      {line.text || (line.isStreaming ? "…" : "")}
+                    <span
+                      className={
+                        line.tentative ? " text-neutral-400 italic" : " text-neutral-800"
+                      }
+                    >
+                      : {line.text}
                     </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </section>
       </div>
     </main>
   );
