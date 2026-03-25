@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   if (!apiKey) {
     return NextResponse.json(
       { error: "Server misconfiguration: ELEVENLABS_API_KEY is not set." },
-      { status: 500 },
+      { status: 500 }
     );
   }
 
@@ -14,16 +14,17 @@ export async function GET(request: Request) {
   if (!agentId) {
     return NextResponse.json(
       { error: "Missing agentId query parameter." },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
   const client = new ElevenLabsClient({ apiKey });
 
   try {
-    const { token } = await client.conversationalAi.conversations.getWebrtcToken({
-      agentId,
-    });
+    const { token } =
+      await client.conversationalAi.conversations.getWebrtcToken({
+        agentId,
+      });
     return NextResponse.json({ token });
   } catch (e) {
     const message =

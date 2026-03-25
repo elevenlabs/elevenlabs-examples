@@ -1,13 +1,7 @@
 "use client";
 
 import { useConversation } from "@elevenlabs/react";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type TranscriptLine = {
   id: string;
@@ -59,9 +53,7 @@ function isConversationMessage(value: unknown): value is ConversationMessage {
 
 export default function Home() {
   const [agentIdInput, setAgentIdInput] = useState("");
-  const [agentLookupError, setAgentLookupError] = useState<string | null>(
-    null,
-  );
+  const [agentLookupError, setAgentLookupError] = useState<string | null>(null);
   const [agentLookupOk, setAgentLookupOk] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
@@ -82,7 +74,7 @@ export default function Home() {
       return;
     }
 
-    setLines((prev) => {
+    setLines(prev => {
       const role = event.source === "ai" ? "agent" : "user";
       const last = prev[prev.length - 1];
 
@@ -105,7 +97,10 @@ export default function Home() {
   }, []);
 
   const onDebug = useCallback((event: unknown) => {
-    if (!isRecord(event) || event.type !== "internal_tentative_agent_response") {
+    if (
+      !isRecord(event) ||
+      event.type !== "internal_tentative_agent_response"
+    ) {
       return;
     }
 
@@ -123,7 +118,7 @@ export default function Home() {
       return;
     }
 
-    setLines((prev) => {
+    setLines(prev => {
       const last = prev[prev.length - 1];
       if (last?.role === "agent" && last.tentative) {
         const copy = [...prev];
@@ -171,12 +166,12 @@ export default function Home() {
       setAgentLookupOk(false);
       try {
         const res = await fetch(
-          `/api/agent?agentId=${encodeURIComponent(trimmedId)}`,
+          `/api/agent?agentId=${encodeURIComponent(trimmedId)}`
         );
         const data = await res.json();
         if (!res.ok) {
           setAgentLookupError(
-            typeof data.error === "string" ? data.error : "Agent lookup failed",
+            typeof data.error === "string" ? data.error : "Agent lookup failed"
           );
           return;
         }
@@ -214,7 +209,7 @@ export default function Home() {
       const data = await res.json();
       if (!res.ok) {
         setCreateError(
-          typeof data.error === "string" ? data.error : "Failed to create agent",
+          typeof data.error === "string" ? data.error : "Failed to create agent"
         );
         return;
       }
@@ -259,14 +254,14 @@ export default function Home() {
 
     try {
       const res = await fetch(
-        `/api/conversation-token?agentId=${encodeURIComponent(id)}`,
+        `/api/conversation-token?agentId=${encodeURIComponent(id)}`
       );
       const data = await res.json();
       if (!res.ok) {
         setSessionError(
           typeof data.error === "string"
             ? data.error
-            : "Could not get conversation token.",
+            : "Could not get conversation token."
         );
         setStarting(false);
         return;
@@ -303,10 +298,7 @@ export default function Home() {
         <section className="mt-10 space-y-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
             <div className="min-w-0 flex-1 space-y-1">
-              <label
-                htmlFor="agent-id"
-                className="text-xs text-neutral-400"
-              >
+              <label htmlFor="agent-id" className="text-xs text-neutral-400">
                 Agent id
               </label>
               <input
@@ -314,7 +306,7 @@ export default function Home() {
                 className="w-full rounded-md border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-400"
                 placeholder="Paste or create an agent id"
                 value={agentIdInput}
-                onChange={(e) => setAgentIdInput(e.target.value)}
+                onChange={e => setAgentIdInput(e.target.value)}
               />
               {agentLookupError ? (
                 <p className="text-xs text-red-600">{agentLookupError}</p>
@@ -364,7 +356,7 @@ export default function Home() {
                     : "Start a session to see the conversation here."}
                 </p>
               ) : (
-                lines.map((line) => (
+                lines.map(line => (
                   <div key={line.id} className="text-sm">
                     <span
                       className={
@@ -377,7 +369,9 @@ export default function Home() {
                     </span>
                     <span
                       className={
-                        line.tentative ? " text-neutral-400 italic" : " text-neutral-800"
+                        line.tentative
+                          ? " text-neutral-400 italic"
+                          : " text-neutral-800"
                       }
                     >
                       : {line.text}

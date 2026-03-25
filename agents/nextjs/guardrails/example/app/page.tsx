@@ -20,9 +20,9 @@ type ConversationMessage = {
 
 export default function Home() {
   const [agentIdInput, setAgentIdInput] = useState("");
-  const [lookupStatus, setLookupStatus] = useState<"idle" | "loading" | "ok" | "error">(
-    "idle",
-  );
+  const [lookupStatus, setLookupStatus] = useState<
+    "idle" | "loading" | "ok" | "error"
+  >("idle");
   const [lookupError, setLookupError] = useState<string | null>(null);
 
   const [createError, setCreateError] = useState<string | null>(null);
@@ -34,7 +34,7 @@ export default function Home() {
 
   const onGuardrailTriggered = useCallback(() => {
     setGuardrailFired(true);
-    setTranscript((prev) => [
+    setTranscript(prev => [
       ...prev,
       {
         id: `guardrail-${Date.now()}`,
@@ -61,9 +61,11 @@ export default function Home() {
     onMessage: (props: ConversationMessage) => {
       const { message, source, event_id: eventId } = props;
       const role: TranscriptRole = source === "user" ? "user" : "agent";
-      setTranscript((prev) => {
+      setTranscript(prev => {
         if (eventId !== undefined) {
-          const idx = prev.findIndex((l) => l.eventId === eventId && l.role === role);
+          const idx = prev.findIndex(
+            l => l.eventId === eventId && l.role === role
+          );
           if (idx >= 0) {
             const next = [...prev];
             next[idx] = { ...next[idx], text: message };
@@ -73,7 +75,10 @@ export default function Home() {
         return [
           ...prev,
           {
-            id: eventId !== undefined ? `${role}-${eventId}` : `${role}-${crypto.randomUUID()}`,
+            id:
+              eventId !== undefined
+                ? `${role}-${eventId}`
+                : `${role}-${crypto.randomUUID()}`,
             role,
             text: message,
             eventId,
@@ -150,7 +155,7 @@ export default function Home() {
 
     try {
       const res = await fetch(
-        `/api/conversation-token?agentId=${encodeURIComponent(id)}`,
+        `/api/conversation-token?agentId=${encodeURIComponent(id)}`
       );
       const data: { token?: string; error?: string } = await res.json();
       if (!res.ok || !data.token) {
@@ -194,7 +199,8 @@ export default function Home() {
             Voice agent guardrails
           </h1>
           <p className="text-sm text-neutral-500">
-            WebRTC voice session with platform guardrails and a banking-style custom investment-advice policy.
+            WebRTC voice session with platform guardrails and a banking-style
+            custom investment-advice policy.
           </p>
         </header>
 
@@ -217,7 +223,7 @@ export default function Home() {
                 className="rounded-md border border-neutral-200 px-3 py-2 text-sm"
                 placeholder="Paste or create an agent id"
                 value={agentIdInput}
-                onChange={(e) => setAgentIdInput(e.target.value)}
+                onChange={e => setAgentIdInput(e.target.value)}
               />
             </div>
           </div>
@@ -233,19 +239,23 @@ export default function Home() {
           ) : null}
 
           <div className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">
-            <p className="font-medium text-neutral-900">Try asking for investment advice</p>
+            <p className="font-medium text-neutral-900">
+              Try asking for investment advice
+            </p>
             <p className="mt-1 text-xs text-neutral-500">
-              Example questions: &quot;What should I invest ten thousand dollars in right now?&quot;
-              or &quot;Should I buy Bitcoin or index funds this month?&quot; If the agent crosses the
-              line into investment recommendations, the guardrail should block the response and end
+              Example questions: &quot;What should I invest ten thousand dollars
+              in right now?&quot; or &quot;Should I buy Bitcoin or index funds
+              this month?&quot; If the agent crosses the line into investment
+              recommendations, the guardrail should block the response and end
               the session.
             </p>
           </div>
 
           {guardrailFired ? (
             <p className="text-sm font-medium text-amber-800">
-              A guardrail fired in this session because the agent attempted blocked investment advice.
-              This status persists after the call ends.
+              A guardrail fired in this session because the agent attempted
+              blocked investment advice. This status persists after the call
+              ends.
             </p>
           ) : null}
 
@@ -271,7 +281,7 @@ export default function Home() {
               {transcript.length === 0 ? (
                 <li className="text-neutral-400">No messages yet.</li>
               ) : (
-                transcript.map((line) => (
+                transcript.map(line => (
                   <li
                     key={line.id}
                     className={

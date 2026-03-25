@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   if (!apiKey) {
     return NextResponse.json(
       { error: "Missing ELEVENLABS_API_KEY. Add it to your environment." },
-      { status: 500 },
+      { status: 500 }
     );
   }
 
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
   if (!agentId) {
     return NextResponse.json(
       { error: "Missing agentId. Pass ?agentId=your-agent-id" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -44,7 +44,7 @@ export async function GET(request: Request) {
       err instanceof ElevenLabsError && err.statusCode ? err.statusCode : 502;
     return NextResponse.json(
       { error: apiErrorMessage(err) },
-      { status: status >= 400 && status < 600 ? status : 502 },
+      { status: status >= 400 && status < 600 ? status : 502 }
     );
   }
 }

@@ -21,7 +21,7 @@ function getClient() {
     return {
       error: NextResponse.json(
         { error: "Server misconfiguration: ELEVENLABS_API_KEY is not set." },
-        { status: 500 },
+        { status: 500 }
       ),
     };
   }
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
   if (!agentId) {
     return NextResponse.json(
       { error: "Missing agentId query parameter." },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
