@@ -17,7 +17,9 @@ Shared base templates live in `templates/` (Next.js, Python, TypeScript). UI sty
 - [Speech-to-Text Quickstart (TypeScript)](speech-to-text/typescript/quickstart/example/README.md) — Transcribe local audio files with Scribe v2.
 - [Speech-to-Text Quickstart (Python)](speech-to-text/python/quickstart/example/README.md) — Transcribe local audio files with Scribe v2.
 - [Music Quickstart (TypeScript)](music/typescript/quickstart/example/README.md) — Generate an MP3 track from a text prompt with the ElevenLabs JS SDK.
+- [Music Playground (Next.js)](music/nextjs/quickstart/example/README.md) — Enter a prompt, generate a music track, and play it back in the browser.
 - [Sound Effects Quickstart (TypeScript)](sound-effects/typescript/quickstart/example/README.md) — Generate a sound effect MP3 from a text prompt with the ElevenLabs JS SDK.
+- [Sound Effects Quickstart (Python)](sound-effects/python/quickstart/example/README.md) — Generate a sound effect MP3 from a text prompt with the ElevenLabs Python SDK.
 - [Sound Effects Playground (Next.js)](sound-effects/nextjs/quickstart/example/README.md) — Enter a prompt, generate a sound effect, and play it back in the browser.
 - [Real-Time Speech-to-Text (Next.js)](speech-to-text/nextjs/realtime/example/README.md) — Live microphone transcription with VAD in a Next.js app.
 - [Real-Time Voice Agent (Next.js)](agents/nextjs/quickstart/example/README.md) — Live voice conversations with the ElevenLabs Agents Platform using the React Agents SDK.
