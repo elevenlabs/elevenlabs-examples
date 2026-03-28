@@ -48,6 +48,7 @@ Ignore the deprecated root `examples/` folder for new work.
 | `speech-to-text/typescript/quickstart` | `templates/typescript` | `index.ts`                                                                      | Optional `assets/`, copies `.env`, preserves `node_modules`                                                         |
 | `speech-to-text/python/quickstart`     | `templates/python`     | `main.py`                                                                       | Optional `assets/`, copies `.env`, preserves `.venv`                                                                |
 | `music/typescript/quickstart`          | `templates/typescript` | `index.ts`                                                                      | Copies `.env`, preserves `node_modules`, installs with `pnpm`                                                       |
+| `music/nextjs/quickstart`              | `templates/nextjs`     | `app/api/generate-music/route.ts`, `app/page.tsx`                               | Adds `@elevenlabs/elevenlabs-js`, copies `.env.local`, preserves `node_modules` and `.next`                         |
 | `speech-to-text/nextjs/realtime`       | `templates/nextjs`     | `app/api/scribe-token/route.ts`, `app/page.tsx`                                 | Adds `@elevenlabs/react` and `@elevenlabs/elevenlabs-js`, copies `.env.local`, preserves `node_modules` and `.next` |
 | `agents/nextjs/quickstart`             | `templates/nextjs`     | `app/api/agent/route.ts`, `app/api/conversation-token/route.ts`, `app/page.tsx` | Same Next.js setup pattern, removes `@elevenlabs/client` if present                                                 |
 | `agents/nextjs/guardrails`             | `templates/nextjs`     | `app/api/agent/route.ts`, `app/api/conversation-token/route.ts`, `app/page.tsx` | Same as quickstart, but prompt targets guardrails and `onGuardrailTriggered`                                        |
@@ -80,6 +81,7 @@ Ignore the deprecated root `examples/` folder for new work.
 
 - Simple CLI text-to-speech script: start from `text-to-speech/typescript/quickstart` or `text-to-speech/python/quickstart`.
 - Simple CLI music script: start from `music/typescript/quickstart`.
+- Simple Next.js music prompt form: start from `sound-effects/nextjs/quickstart`.
 - CLI transcription or file-based Scribe example: start from the speech-to-text quickstarts.
 - Realtime microphone UI: start from `speech-to-text/nextjs/realtime`.
 - Voice agent creation and conversation UI: start from `agents/nextjs/quickstart`.

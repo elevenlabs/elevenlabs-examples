@@ -14,6 +14,7 @@ SUPPORTED_COMBOS = {
     ("speech-to-text", "python"),
     ("speech-to-text", "nextjs"),
     ("music", "typescript"),
+    ("music", "nextjs"),
     ("agents", "nextjs"),
 }
 
@@ -76,6 +77,8 @@ def closest_reference(product: str, runtime: str) -> str:
         return "agents/nextjs/quickstart"
     if product == "speech-to-text" and runtime == "nextjs":
         return "speech-to-text/nextjs/realtime"
+    if product == "music" and runtime == "nextjs":
+        return "sound-effects/nextjs/quickstart"
     return f"{product}/{runtime}/quickstart"
 
 
@@ -187,6 +190,35 @@ def build_prompt(product: str, runtime: str) -> str:
             - Save the returned audio to `output.mp3` with `Readable.from(track)` and `pipeline`.
             - Print a success message with the output path.
             - Handle errors with a readable message.
+            """
+        )
+
+    if product == "music" and runtime == "nextjs":
+        return dedent(
+            """\
+            Before writing any code, invoke the `/music` skill to learn the correct ElevenLabs SDK patterns.
+
+            ## 1. `app/api/generate-music/route.ts`
+
+            Secure POST endpoint that generates music from a text prompt.
+            Never expose `ELEVENLABS_API_KEY` to the client.
+
+            - Read `{ prompt }` from the request body.
+            - Validate that the prompt is a non-empty string.
+            - Use `ElevenLabsClient` and call `client.music.compose` with `musicLengthMs: 10000`.
+            - Return the generated MP3 stream from the server response with an audio content type.
+            - Return readable JSON errors for validation and API failures.
+
+            ## 2. `app/page.tsx`
+
+            Simple music playground page.
+
+            - Show a textarea for the prompt and a submit button.
+            - Call the API route from the client and handle loading, success, and error states.
+            - Convert the returned audio blob into an object URL and render an HTML audio player.
+            - Show a download link for the generated track once it is ready.
+            - Auto-clear the previous audio when starting a new request.
+            - Keep the UI minimal and easy to scan.
             """
         )
 
@@ -499,6 +531,52 @@ def build_readme(
             ),
         )
 
+    if product == "music" and runtime == "nextjs":
+        return join_blocks(
+            title_block,
+            dedent(
+                """\
+                ## Setup
+
+                1. Copy the environment file and add your API key:
+
+                   ```bash
+                   cp .env.example .env
+                   ```
+
+                   Then edit `.env` and paste your [ElevenLabs API key](https://elevenlabs.io/app/settings/api-keys).
+
+                2. Install dependencies:
+
+                   ```bash
+                   pnpm install
+                   ```
+
+                The Music API is currently available to paid ElevenLabs users.
+                """
+            ),
+            dedent(
+                """\
+                ## Run
+
+                ```bash
+                pnpm run dev
+                ```
+
+                Open [http://localhost:3000](http://localhost:3000) in your browser.
+                """
+            ),
+            dedent(
+                """\
+                ## Usage
+
+                - Enter the kind of music you want to generate.
+                - Click **Generate music**.
+                - Wait for the request to finish, then play the generated track in the built-in player.
+                """
+            ),
+        )
+
     if product == "agents" and runtime == "nextjs":
         return join_blocks(
             title_block,
@@ -658,9 +736,12 @@ def build_setup(
         node_lines = [
             "  const pkg = JSON.parse(require('fs').readFileSync('package.json', 'utf8'));",
             f"  pkg.name = '{package_name}';",
-            "  pkg.dependencies['@elevenlabs/react'] = '^' + process.env.REACT_VER;",
             "  pkg.dependencies['@elevenlabs/elevenlabs-js'] = '^' + process.env.ELEVENLABS_VER;",
         ]
+        if product in {"speech-to-text", "agents"}:
+            node_lines.insert(
+                2, "  pkg.dependencies['@elevenlabs/react'] = '^' + process.env.REACT_VER;"
+            )
         if product == "agents":
             node_lines.append("  delete pkg.dependencies['@elevenlabs/client'];")
         node_lines.append(
@@ -697,8 +778,13 @@ def build_setup(
                 "",
                 "# Add ElevenLabs dependencies",
                 "cd example",
-                "export REACT_VER=$(npm view @elevenlabs/react version)",
                 "export ELEVENLABS_VER=$(npm view @elevenlabs/elevenlabs-js version)",
+            ]
+        )
+        if product in {"speech-to-text", "agents"}:
+            lines.append("export REACT_VER=$(npm view @elevenlabs/react version)")
+        lines.extend(
+            [
                 'node -e "',
                 *node_lines,
                 '"',
@@ -710,6 +796,14 @@ def build_setup(
                     "",
                     "# Create API route directory",
                     "mkdir -p app/api/scribe-token",
+                ]
+            )
+        if product == "music":
+            lines.extend(
+                [
+                    "",
+                    "# Create API route directory",
+                    "mkdir -p app/api/generate-music",
                 ]
             )
         if product == "agents":
