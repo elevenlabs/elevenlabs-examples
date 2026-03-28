@@ -1,6 +1,6 @@
 ![ElevenLabs Examples Header](./examples-header.png)
 
-Prompt-driven ElevenLabs examples for text-to-speech and speech-to-text. Each project includes:
+Prompt-driven ElevenLabs examples for text-to-speech, speech-to-text, music, and agents. Each project includes:
 
 - `PROMPT.md` — instructions for agent-driven generation
 - `setup.sh` — scaffolds the `example/` directory from a shared template
@@ -16,7 +16,10 @@ Shared base templates live in `templates/` (Next.js, Python, TypeScript). UI sty
 - [Text-to-Speech Quickstart (Python)](text-to-speech/python/quickstart/example/README.md) — Generate an MP3 from text with the ElevenLabs Python SDK.
 - [Speech-to-Text Quickstart (TypeScript)](speech-to-text/typescript/quickstart/example/README.md) — Transcribe local audio files with Scribe v2.
 - [Speech-to-Text Quickstart (Python)](speech-to-text/python/quickstart/example/README.md) — Transcribe local audio files with Scribe v2.
+- [Music Quickstart (TypeScript)](music/typescript/quickstart/example/README.md) — Generate an MP3 track from a text prompt with the ElevenLabs JS SDK.
 - [Real-Time Speech-to-Text (Next.js)](speech-to-text/nextjs/realtime/example/README.md) — Live microphone transcription with VAD in a Next.js app.
+- [Real-Time Voice Agent (Next.js)](agents/nextjs/quickstart/example/README.md) — Live voice conversations with the ElevenLabs Agents Platform using the React Agents SDK.
+- [Voice Agent Guardrails Demo (Next.js)](agents/nextjs/guardrails/example/README.md) — Demonstrate custom guardrails and the `guardrail_triggered` client event in a live voice agent.
 
 ## Generate examples from prompts
 

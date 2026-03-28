@@ -10,7 +10,7 @@
   - `setup.sh` already ran
   - implement in `example/` only
   - read root `DESIGN.md` for UI work
-- The generator auto-loads repo SDK skills from `.agents/skills` when the prompt contains backticked skill names such as ``/text-to-speech``. Keep the backticks and leading slash.
+- The generator auto-loads repo SDK skills from `.agents/skills` when the prompt contains backticked skill names such as `/text-to-speech`. Keep the backticks and leading slash.
 
 ## Available repo skills
 
@@ -41,29 +41,30 @@ Ignore the deprecated root `examples/` folder for new work.
 
 ## Current example matrix
 
-| Path | Shared template | Prompt sections | Setup extras |
-| --- | --- | --- | --- |
-| `text-to-speech/typescript/quickstart` | `templates/typescript` | `index.ts` | Copies `.env`, preserves `node_modules`, installs with `pnpm` |
-| `text-to-speech/python/quickstart` | `templates/python` | `main.py` | Copies `.env`, preserves `.venv`, installs with `pip` |
-| `speech-to-text/typescript/quickstart` | `templates/typescript` | `index.ts` | Optional `assets/`, copies `.env`, preserves `node_modules` |
-| `speech-to-text/python/quickstart` | `templates/python` | `main.py` | Optional `assets/`, copies `.env`, preserves `.venv` |
-| `speech-to-text/nextjs/realtime` | `templates/nextjs` | `app/api/scribe-token/route.ts`, `app/page.tsx` | Adds `@elevenlabs/react` and `@elevenlabs/elevenlabs-js`, copies `.env.local`, preserves `node_modules` and `.next` |
-| `agents/nextjs/quickstart` | `templates/nextjs` | `app/api/agent/route.ts`, `app/api/conversation-token/route.ts`, `app/page.tsx` | Same Next.js setup pattern, removes `@elevenlabs/client` if present |
-| `agents/nextjs/guardrails` | `templates/nextjs` | `app/api/agent/route.ts`, `app/api/conversation-token/route.ts`, `app/page.tsx` | Same as quickstart, but prompt targets guardrails and `onGuardrailTriggered` |
+| Path                                   | Shared template        | Prompt sections                                                                 | Setup extras                                                                                                        |
+| -------------------------------------- | ---------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `text-to-speech/typescript/quickstart` | `templates/typescript` | `index.ts`                                                                      | Copies `.env`, preserves `node_modules`, installs with `pnpm`                                                       |
+| `text-to-speech/python/quickstart`     | `templates/python`     | `main.py`                                                                       | Copies `.env`, preserves `.venv`, installs with `pip`                                                               |
+| `speech-to-text/typescript/quickstart` | `templates/typescript` | `index.ts`                                                                      | Optional `assets/`, copies `.env`, preserves `node_modules`                                                         |
+| `speech-to-text/python/quickstart`     | `templates/python`     | `main.py`                                                                       | Optional `assets/`, copies `.env`, preserves `.venv`                                                                |
+| `music/typescript/quickstart`          | `templates/typescript` | `index.ts`                                                                      | Copies `.env`, preserves `node_modules`, installs with `pnpm`                                                       |
+| `speech-to-text/nextjs/realtime`       | `templates/nextjs`     | `app/api/scribe-token/route.ts`, `app/page.tsx`                                 | Adds `@elevenlabs/react` and `@elevenlabs/elevenlabs-js`, copies `.env.local`, preserves `node_modules` and `.next` |
+| `agents/nextjs/quickstart`             | `templates/nextjs`     | `app/api/agent/route.ts`, `app/api/conversation-token/route.ts`, `app/page.tsx` | Same Next.js setup pattern, removes `@elevenlabs/client` if present                                                 |
+| `agents/nextjs/guardrails`             | `templates/nextjs`     | `app/api/agent/route.ts`, `app/api/conversation-token/route.ts`, `app/page.tsx` | Same as quickstart, but prompt targets guardrails and `onGuardrailTriggered`                                        |
 
 ## Runtime setup rules
 
-| Runtime | Seed template | Preserve on clean | Env copied into `example/` | Install step |
-| --- | --- | --- | --- | --- |
-| `typescript` | `templates/typescript/` | `node_modules` | `.env` | `pnpm install --config.confirmModulesPurge=false` |
-| `python` | `templates/python/` | `.venv` | `.env` | create `.venv`, upgrade `pip`, `pip install -r requirements.txt` |
-| `nextjs` | `templates/nextjs/` | `node_modules`, `.next` | `.env.local` | patch `package.json`, then `pnpm install --config.confirmModulesPurge=false` |
+| Runtime      | Seed template           | Preserve on clean       | Env copied into `example/` | Install step                                                                 |
+| ------------ | ----------------------- | ----------------------- | -------------------------- | ---------------------------------------------------------------------------- |
+| `typescript` | `templates/typescript/` | `node_modules`          | `.env`                     | `pnpm install --config.confirmModulesPurge=false`                            |
+| `python`     | `templates/python/`     | `.venv`                 | `.env`                     | create `.venv`, upgrade `pip`, `pip install -r requirements.txt`             |
+| `nextjs`     | `templates/nextjs/`     | `node_modules`, `.next` | `.env.local`               | patch `package.json`, then `pnpm install --config.confirmModulesPurge=false` |
 
 ## Prompt rules
 
 - Start with `Before writing any code, invoke the \`/skill-name\` skill...`.
 - Choose that skill by checking `.agents/skills/` first; do not assume only `/text-to-speech`, `/speech-to-text`, and `/agents` exist.
-- Use `## \`path/to/file\`` headings only for files inside `example/`.
+- Use `## \`path/to/file\``headings only for files inside`example/`.
 - Keep prompts short and implementation-focused. Current prompts are direct checklists, not essays.
 - Mention the concrete SDK client, env loading, output format, model ids, voice ids, API route security, and UI behavior when those details are known.
 - Do not repeat repo-wide context that the generator already injects.
@@ -78,6 +79,7 @@ Ignore the deprecated root `examples/` folder for new work.
 ## Best reference by request
 
 - Simple CLI text-to-speech script: start from `text-to-speech/typescript/quickstart` or `text-to-speech/python/quickstart`.
+- Simple CLI music script: start from `music/typescript/quickstart`.
 - CLI transcription or file-based Scribe example: start from the speech-to-text quickstarts.
 - Realtime microphone UI: start from `speech-to-text/nextjs/realtime`.
 - Voice agent creation and conversation UI: start from `agents/nextjs/quickstart`.

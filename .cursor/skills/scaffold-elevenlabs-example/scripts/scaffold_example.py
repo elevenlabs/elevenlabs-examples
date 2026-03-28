@@ -13,6 +13,7 @@ SUPPORTED_COMBOS = {
     ("speech-to-text", "typescript"),
     ("speech-to-text", "python"),
     ("speech-to-text", "nextjs"),
+    ("music", "typescript"),
     ("agents", "nextjs"),
 }
 
@@ -168,6 +169,24 @@ def build_prompt(product: str, runtime: str) -> str:
             - Show a Start/Stop toggle, connection status, live waveform (use `LiveWaveform` from `components/ui`), partial transcript, and committed transcript history (newest first).
             - Keep committed history across stop/start; clear transient state on disconnect.
             - Handle connection errors gracefully and allow reconnect.
+            """
+        )
+
+    if product == "music" and runtime == "typescript":
+        return dedent(
+            """\
+            Before writing any code, invoke the `/music` skill to learn the correct ElevenLabs SDK patterns.
+
+            ## `index.ts`
+
+            Create a minimal script that generates music from a text prompt using the ElevenLabs JS SDK.
+
+            - Load env vars from `.env`.
+            - Read the music prompt from CLI args; fall back to `A chill lo-fi beat with jazzy piano chords`.
+            - Use `ElevenLabsClient` and call `client.music.compose` with `musicLengthMs: 10000`.
+            - Save the returned audio to `output.mp3` with `Readable.from(track)` and `pipeline`.
+            - Print a success message with the output path.
+            - Handle errors with a readable message.
             """
         )
 
@@ -439,6 +458,43 @@ def build_readme(
                 - Click **Start** and allow microphone access when prompted.
                 - Speak naturally. Partial text should appear while you talk and committed segments should remain in history.
                 - Click **Stop** to end the session.
+                """
+            ),
+        )
+
+    if product == "music" and runtime == "typescript":
+        return join_blocks(
+            title_block,
+            dedent(
+                """\
+                ## Setup
+
+                1. Copy the environment file and add your API key:
+
+                   ```bash
+                   cp .env.example .env
+                   ```
+
+                   Then edit `.env` and paste your [ElevenLabs API key](https://elevenlabs.io/app/settings/api-keys).
+
+                2. Install dependencies:
+
+                   ```bash
+                   pnpm install
+                   ```
+
+                The Music API is currently available to paid ElevenLabs users.
+                """
+            ),
+            dedent(
+                """\
+                ## Run
+
+                ```bash
+                pnpm run start "A chill lo-fi beat with jazzy piano chords"
+                ```
+
+                The generated track is saved to `output.mp3`.
                 """
             ),
         )
