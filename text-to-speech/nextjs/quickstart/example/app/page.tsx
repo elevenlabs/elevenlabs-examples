@@ -44,7 +44,8 @@ export default function Home() {
       const url = URL.createObjectURL(blob);
       setAudioUrl(url);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Something went wrong.";
+      const message =
+        err instanceof Error ? err.message : "Something went wrong.";
       setError(message);
     } finally {
       setLoading(false);
@@ -71,7 +72,7 @@ export default function Home() {
             <textarea
               id="tts-text"
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={e => setText(e.target.value)}
               rows={6}
               className="w-full resize-y rounded-md border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-400"
               placeholder="Enter text to convert to speech…"

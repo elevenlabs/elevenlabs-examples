@@ -35,7 +35,9 @@ export default function Home() {
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
           throw new Error(
-            typeof data.error === "string" ? data.error : "Failed to load voices."
+            typeof data.error === "string"
+              ? data.error
+              : "Failed to load voices."
           );
         }
         const list = Array.isArray(data.voices) ? data.voices : [];
@@ -45,7 +47,9 @@ export default function Home() {
         }
       } catch (e) {
         if (!cancelled) {
-          setVoicesError(e instanceof Error ? e.message : "Failed to load voices.");
+          setVoicesError(
+            e instanceof Error ? e.message : "Failed to load voices."
+          );
         }
       }
     })();
@@ -70,7 +74,7 @@ export default function Home() {
         },
       ];
     }
-    if (voices.some((v) => v.voiceId === DEFAULT_VOICE_ID)) {
+    if (voices.some(v => v.voiceId === DEFAULT_VOICE_ID)) {
       return voices;
     }
     return [
@@ -83,18 +87,15 @@ export default function Home() {
     ];
   }, [voices]);
 
-  const onFileChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const next = e.target.files?.[0] ?? null;
-      setFile(next);
-      setError(null);
-      setAudioUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return null;
-      });
-    },
-    []
-  );
+  const onFileChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    const next = e.target.files?.[0] ?? null;
+    setFile(next);
+    setError(null);
+    setAudioUrl(prev => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+  }, []);
 
   const onSubmit = useCallback(
     async (e: FormEvent) => {
@@ -106,7 +107,7 @@ export default function Home() {
 
       setError(null);
       setLoading(true);
-      setAudioUrl((prev) => {
+      setAudioUrl(prev => {
         if (prev) URL.revokeObjectURL(prev);
         return null;
       });
@@ -125,7 +126,9 @@ export default function Home() {
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           throw new Error(
-            typeof data.error === "string" ? data.error : `Request failed (${res.status}).`
+            typeof data.error === "string"
+              ? data.error
+              : `Request failed (${res.status}).`
           );
         }
 
@@ -149,7 +152,8 @@ export default function Home() {
             Voice Changer
           </h1>
           <p className="text-sm text-neutral-500">
-            Transform your recording with another voice using ElevenLabs speech-to-speech.
+            Transform your recording with another voice using ElevenLabs
+            speech-to-speech.
           </p>
         </header>
 
@@ -162,10 +166,7 @@ export default function Home() {
 
           <form onSubmit={onSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label
-                htmlFor="audio-file"
-                className="text-xs text-neutral-400"
-              >
+              <label htmlFor="audio-file" className="text-xs text-neutral-400">
                 Audio file
               </label>
               <input
@@ -189,10 +190,10 @@ export default function Home() {
                 id="voice"
                 name="voiceId"
                 value={voiceId}
-                onChange={(e) => setVoiceId(e.target.value)}
+                onChange={e => setVoiceId(e.target.value)}
                 className="w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900"
               >
-                {voiceOptions.map((v) => (
+                {voiceOptions.map(v => (
                   <option key={v.voiceId} value={v.voiceId}>
                     {v.name || v.voiceId}
                   </option>

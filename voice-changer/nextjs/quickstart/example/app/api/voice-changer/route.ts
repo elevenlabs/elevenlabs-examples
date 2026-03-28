@@ -3,7 +3,9 @@ import { NextResponse } from "next/server";
 
 const DEFAULT_MODEL_ID = "eleven_multilingual_sts_v2";
 
-async function streamToBuffer(stream: ReadableStream<Uint8Array>): Promise<Buffer> {
+async function streamToBuffer(
+  stream: ReadableStream<Uint8Array>
+): Promise<Buffer> {
   const reader = stream.getReader();
   const chunks: Uint8Array[] = [];
   try {
@@ -15,7 +17,7 @@ async function streamToBuffer(stream: ReadableStream<Uint8Array>): Promise<Buffe
   } finally {
     reader.releaseLock();
   }
-  return Buffer.concat(chunks.map((c) => Buffer.from(c)));
+  return Buffer.concat(chunks.map(c => Buffer.from(c)));
 }
 
 export async function POST(request: Request) {
@@ -39,11 +41,17 @@ export async function POST(request: Request) {
   const modelIdRaw = formData.get("modelId");
 
   if (!(audio instanceof File)) {
-    return NextResponse.json({ error: "Missing or invalid audio file." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing or invalid audio file." },
+      { status: 400 }
+    );
   }
 
   if (typeof voiceIdRaw !== "string" || !voiceIdRaw.trim()) {
-    return NextResponse.json({ error: "voiceId is required." }, { status: 400 });
+    return NextResponse.json(
+      { error: "voiceId is required." },
+      { status: 400 }
+    );
   }
 
   const voiceId = voiceIdRaw.trim();

@@ -9,11 +9,17 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return Response.json({ error: "Request body must be valid JSON." }, { status: 400 });
+    return Response.json(
+      { error: "Request body must be valid JSON." },
+      { status: 400 }
+    );
   }
 
   if (typeof body !== "object" || body === null || !("text" in body)) {
-    return Response.json({ error: "Missing required field: text." }, { status: 400 });
+    return Response.json(
+      { error: "Missing required field: text." },
+      { status: 400 }
+    );
   }
 
   const text = (body as { text: unknown }).text;
@@ -41,7 +47,9 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     if (err instanceof ElevenLabsError) {
       const status =
-        err.statusCode !== undefined && err.statusCode >= 400 && err.statusCode < 600
+        err.statusCode !== undefined &&
+        err.statusCode >= 400 &&
+        err.statusCode < 600
           ? err.statusCode
           : 502;
       return Response.json(
@@ -50,7 +58,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const message = err instanceof Error ? err.message : "Failed to generate speech.";
+    const message =
+      err instanceof Error ? err.message : "Failed to generate speech.";
     return Response.json({ error: message }, { status: 502 });
   }
 }

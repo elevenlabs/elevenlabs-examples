@@ -15,7 +15,7 @@ export async function GET() {
     const { voices } = await elevenlabs.voices.getAll();
 
     const body = {
-      voices: voices.map((v) => ({
+      voices: voices.map(v => ({
         voiceId: v.voiceId,
         name: v.name ?? "",
         previewUrl: v.previewUrl ?? null,
