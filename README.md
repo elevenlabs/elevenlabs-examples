@@ -14,6 +14,7 @@ Shared base templates live in `templates/` (Next.js, Python, TypeScript). UI sty
 
 - [Text-to-Speech Quickstart (TypeScript)](text-to-speech/typescript/quickstart/example/README.md) — Generate an MP3 from text with the ElevenLabs JS SDK.
 - [Text-to-Speech Quickstart (Python)](text-to-speech/python/quickstart/example/README.md) — Generate an MP3 from text with the ElevenLabs Python SDK.
+- [Text to Speech Playground (Next.js)](text-to-speech/nextjs/quickstart/example/README.md) — Generate speech from text in a Next.js app and play it back in the browser.
 - [Speech-to-Text Quickstart (TypeScript)](speech-to-text/typescript/quickstart/example/README.md) — Transcribe local audio files with Scribe v2.
 - [Speech-to-Text Quickstart (Python)](speech-to-text/python/quickstart/example/README.md) — Transcribe local audio files with Scribe v2.
 - [Music Quickstart (TypeScript)](music/typescript/quickstart/example/README.md) — Generate an MP3 track from a text prompt with the ElevenLabs JS SDK.

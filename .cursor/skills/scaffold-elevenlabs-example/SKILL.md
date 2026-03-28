@@ -17,7 +17,6 @@ Use this skill when a user wants a new example scaffold in this repo.
 
 - destination path
 - product and runtime
-- title and one-sentence summary
 - whether the example needs bundled `assets/`
 - whether the user wants scaffold only or scaffold plus a generated `example/`
 
@@ -31,15 +30,13 @@ Ask concise follow-ups only when these are missing.
 
 ```bash
 python3 .cursor/skills/scaffold-elevenlabs-example/scripts/scaffold_example.py \
-  --path speech-to-text/python/my-example \
-  --title "Example Title" \
-  --summary "One-sentence summary."
+  --path text-to-speech/nextjs/my-example
 ```
 
-Add `--with-assets` when the example should ship sample files.
+Add `--with-assets` when the example should ship sample files, or `--reference <path>` to copy from a specific existing example.
 
-4. Edit the scaffolded `README.md`, `PROMPT.md`, and `setup.sh` until they match the requested example and the closest current reference.
-5. Treat the helper output as a generic starting point. If the requested example needs specialized behavior, add that only after the baseline scaffold exists.
+4. Edit the scaffolded `README.md`, `PROMPT.md`, and `setup.sh` until they match the requested example.
+5. Treat the helper output as a copy of the closest reference. Adapt all three files for the new example.
 6. Keep `PROMPT.md` terse:
 
 - first line invokes the most relevant repo skill found in `.agents/skills/`; for current examples this is often `/text-to-speech`, `/speech-to-text`, or `/agents`, but do not assume that list is exhaustive

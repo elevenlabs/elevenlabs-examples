@@ -89,20 +89,17 @@ Ignore the deprecated root `examples/` folder for new work.
 
 ## Scaffold helper
 
-The helper script supports the current template matrix and seeds `README.md`, `PROMPT.md`, and `setup.sh` from the closest current pattern.
+The helper script creates a new example directory by copying `PROMPT.md`, `README.md`, and `setup.sh` from the closest existing example. It auto-detects the best reference by scanning the repo, or accepts an explicit `--reference`.
 
 ```bash
 python3 .cursor/skills/scaffold-elevenlabs-example/scripts/scaffold_example.py \
-  --path agents/nextjs/my-agent-demo \
-  --title "My Agent Demo (Next.js)" \
-  --summary "One-sentence summary."
+  --path agents/nextjs/my-agent-demo
 ```
 
 Useful flags:
 
-- `--with-assets` to add the asset copy step and create `assets/`
+- `--reference sound-effects/nextjs/quickstart` to copy from a specific example
+- `--with-assets` to create an `assets/` directory
 - `--force` to overwrite scaffold files in an existing directory
 
-The helper intentionally emits a generic baseline scaffold. If the requested example needs specialized behavior, hand-edit the scaffold after creation instead of expecting a dedicated helper mode.
-
-If the user asks for a product or runtime outside the current matrix, use the closest supported example as the reference and hand-edit the files instead of relying entirely on the helper.
+The helper copies files verbatim from the reference. Edit `PROMPT.md`, `README.md`, and `setup.sh` after scaffolding to match the new example.
