@@ -87,7 +87,7 @@ export async function POST() {
         },
         tts: {
           voiceId: "JBFqnCBsd6RMkjVDRZzb",
-          modelId: "eleven_turbo_v2",
+          modelId: "eleven_flash_v2",
         },
         conversation: {
           textOnly: false,
