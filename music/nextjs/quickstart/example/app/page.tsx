@@ -9,7 +9,7 @@ export default function Home() {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
   const revokeAudioUrl = useCallback(() => {
-    setAudioUrl((prev) => {
+    setAudioUrl(prev => {
       if (prev) URL.revokeObjectURL(prev);
       return null;
     });
@@ -75,7 +75,7 @@ export default function Home() {
             <textarea
               id="prompt"
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              onChange={e => setPrompt(e.target.value)}
               rows={4}
               className="w-full resize-y rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-400"
               placeholder="e.g. A mellow acoustic guitar piece with soft rain in the background"

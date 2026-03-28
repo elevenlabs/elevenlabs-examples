@@ -41,11 +41,14 @@ Add `--with-assets` when the example should ship sample files.
 4. Edit the scaffolded `README.md`, `PROMPT.md`, and `setup.sh` until they match the requested example and the closest current reference.
 5. Treat the helper output as a generic starting point. If the requested example needs specialized behavior, add that only after the baseline scaffold exists.
 6. Keep `PROMPT.md` terse:
+
 - first line invokes the most relevant repo skill found in `.agents/skills/`; for current examples this is often `/text-to-speech`, `/speech-to-text`, or `/agents`, but do not assume that list is exhaustive
 - sections are file-by-file using `## \`path/to/file\``
 - bullets call out concrete SDKs, env handling, models, voice IDs, UI states, and error handling
 - do not restate repo preamble like `example/`-only rules or `DESIGN.md`; the generator adds that
+
 7. Keep `setup.sh` aligned with current patterns:
+
 - use `set -euo pipefail`
 - derive `DIR` and `REPO_ROOT`
 - clean `example/` but preserve cache dirs (`node_modules`, `.venv`, `.next`) when relevant
@@ -54,12 +57,16 @@ Add `--with-assets` when the example should ship sample files.
 - copy `assets/` and local `.env` only when present
 - install dependencies at the end
 - for `nextjs`, fetch latest ElevenLabs package versions at setup time and patch `package.json`
+
 8. Keep `README.md` aligned with the closest current reference:
+
 - always include a heading, one-sentence summary, `## Setup`, and `## Run`
 - add `## Usage` for interactive examples such as Next.js and agents demos
 - commands should work from inside `example/`
+
 9. Recommended when shipping the example: add it to the root `README.md`.
 10. Verify:
+
 - `bash <path>/setup.sh`
 - inspect the generated `example/`
 - run `pnpm run generate <path>` only when the user wants full prompt validation or generated output

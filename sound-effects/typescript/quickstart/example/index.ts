@@ -20,8 +20,7 @@ function formatError(err: unknown): string {
 }
 
 async function main(): Promise<void> {
-  const text =
-    process.argv.slice(2).join(" ").trim() || DEFAULT_PROMPT;
+  const text = process.argv.slice(2).join(" ").trim() || DEFAULT_PROMPT;
 
   const client = new ElevenLabsClient();
   const audio = await client.textToSoundEffects.convert({ text });

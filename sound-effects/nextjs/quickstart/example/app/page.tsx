@@ -59,17 +59,14 @@ export default function Home() {
 
         <form onSubmit={handleSubmit} className="mt-10 space-y-4">
           <div className="space-y-2">
-            <label
-              htmlFor="prompt"
-              className="block text-xs text-neutral-400"
-            >
+            <label htmlFor="prompt" className="block text-xs text-neutral-400">
               Prompt
             </label>
             <textarea
               id="prompt"
               name="prompt"
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              onChange={e => setPrompt(e.target.value)}
               rows={4}
               className="w-full resize-y rounded-md border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400"
               placeholder="e.g. Thunder rumbling in the distance with light rain"

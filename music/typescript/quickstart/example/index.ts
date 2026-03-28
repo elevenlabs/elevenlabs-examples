@@ -19,10 +19,7 @@ async function main() {
     });
 
     const outputPath = path.resolve(process.cwd(), OUTPUT_FILE);
-    await pipeline(
-      Readable.from(track),
-      createWriteStream(outputPath),
-    );
+    await pipeline(Readable.from(track), createWriteStream(outputPath));
 
     console.log(`Wrote generated music to ${outputPath}`);
   } catch (err) {

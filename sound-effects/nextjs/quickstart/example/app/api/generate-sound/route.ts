@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json(
       { error: "Request body must be valid JSON." },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   if (typeof prompt !== "string" || prompt.trim().length === 0) {
     return NextResponse.json(
       { error: "prompt must be a non-empty string." },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
   if (!apiKey) {
     return NextResponse.json(
       { error: "Server is not configured with ELEVENLABS_API_KEY." },
-      { status: 503 },
+      { status: 503 }
     );
   }
 
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
             "The ElevenLabs API returned an error for this request.",
           details: err.body,
         },
-        { status: status >= 400 && status < 600 ? status : 502 },
+        { status: status >= 400 && status < 600 ? status : 502 }
       );
     }
     const message =
