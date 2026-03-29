@@ -25,6 +25,7 @@ Shared base templates live in `templates/` (Next.js, Python, TypeScript). UI sty
 - [Real-Time Speech-to-Text (Next.js)](speech-to-text/nextjs/realtime/example/README.md) — Live microphone transcription with VAD in a Next.js app.
 - [Real-Time Voice Agent (Next.js)](agents/nextjs/quickstart/example/README.md) — Live voice conversations with the ElevenLabs Agents Platform using the React Agents SDK.
 - [Voice Agent Guardrails Demo (Next.js)](agents/nextjs/guardrails/example/README.md) — Demonstrate custom guardrails and the `guardrail_triggered` client event in a live voice agent.
+- [Voice Isolator (Next.js)](voice-isolator/nextjs/quickstart/example/README.md) — Record your voice in the browser and remove background noise with the Voice Isolator API.
 
 ## Generate examples from prompts
 
