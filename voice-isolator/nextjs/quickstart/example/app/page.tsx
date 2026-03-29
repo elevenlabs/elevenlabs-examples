@@ -24,7 +24,7 @@ export default function Home() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const cleanupStream = useCallback(() => {
-    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current?.getTracks().forEach(t => t.stop());
     streamRef.current = null;
   }, []);
 
@@ -36,11 +36,11 @@ export default function Home() {
   }, [cleanupStream]);
 
   const revokeUrls = useCallback(() => {
-    setRecordedUrl((prev) => {
+    setRecordedUrl(prev => {
       if (prev) URL.revokeObjectURL(prev);
       return null;
     });
-    setIsolatedUrl((prev) => {
+    setIsolatedUrl(prev => {
       if (prev) URL.revokeObjectURL(prev);
       return null;
     });
@@ -65,11 +65,11 @@ export default function Home() {
 
       const recorder = new MediaRecorder(
         stream,
-        mimeType ? { mimeType } : undefined,
+        mimeType ? { mimeType } : undefined
       );
       chunksRef.current = [];
 
-      recorder.ondataavailable = (ev) => {
+      recorder.ondataavailable = ev => {
         if (ev.data.size > 0) chunksRef.current.push(ev.data);
       };
 
@@ -80,7 +80,7 @@ export default function Home() {
         chunksRef.current = [];
         const url = URL.createObjectURL(blob);
         setRecordedBlob(blob);
-        setRecordedUrl((prev) => {
+        setRecordedUrl(prev => {
           if (prev) URL.revokeObjectURL(prev);
           return url;
         });
@@ -93,13 +93,13 @@ export default function Home() {
       setElapsedSec(0);
       if (timerRef.current) clearInterval(timerRef.current);
       timerRef.current = setInterval(() => {
-        setElapsedSec((n) => n + 1);
+        setElapsedSec(n => n + 1);
       }, 1000);
     } catch (e) {
       cleanupStream();
       if (e instanceof DOMException && e.name === "NotAllowedError") {
         setError(
-          "Microphone access was denied. Allow microphone access in your browser settings to record.",
+          "Microphone access was denied. Allow microphone access in your browser settings to record."
         );
       } else {
         setError("Could not access the microphone.");
@@ -131,7 +131,7 @@ export default function Home() {
         throw new Error(data.error || `Request failed (${res.status})`);
       }
       const blob = await res.blob();
-      setIsolatedUrl((prev) => {
+      setIsolatedUrl(prev => {
         if (prev) URL.revokeObjectURL(prev);
         return URL.createObjectURL(blob);
       });

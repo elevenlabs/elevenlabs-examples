@@ -1,7 +1,9 @@
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 import { NextRequest, NextResponse } from "next/server";
 
-async function streamToBuffer(stream: ReadableStream<Uint8Array>): Promise<Buffer> {
+async function streamToBuffer(
+  stream: ReadableStream<Uint8Array>
+): Promise<Buffer> {
   const reader = stream.getReader();
   const chunks: Uint8Array[] = [];
   try {
@@ -13,7 +15,7 @@ async function streamToBuffer(stream: ReadableStream<Uint8Array>): Promise<Buffe
   } finally {
     reader.releaseLock();
   }
-  return Buffer.concat(chunks.map((c) => Buffer.from(c)));
+  return Buffer.concat(chunks.map(c => Buffer.from(c)));
 }
 
 export async function POST(request: NextRequest) {
@@ -21,7 +23,7 @@ export async function POST(request: NextRequest) {
   if (!apiKey) {
     return NextResponse.json(
       { error: "Server is missing ELEVENLABS_API_KEY." },
-      { status: 500 },
+      { status: 500 }
     );
   }
 
@@ -48,8 +50,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (e) {
-    const message =
-      e instanceof Error ? e.message : "Voice isolation failed.";
+    const message = e instanceof Error ? e.message : "Voice isolation failed.";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
