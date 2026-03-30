@@ -43,7 +43,8 @@ export default function Home() {
     (async () => {
       try {
         const res = await fetch("/api/voices");
-        const data: { voices?: VoiceOption[]; error?: string } = await res.json();
+        const data: { voices?: VoiceOption[]; error?: string } =
+          await res.json();
         if (!res.ok) {
           throw new Error(data.error || "Failed to load voices.");
         }
@@ -65,14 +66,14 @@ export default function Home() {
 
   useEffect(() => {
     if (!recordingBlob) {
-      setOriginalUrl((prev) => {
+      setOriginalUrl(prev => {
         if (prev) URL.revokeObjectURL(prev);
         return null;
       });
       return;
     }
     const url = URL.createObjectURL(recordingBlob);
-    setOriginalUrl((prev) => {
+    setOriginalUrl(prev => {
       if (prev) URL.revokeObjectURL(prev);
       return url;
     });
@@ -83,14 +84,14 @@ export default function Home() {
 
   useEffect(() => {
     if (!convertedBlob) {
-      setConvertedUrl((prev) => {
+      setConvertedUrl(prev => {
         if (prev) URL.revokeObjectURL(prev);
         return null;
       });
       return;
     }
     const url = URL.createObjectURL(convertedBlob);
-    setConvertedUrl((prev) => {
+    setConvertedUrl(prev => {
       if (prev) URL.revokeObjectURL(prev);
       return url;
     });
@@ -134,12 +135,12 @@ export default function Home() {
       );
       const chunks: Blob[] = [];
 
-      recorder.ondataavailable = (e) => {
+      recorder.ondataavailable = e => {
         if (e.data.size > 0) chunks.push(e.data);
       };
 
       recorder.onstop = () => {
-        stream.getTracks().forEach((t) => t.stop());
+        stream.getTracks().forEach(t => t.stop());
         streamRef.current = null;
         recorderRef.current = null;
         const blob = new Blob(chunks, {
@@ -153,8 +154,7 @@ export default function Home() {
       recorder.start();
       setIsRecording(true);
     } catch (e) {
-      const denied =
-        e instanceof DOMException && e.name === "NotAllowedError";
+      const denied = e instanceof DOMException && e.name === "NotAllowedError";
       setMicError(
         denied
           ? "Microphone access was denied. Allow the microphone for this site to record."
@@ -214,9 +214,7 @@ export default function Home() {
       setConvertedBlob(blob);
     } catch (e) {
       setConvertedBlob(null);
-      setConvertError(
-        e instanceof Error ? e.message : "Conversion failed."
-      );
+      setConvertError(e instanceof Error ? e.message : "Conversion failed.");
     } finally {
       setIsConverting(false);
     }
@@ -225,7 +223,7 @@ export default function Home() {
   useEffect(() => {
     return () => {
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current.getTracks().forEach(t => t.stop());
       }
       const rec = recorderRef.current;
       if (rec && rec.state !== "inactive") {
@@ -269,13 +267,13 @@ export default function Home() {
               id="voice-select"
               disabled={voiceSelectDisabled}
               value={voiceId}
-              onChange={(e) => setVoiceId(e.target.value)}
+              onChange={e => setVoiceId(e.target.value)}
               className="w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-neutral-900 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {voices.length === 0 ? (
                 <option value={DEFAULT_VOICE_ID}>George (default)</option>
               ) : (
-                voices.map((v) => (
+                voices.map(v => (
                   <option key={v.voiceId} value={v.voiceId}>
                     {v.name}
                   </option>
@@ -364,11 +362,7 @@ export default function Home() {
                 {convertedUrl && !isConverting && (
                   <div className="space-y-2">
                     <p className="text-xs text-neutral-400">Converted audio</p>
-                    <audio
-                      className="w-full"
-                      controls
-                      src={convertedUrl}
-                    />
+                    <audio className="w-full" controls src={convertedUrl} />
                     <a
                       href={convertedUrl}
                       download="converted.mp3"

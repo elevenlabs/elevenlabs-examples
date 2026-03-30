@@ -31,7 +31,10 @@ function pickRecorderMimeType(): string | undefined {
     "audio/mp4",
   ] as const;
   for (const m of candidates) {
-    if (typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(m)) {
+    if (
+      typeof MediaRecorder !== "undefined" &&
+      MediaRecorder.isTypeSupported(m)
+    ) {
       return m;
     }
   }
@@ -75,12 +78,12 @@ export default function Home() {
 
   const startRecording = async () => {
     setError(null);
-    setOriginalUrl((prev) => {
+    setOriginalUrl(prev => {
       if (prev) URL.revokeObjectURL(prev);
       return null;
     });
     setWavFile(null);
-    setDubbedUrl((prev) => {
+    setDubbedUrl(prev => {
       if (prev) URL.revokeObjectURL(prev);
       return null;
     });
@@ -99,7 +102,7 @@ export default function Home() {
       );
       mediaRecorderRef.current = recorder;
 
-      recorder.ondataavailable = (e) => {
+      recorder.ondataavailable = e => {
         if (e.data.size > 0) chunksRef.current.push(e.data);
       };
 
@@ -109,7 +112,7 @@ export default function Home() {
       };
 
       recorder.onstop = async () => {
-        stream.getTracks().forEach((t) => t.stop());
+        stream.getTracks().forEach(t => t.stop());
         streamRef.current = null;
         mediaRecorderRef.current = null;
 
@@ -118,7 +121,7 @@ export default function Home() {
         setPhase("preparing");
         try {
           const wav = await recordedBlobToWavFile(rawBlob);
-          setOriginalUrl((prev) => {
+          setOriginalUrl(prev => {
             if (prev) URL.revokeObjectURL(prev);
             return URL.createObjectURL(wav);
           });
@@ -126,7 +129,9 @@ export default function Home() {
           setPhase("idle");
         } catch (e) {
           setError(
-            e instanceof Error ? e.message : "Could not convert recording to WAV."
+            e instanceof Error
+              ? e.message
+              : "Could not convert recording to WAV."
           );
           setPhase("error");
         } finally {
@@ -169,7 +174,7 @@ export default function Home() {
   const startDubbing = async () => {
     if (!wavFile) return;
     setError(null);
-    setDubbedUrl((prev) => {
+    setDubbedUrl(prev => {
       if (prev) URL.revokeObjectURL(prev);
       return null;
     });
@@ -213,7 +218,9 @@ export default function Home() {
 
     const poll = async () => {
       try {
-        const res = await fetch(`/api/dubbing/${encodeURIComponent(dubbingId)}`);
+        const res = await fetch(
+          `/api/dubbing/${encodeURIComponent(dubbingId)}`
+        );
         const data = (await res.json()) as {
           status?: string;
           error?: string | null;
@@ -224,7 +231,9 @@ export default function Home() {
         if (cancelled) return;
 
         if (!res.ok) {
-          setError((data as { error?: string }).error ?? "Status request failed.");
+          setError(
+            (data as { error?: string }).error ?? "Status request failed."
+          );
           setPhase("error");
           return;
         }
@@ -257,14 +266,16 @@ export default function Home() {
             }
             const blob = await audioRes.blob();
             if (cancelled) return;
-            setDubbedUrl((prev) => {
+            setDubbedUrl(prev => {
               if (prev) URL.revokeObjectURL(prev);
               return URL.createObjectURL(blob);
             });
             setPhase("ready");
           } catch (e) {
             if (!cancelled) {
-              setError(e instanceof Error ? e.message : "Could not load dubbed audio.");
+              setError(
+                e instanceof Error ? e.message : "Could not load dubbed audio."
+              );
               setPhase("error");
             }
           }
@@ -288,8 +299,7 @@ export default function Home() {
     };
   }, [phase, dubbingId, targetLang]);
 
-  const sameLangBlocked =
-    sourceLang !== "auto" && sourceLang === targetLang;
+  const sameLangBlocked = sourceLang !== "auto" && sourceLang === targetLang;
 
   const formatElapsed = (ms: number) => {
     const s = Math.floor(ms / 1000);
@@ -382,14 +392,16 @@ export default function Home() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block space-y-1">
-                  <span className="text-xs text-neutral-400">Source language</span>
+                  <span className="text-xs text-neutral-400">
+                    Source language
+                  </span>
                   <select
                     className="w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm"
                     value={sourceLang}
-                    onChange={(e) => setSourceLang(e.target.value)}
+                    onChange={e => setSourceLang(e.target.value)}
                     disabled={phase === "polling"}
                   >
-                    {SOURCE_OPTIONS.map((o) => (
+                    {SOURCE_OPTIONS.map(o => (
                       <option key={o.code} value={o.code}>
                         {o.label}
                       </option>
@@ -397,14 +409,16 @@ export default function Home() {
                   </select>
                 </label>
                 <label className="block space-y-1">
-                  <span className="text-xs text-neutral-400">Target language</span>
+                  <span className="text-xs text-neutral-400">
+                    Target language
+                  </span>
                   <select
                     className="w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm"
                     value={targetLang}
-                    onChange={(e) => setTargetLang(e.target.value)}
+                    onChange={e => setTargetLang(e.target.value)}
                     disabled={phase === "polling"}
                   >
-                    {LANG_OPTIONS.map((o) => (
+                    {LANG_OPTIONS.map(o => (
                       <option key={o.code} value={o.code}>
                         {o.label}
                       </option>
@@ -415,16 +429,14 @@ export default function Home() {
 
               {sameLangBlocked ? (
                 <p className="text-xs text-neutral-500">
-                  Choose different source and target languages (or use auto-detect for
-                  source).
+                  Choose different source and target languages (or use
+                  auto-detect for source).
                 </p>
               ) : null}
 
               <button
                 type="button"
-                disabled={
-                  phase === "polling" || sameLangBlocked || !wavFile
-                }
+                disabled={phase === "polling" || sameLangBlocked || !wavFile}
                 className={cn(
                   "rounded-md px-4 py-2 text-sm font-medium",
                   phase === "polling" || sameLangBlocked

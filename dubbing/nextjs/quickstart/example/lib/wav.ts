@@ -1,5 +1,8 @@
 /** Encode mono 16-bit PCM little-endian WAV. */
-export function float32MonoToWavPcm16(samples: Float32Array, sampleRate: number): Blob {
+export function float32MonoToWavPcm16(
+  samples: Float32Array,
+  sampleRate: number
+): Blob {
   const buffer = new ArrayBuffer(44 + samples.length * 2);
   const view = new DataView(buffer);
 
@@ -51,7 +54,10 @@ function mixToMono(buffer: AudioBuffer): Float32Array {
 }
 
 /** Decode recorded media to WAV File (PCM) for APIs that reject webm/opus. */
-export async function recordedBlobToWavFile(blob: Blob, filename = "recording.wav"): Promise<File> {
+export async function recordedBlobToWavFile(
+  blob: Blob,
+  filename = "recording.wav"
+): Promise<File> {
   const arrayBuffer = await blob.arrayBuffer();
   const ctx = new AudioContext();
   try {

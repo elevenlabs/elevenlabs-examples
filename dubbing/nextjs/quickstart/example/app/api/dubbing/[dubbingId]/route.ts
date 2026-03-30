@@ -35,9 +35,13 @@ export async function GET(
     });
   } catch (e) {
     if (e instanceof ElevenLabsError) {
-      return jsonError(e.message || "Failed to fetch dubbing status.", e.statusCode ?? 502);
+      return jsonError(
+        e.message || "Failed to fetch dubbing status.",
+        e.statusCode ?? 502
+      );
     }
-    const message = e instanceof Error ? e.message : "Failed to fetch dubbing status.";
+    const message =
+      e instanceof Error ? e.message : "Failed to fetch dubbing status.";
     return jsonError(message, 502);
   }
 }

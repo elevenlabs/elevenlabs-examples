@@ -13,7 +13,7 @@ export async function GET() {
 
   try {
     const res = await client.voices.getAll();
-    const voices = (res.voices ?? []).map((v) => ({
+    const voices = (res.voices ?? []).map(v => ({
       voiceId: v.voiceId,
       name: v.name ?? v.voiceId,
       previewUrl: v.previewUrl ?? null,

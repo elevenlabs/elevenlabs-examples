@@ -55,7 +55,10 @@ export async function POST(request: Request) {
     });
   } catch (e) {
     if (e instanceof ElevenLabsError) {
-      return jsonError(e.message || "Dubbing request failed.", e.statusCode ?? 502);
+      return jsonError(
+        e.message || "Dubbing request failed.",
+        e.statusCode ?? 502
+      );
     }
     const message = e instanceof Error ? e.message : "Dubbing request failed.";
     return jsonError(message, 502);

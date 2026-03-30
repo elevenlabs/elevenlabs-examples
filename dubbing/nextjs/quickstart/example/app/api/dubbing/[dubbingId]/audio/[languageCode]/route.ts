@@ -13,7 +13,9 @@ function isValidLanguageCode(code: string) {
   return /^[a-z]{2,3}(-[a-z]{2})?$/i.test(code);
 }
 
-async function streamToBuffer(stream: ReadableStream<Uint8Array>): Promise<Buffer> {
+async function streamToBuffer(
+  stream: ReadableStream<Uint8Array>
+): Promise<Buffer> {
   const reader = stream.getReader();
   const chunks: Uint8Array[] = [];
   try {
@@ -25,7 +27,7 @@ async function streamToBuffer(stream: ReadableStream<Uint8Array>): Promise<Buffe
   } finally {
     reader.releaseLock();
   }
-  return Buffer.concat(chunks.map((c) => Buffer.from(c)));
+  return Buffer.concat(chunks.map(c => Buffer.from(c)));
 }
 
 export async function GET(
@@ -74,7 +76,8 @@ export async function GET(
         status >= 400 && status < 600 ? status : 502
       );
     }
-    const message = e instanceof Error ? e.message : "Failed to fetch dubbed audio.";
+    const message =
+      e instanceof Error ? e.message : "Failed to fetch dubbed audio.";
     return jsonError(message, 502);
   }
 }
