@@ -18,6 +18,9 @@ rsync -a \
   --exclude example \
   "$REPO_ROOT/templates/nextjs/" example/
 
+# This example does not use the realtime microphone waveform UI.
+rm -f example/components/ui/live-waveform.tsx
+
 # Copy project-specific README
 cp README.md example/README.md
 
