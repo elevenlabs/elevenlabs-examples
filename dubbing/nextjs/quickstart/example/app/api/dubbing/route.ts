@@ -1,0 +1,66 @@
+import { ElevenLabsClient, ElevenLabsError } from "@elevenlabs/elevenlabs-js";
+import { NextResponse } from "next/server";
+
+function jsonError(message: string, status: number) {
+  return NextResponse.json({ error: message }, { status });
+}
+
+export async function POST(request: Request) {
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  if (!apiKey) {
+    return jsonError("Server is missing ELEVENLABS_API_KEY.", 500);
+  }
+
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch {
+    return jsonError("Invalid form data.", 400);
+  }
+
+  const audio = formData.get("audio");
+  const targetLangRaw = formData.get("targetLang");
+  const sourceLangRaw = formData.get("sourceLang");
+
+  if (typeof targetLangRaw !== "string" || !targetLangRaw.trim()) {
+    return jsonError("Missing or invalid targetLang.", 400);
+  }
+  const targetLang = targetLangRaw.trim();
+
+  const sourceLang =
+    typeof sourceLangRaw === "string" && sourceLangRaw.trim()
+      ? sourceLangRaw.trim()
+      : "auto";
+
+  if (!(audio instanceof File)) {
+    return jsonError("Missing or invalid audio file.", 400);
+  }
+  if (audio.size === 0) {
+    return jsonError("Audio file is empty.", 400);
+  }
+
+  const client = new ElevenLabsClient({ apiKey });
+
+  try {
+    const result = await client.dubbing.create({
+      file: audio,
+      targetLang,
+      sourceLang: sourceLang === "auto" ? undefined : sourceLang,
+      name: "Browser dubbing demo",
+    });
+
+    return NextResponse.json({
+      dubbingId: result.dubbingId,
+      expectedDurationSec: result.expectedDurationSec,
+    });
+  } catch (e) {
+    if (e instanceof ElevenLabsError) {
+      return jsonError(
+        e.message || "Dubbing request failed.",
+        e.statusCode ?? 502
+      );
+    }
+    const message = e instanceof Error ? e.message : "Dubbing request failed.";
+    return jsonError(message, 502);
+  }
+}
