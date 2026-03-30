@@ -1,86 +1,80 @@
 import { ElevenLabsClient, ElevenLabsError } from "@elevenlabs/elevenlabs-js";
-import { TooEarlyError } from "@elevenlabs/elevenlabs-js/api/errors/TooEarlyError";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-function getClient(): ElevenLabsClient | null {
-  const apiKey = process.env.ELEVENLABS_API_KEY;
-  if (!apiKey) return null;
-  return new ElevenLabsClient({ apiKey });
+function jsonError(message: string, status: number) {
+  return NextResponse.json({ error: message }, { status });
 }
 
-function isValidId(id: string): boolean {
-  return id.length > 0 && id.length < 256 && !/[\\/]/.test(id);
+function isValidId(id: string) {
+  return /^[a-zA-Z0-9_-]+$/.test(id) && id.length > 0 && id.length <= 128;
 }
 
-function isValidLanguageCode(code: string): boolean {
-  return /^[a-z]{2}(-[a-z]{2})?$/i.test(code);
-}
-
-function serializeError(err: unknown): { message: string; statusCode?: number } {
-  if (err instanceof ElevenLabsError) {
-    return { message: err.message, statusCode: err.statusCode };
-  }
-  if (err instanceof Error) {
-    return { message: err.message };
-  }
-  return { message: "Unknown error" };
+function isValidLanguageCode(code: string) {
+  return /^[a-z]{2,3}(-[a-z]{2})?$/i.test(code);
 }
 
 async function streamToBuffer(stream: ReadableStream<Uint8Array>): Promise<Buffer> {
   const reader = stream.getReader();
-  const chunks: Buffer[] = [];
+  const chunks: Uint8Array[] = [];
   try {
-    while (true) {
+    for (;;) {
       const { done, value } = await reader.read();
       if (done) break;
-      if (value) chunks.push(Buffer.from(value));
+      if (value) chunks.push(value);
     }
   } finally {
     reader.releaseLock();
   }
-  return Buffer.concat(chunks);
+  return Buffer.concat(chunks.map((c) => Buffer.from(c)));
 }
 
 export async function GET(
-  _request: NextRequest,
-  context: { params: Promise<{ dubbingId: string; languageCode: string }> },
+  _request: Request,
+  {
+    params,
+  }: {
+    params: Promise<{ dubbingId: string; languageCode: string }>;
+  }
 ) {
-  const client = getClient();
-  if (!client) {
-    return NextResponse.json(
-      { error: "Server is missing ELEVENLABS_API_KEY." },
-      { status: 500 },
-    );
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  if (!apiKey) {
+    return jsonError("Server is missing ELEVENLABS_API_KEY.", 500);
   }
 
-  const { dubbingId, languageCode } = await context.params;
+  const { dubbingId, languageCode: languageCodeRaw } = await params;
+  const languageCode = decodeURIComponent(languageCodeRaw ?? "");
+
   if (!dubbingId || !isValidId(dubbingId)) {
-    return NextResponse.json({ error: "Invalid dubbing id." }, { status: 400 });
+    return jsonError("Invalid dubbing id.", 400);
   }
   if (!languageCode || !isValidLanguageCode(languageCode)) {
-    return NextResponse.json({ error: "Invalid language code." }, { status: 400 });
+    return jsonError("Invalid language code.", 400);
   }
+
+  const client = new ElevenLabsClient({ apiKey });
 
   try {
     const stream = await client.dubbing.audio.get(dubbingId, languageCode);
-    const buffer = await streamToBuffer(stream);
-    return new NextResponse(new Uint8Array(buffer), {
+    const buf = await streamToBuffer(stream);
+    return new NextResponse(new Uint8Array(buf), {
       status: 200,
       headers: {
         "Content-Type": "audio/mpeg",
         "Cache-Control": "private, max-age=3600",
       },
     });
-  } catch (err) {
-    if (err instanceof TooEarlyError) {
-      return NextResponse.json(
-        { error: "Dubbed audio is not ready yet. Try again shortly." },
-        { status: 425 },
+  } catch (e) {
+    if (e instanceof ElevenLabsError) {
+      const status = e.statusCode ?? 502;
+      if (status === 425) {
+        return jsonError("Dubbed audio is not ready yet.", 503);
+      }
+      return jsonError(
+        e.message || "Failed to fetch dubbed audio.",
+        status >= 400 && status < 600 ? status : 502
       );
     }
-    const { message, statusCode } = serializeError(err);
-    const status =
-      statusCode && statusCode >= 400 && statusCode < 600 ? statusCode : 502;
-    return NextResponse.json({ error: message }, { status });
+    const message = e instanceof Error ? e.message : "Failed to fetch dubbed audio.";
+    return jsonError(message, 502);
   }
 }

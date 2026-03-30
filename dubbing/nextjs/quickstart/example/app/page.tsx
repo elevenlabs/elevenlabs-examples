@@ -1,12 +1,11 @@
 "use client";
 
-import { audioBufferToWav, pickRecorderMimeType } from "@/lib/wav";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-type Phase = "idle" | "recording" | "preparing" | "polling" | "ready" | "error";
+import { recordedBlobToWavFile } from "@/lib/wav";
+import { cn } from "@/lib/utils";
 
-const SOURCE_LANGS = [
-  { code: "auto", label: "Auto (detect)" },
+const LANG_OPTIONS = [
   { code: "en", label: "English" },
   { code: "es", label: "Spanish" },
   { code: "fr", label: "French" },
@@ -18,261 +17,305 @@ const SOURCE_LANGS = [
   { code: "hi", label: "Hindi" },
 ] as const;
 
-const TARGET_LANGS = SOURCE_LANGS.filter((l) => l.code !== "auto");
+const SOURCE_OPTIONS = [
+  { code: "auto", label: "Auto-detect" },
+  ...LANG_OPTIONS,
+] as const;
+
+type Phase = "idle" | "recording" | "preparing" | "polling" | "ready" | "error";
+
+function pickRecorderMimeType(): string | undefined {
+  const candidates = [
+    "audio/webm;codecs=opus",
+    "audio/webm",
+    "audio/mp4",
+  ] as const;
+  for (const m of candidates) {
+    if (typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(m)) {
+      return m;
+    }
+  }
+  return undefined;
+}
 
 export default function Home() {
   const [phase, setPhase] = useState<Phase>("idle");
-  const [micError, setMicError] = useState<string | null>(null);
-  const [inlineError, setInlineError] = useState<string | null>(null);
-  const [elapsedSec, setElapsedSec] = useState(0);
-  const [sourceLang, setSourceLang] = useState("auto");
-  const [targetLang, setTargetLang] = useState("es");
+  const [error, setError] = useState<string | null>(null);
+
+  const [sourceLang, setSourceLang] = useState<string>("auto");
+  const [targetLang, setTargetLang] = useState<string>("es");
+
+  const [elapsedMs, setElapsedMs] = useState(0);
   const [wavFile, setWavFile] = useState<File | null>(null);
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
+
+  const [dubbingId, setDubbingId] = useState<string | null>(null);
   const [dubbedUrl, setDubbedUrl] = useState<string | null>(null);
 
-  const originalUrlRef = useRef<string | null>(null);
-  const dubbedUrlRef = useRef<string | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
-  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pollActiveRef = useRef(false);
-  const targetLangRef = useRef(targetLang);
+  const chunksRef = useRef<Blob[]>([]);
+  const recordMimeRef = useRef<string>("");
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const recordStartRef = useRef<number>(0);
 
   useEffect(() => {
-    targetLangRef.current = targetLang;
-  }, [targetLang]);
+    return () => {
+      if (originalUrl) URL.revokeObjectURL(originalUrl);
+      if (dubbedUrl) URL.revokeObjectURL(dubbedUrl);
+    };
+  }, [originalUrl, dubbedUrl]);
 
-  const revokeOriginal = useCallback(() => {
-    if (originalUrlRef.current) {
-      URL.revokeObjectURL(originalUrlRef.current);
-      originalUrlRef.current = null;
+  const stopTimer = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
     }
-    setOriginalUrl(null);
-  }, []);
+  };
 
-  const revokeDubbed = useCallback(() => {
-    if (dubbedUrlRef.current) {
-      URL.revokeObjectURL(dubbedUrlRef.current);
-      dubbedUrlRef.current = null;
-    }
-    setDubbedUrl(null);
-  }, []);
-
-  const resetAll = useCallback(() => {
-    if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current);
-    pollTimeoutRef.current = null;
-    pollActiveRef.current = false;
-    revokeOriginal();
-    revokeDubbed();
+  const startRecording = async () => {
+    setError(null);
+    setOriginalUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
     setWavFile(null);
-    setInlineError(null);
-    setMicError(null);
-    setElapsedSec(0);
-    setPhase("idle");
-  }, [revokeDubbed, revokeOriginal]);
+    setDubbedUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    setDubbingId(null);
 
-  useEffect(() => {
-    if (phase !== "recording") return;
-    const id = setInterval(() => setElapsedSec((s) => s + 1), 1000);
-    return () => clearInterval(id);
-  }, [phase]);
-
-  const startRecording = useCallback(async () => {
-    setMicError(null);
-    setInlineError(null);
-    revokeOriginal();
-    setWavFile(null);
-    revokeDubbed();
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
-      const mime = pickRecorderMimeType();
-      const rec = mime
-        ? new MediaRecorder(stream, { mimeType: mime })
-        : new MediaRecorder(stream);
       chunksRef.current = [];
-      rec.ondataavailable = (e) => {
-        if (e.data.size) chunksRef.current.push(e.data);
+
+      const mimeType = pickRecorderMimeType();
+      recordMimeRef.current = mimeType ?? "";
+      const recorder = new MediaRecorder(
+        stream,
+        mimeType ? { mimeType } : undefined
+      );
+      mediaRecorderRef.current = recorder;
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
       };
-      rec.onstop = async () => {
+
+      recorder.onerror = () => {
+        setError("Recording failed.");
+        setPhase("error");
+      };
+
+      recorder.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
         streamRef.current = null;
         mediaRecorderRef.current = null;
-        const blob = new Blob(chunksRef.current, {
-          type: rec.mimeType || "audio/webm",
-        });
-        chunksRef.current = [];
+
+        const blobType = recordMimeRef.current || "audio/webm";
+        const rawBlob = new Blob(chunksRef.current, { type: blobType });
         setPhase("preparing");
         try {
-          const ctx = new AudioContext();
-          const ab = await blob.arrayBuffer();
-          const decoded = await ctx.decodeAudioData(ab.slice(0));
-          const wavBlob = audioBufferToWav(decoded);
-          await ctx.close();
-          const file = new File([wavBlob], "recording.wav", { type: "audio/wav" });
-          setWavFile(file);
-          revokeOriginal();
-          const url = URL.createObjectURL(wavBlob);
-          originalUrlRef.current = url;
-          setOriginalUrl(url);
+          const wav = await recordedBlobToWavFile(rawBlob);
+          setOriginalUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return URL.createObjectURL(wav);
+          });
+          setWavFile(wav);
           setPhase("idle");
         } catch (e) {
-          setInlineError(
-            e instanceof Error ? e.message : "Could not convert recording to WAV.",
+          setError(
+            e instanceof Error ? e.message : "Could not convert recording to WAV."
           );
           setPhase("error");
+        } finally {
+          stopTimer();
+          setElapsedMs(0);
         }
       };
-      mediaRecorderRef.current = rec;
-      rec.start();
-      setElapsedSec(0);
+
+      recordStartRef.current = Date.now();
+      setElapsedMs(0);
       setPhase("recording");
+      recorder.start(250);
+
+      stopTimer();
+      timerRef.current = setInterval(() => {
+        setElapsedMs(Date.now() - recordStartRef.current);
+      }, 100);
     } catch (e) {
-      setMicError(
-        e instanceof Error
-          ? e.message
-          : "Microphone access was denied or unavailable.",
-      );
+      const msg =
+        e instanceof DOMException && e.name === "NotAllowedError"
+          ? "Microphone access was denied."
+          : e instanceof Error
+            ? e.message
+            : "Could not access the microphone.";
+      setError(msg);
+      setPhase("error");
     }
-  }, [revokeDubbed, revokeOriginal]);
+  };
 
-  const stopRecording = useCallback(() => {
+  const stopRecording = () => {
     const rec = mediaRecorderRef.current;
-    if (!rec || rec.state !== "recording") return;
-    rec.stop();
-  }, []);
+    if (rec && rec.state !== "inactive") {
+      rec.stop();
+    } else {
+      stopTimer();
+      setElapsedMs(0);
+    }
+  };
 
-  const runPoll = useCallback(
-    (id: string) => {
-      pollActiveRef.current = true;
+  const startDubbing = async () => {
+    if (!wavFile) return;
+    setError(null);
+    setDubbedUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    setPhase("polling");
+    setDubbingId(null);
 
-      const step = async () => {
-        if (!pollActiveRef.current) return;
-        try {
-          const res = await fetch(`/api/dubbing/${id}`);
-          const data: {
-            error?: string;
-            status?: string;
-          } = await res.json().catch(() => ({}));
+    const body = new FormData();
+    body.set("audio", wavFile);
+    body.set("targetLang", targetLang);
+    body.set("sourceLang", sourceLang);
 
-          if (!res.ok) {
-            setInlineError(
-              typeof data.error === "string" ? data.error : "Status check failed.",
+    try {
+      const res = await fetch("/api/dubbing", { method: "POST", body });
+      const data = (await res.json()) as {
+        dubbingId?: string;
+        expectedDurationSec?: number;
+        error?: string;
+      };
+      if (!res.ok) {
+        setError(data.error ?? "Upload failed.");
+        setPhase("error");
+        return;
+      }
+      if (!data.dubbingId) {
+        setError("Missing dubbing id in response.");
+        setPhase("error");
+        return;
+      }
+      setDubbingId(data.dubbingId);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload failed.");
+      setPhase("error");
+    }
+  };
+
+  useEffect(() => {
+    if (phase !== "polling" || !dubbingId) return;
+
+    let cancelled = false;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/dubbing/${encodeURIComponent(dubbingId)}`);
+        const data = (await res.json()) as {
+          status?: string;
+          error?: string | null;
+          sourceLanguage?: string | null;
+          targetLanguages?: string[];
+        };
+
+        if (cancelled) return;
+
+        if (!res.ok) {
+          setError((data as { error?: string }).error ?? "Status request failed.");
+          setPhase("error");
+          return;
+        }
+
+        if (data.error) {
+          setError(data.error);
+          setPhase("error");
+          return;
+        }
+
+        const st = data.status?.toLowerCase();
+        if (st === "failed") {
+          setError(data.error ?? "Dubbing failed.");
+          setPhase("error");
+          return;
+        }
+
+        if (st === "dubbed") {
+          try {
+            const audioRes = await fetch(
+              `/api/dubbing/${encodeURIComponent(dubbingId)}/audio/${encodeURIComponent(targetLang)}`
             );
-            setPhase("error");
-            pollActiveRef.current = false;
-            return;
-          }
-
-          if (data.error) {
-            setInlineError(data.error);
-            setPhase("error");
-            pollActiveRef.current = false;
-            return;
-          }
-
-          if (data.status === "failed") {
-            setInlineError(data.error || "Dubbing failed.");
-            setPhase("error");
-            pollActiveRef.current = false;
-            return;
-          }
-
-          if (data.status === "dubbed") {
-            pollActiveRef.current = false;
-            const lang = targetLangRef.current;
-            const audioRes = await fetch(`/api/dubbing/${id}/audio/${lang}`);
             if (!audioRes.ok) {
-              const errJson = await audioRes.json().catch(() => ({}));
-              setInlineError(
-                typeof errJson.error === "string"
-                  ? errJson.error
-                  : "Could not load dubbed audio.",
-              );
+              const errJson = (await audioRes.json().catch(() => ({}))) as {
+                error?: string;
+              };
+              setError(errJson.error ?? "Could not load dubbed audio.");
               setPhase("error");
               return;
             }
-            const buf = await audioRes.arrayBuffer();
-            const blob = new Blob([buf], { type: "audio/mpeg" });
-            revokeDubbed();
-            const u = URL.createObjectURL(blob);
-            dubbedUrlRef.current = u;
-            setDubbedUrl(u);
+            const blob = await audioRes.blob();
+            if (cancelled) return;
+            setDubbedUrl((prev) => {
+              if (prev) URL.revokeObjectURL(prev);
+              return URL.createObjectURL(blob);
+            });
             setPhase("ready");
-            return;
+          } catch (e) {
+            if (!cancelled) {
+              setError(e instanceof Error ? e.message : "Could not load dubbed audio.");
+              setPhase("error");
+            }
           }
-
-          pollTimeoutRef.current = setTimeout(step, 5000);
-        } catch {
-          setInlineError("Network error while polling.");
-          setPhase("error");
-          pollActiveRef.current = false;
+          return;
         }
-      };
 
-      void step();
-    },
-    [revokeDubbed],
-  );
-
-  const handleDub = useCallback(async () => {
-    if (!wavFile) return;
-    if (sourceLang !== "auto" && sourceLang === targetLang) {
-      setInlineError("Source and target language must differ when source is not Auto.");
-      return;
-    }
-    setInlineError(null);
-    setPhase("polling");
-
-    const fd = new FormData();
-    fd.set("audio", wavFile);
-    fd.set("targetLang", targetLang);
-    fd.set("sourceLang", sourceLang);
-
-    try {
-      const res = await fetch("/api/dubbing", { method: "POST", body: fd });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setInlineError(
-          typeof data.error === "string" ? data.error : "Upload or dubbing start failed.",
-        );
-        setPhase("error");
-        return;
+        timeoutId = setTimeout(poll, 5000);
+      } catch (e) {
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : "Polling failed.");
+          setPhase("error");
+        }
       }
-      const id = data.dubbingId as string | undefined;
-      if (!id) {
-        setInlineError("Missing dubbing id in response.");
-        setPhase("error");
-        return;
-      }
-      runPoll(id);
-    } catch {
-      setInlineError("Network error while uploading.");
-      setPhase("error");
-    }
-  }, [runPoll, sourceLang, targetLang, wavFile]);
+    };
 
-  const langConflict =
+    poll();
+
+    return () => {
+      cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [phase, dubbingId, targetLang]);
+
+  const sameLangBlocked =
     sourceLang !== "auto" && sourceLang === targetLang;
 
-  const statusLabel = (() => {
+  const formatElapsed = (ms: number) => {
+    const s = Math.floor(ms / 1000);
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${sec.toString().padStart(2, "0")}`;
+  };
+
+  const statusLine = () => {
     switch (phase) {
+      case "idle":
+        return wavFile ? "Ready to dub." : "Record a clip to get started.";
       case "recording":
-        return "Recording";
+        return "Recording…";
       case "preparing":
-        return "Preparing";
+        return "Preparing audio…";
       case "polling":
-        return "Dubbing";
+        return "Dubbing in progress… checking every 5s.";
       case "ready":
-        return "Ready";
+        return "Dubbing complete.";
       case "error":
-        return "Error";
+        return "Something went wrong.";
       default:
-        return wavFile ? "Ready to dub" : "Idle";
+        return "";
     }
-  })();
+  };
 
   return (
     <main className="min-h-screen bg-white text-neutral-900">
@@ -282,140 +325,132 @@ export default function Home() {
             Browser dubbing
           </h1>
           <p className="text-sm text-neutral-500">
-            Record audio, choose languages, and dub with ElevenLabs.
+            Record audio and dub it with ElevenLabs.
           </p>
         </header>
 
         <div className="mt-10 space-y-8">
+          <p className="text-xs text-neutral-400">{statusLine()}</p>
+
+          {error ? (
+            <p className="text-sm text-red-600" role="alert">
+              {error}
+            </p>
+          ) : null}
+
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-xs text-neutral-400">Status</span>
-            <span className="text-sm text-neutral-700">{statusLabel}</span>
-            {phase === "recording" && (
+            {phase === "recording" ? (
               <>
                 <span
-                  className="inline-block h-2 w-2 rounded-full bg-red-500 animate-pulse"
+                  className="inline-flex h-2 w-2 rounded-full bg-red-500 animate-pulse"
                   aria-hidden
                 />
-                <span className="text-sm tabular-nums text-neutral-600">
-                  {elapsedSec}s
+                <span className="text-sm tabular-nums">
+                  {formatElapsed(elapsedMs)}
                 </span>
-              </>
-            )}
-          </div>
-
-          {micError && (
-            <p className="text-sm text-red-600" role="alert">
-              {micError}
-            </p>
-          )}
-          {inlineError && (
-            <p className="text-sm text-red-600" role="alert">
-              {inlineError}
-            </p>
-          )}
-
-          <div className="flex flex-wrap gap-3">
-            {phase !== "recording" &&
-              phase !== "preparing" &&
-              phase !== "polling" && (
                 <button
                   type="button"
-                  className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
-                  onClick={startRecording}
+                  className="rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-900"
+                  onClick={stopRecording}
                 >
-                  {wavFile ? "Record new take" : "Start recording"}
+                  Stop
                 </button>
-              )}
-            {phase === "recording" && (
+              </>
+            ) : (
               <button
                 type="button"
-                className="rounded-md border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-900"
-                onClick={stopRecording}
+                disabled={phase === "preparing" || phase === "polling"}
+                className={cn(
+                  "rounded-md px-4 py-2 text-sm font-medium",
+                  phase === "preparing" || phase === "polling"
+                    ? "cursor-not-allowed bg-neutral-100 text-neutral-400"
+                    : "bg-neutral-900 text-white"
+                )}
+                onClick={startRecording}
               >
-                Stop
+                {phase === "preparing" ? "Preparing…" : "Record"}
               </button>
             )}
           </div>
 
-          {phase === "preparing" && (
-            <p className="text-sm text-neutral-600">Converting to WAV…</p>
-          )}
-          {phase === "polling" && (
-            <p className="text-sm text-neutral-600">
-              Dubbing in progress. Checking every 5 seconds…
-            </p>
-          )}
+          {originalUrl && wavFile ? (
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs text-neutral-400">Original</p>
+                <audio className="mt-1 w-full" controls src={originalUrl} />
+              </div>
 
-          {originalUrl && (
-            <section className="space-y-2">
-              <p className="text-xs text-neutral-400">Original</p>
-              <audio className="w-full" controls src={originalUrl} />
-            </section>
-          )}
-
-          {wavFile && phase !== "recording" && phase !== "preparing" && (
-            <section className="space-y-4">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
-                <label className="flex flex-col gap-1 text-sm">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="block space-y-1">
                   <span className="text-xs text-neutral-400">Source language</span>
                   <select
-                    className="rounded-md border border-neutral-200 px-3 py-2 text-sm"
+                    className="w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm"
                     value={sourceLang}
                     onChange={(e) => setSourceLang(e.target.value)}
                     disabled={phase === "polling"}
                   >
-                    {SOURCE_LANGS.map((l) => (
-                      <option key={l.code} value={l.code}>
-                        {l.label}
+                    {SOURCE_OPTIONS.map((o) => (
+                      <option key={o.code} value={o.code}>
+                        {o.label}
                       </option>
                     ))}
                   </select>
                 </label>
-                <label className="flex flex-col gap-1 text-sm">
+                <label className="block space-y-1">
                   <span className="text-xs text-neutral-400">Target language</span>
                   <select
-                    className="rounded-md border border-neutral-200 px-3 py-2 text-sm"
+                    className="w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm"
                     value={targetLang}
                     onChange={(e) => setTargetLang(e.target.value)}
                     disabled={phase === "polling"}
                   >
-                    {TARGET_LANGS.map((l) => (
-                      <option key={l.code} value={l.code}>
-                        {l.label}
+                    {LANG_OPTIONS.map((o) => (
+                      <option key={o.code} value={o.code}>
+                        {o.label}
                       </option>
                     ))}
                   </select>
                 </label>
               </div>
-              {langConflict && (
-                <p className="text-sm text-amber-700">
-                  Pick a different target or change the source language.
+
+              {sameLangBlocked ? (
+                <p className="text-xs text-neutral-500">
+                  Choose different source and target languages (or use auto-detect for
+                  source).
                 </p>
-              )}
+              ) : null}
+
               <button
                 type="button"
-                className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={handleDub}
-                disabled={phase === "polling" || langConflict}
+                disabled={
+                  phase === "polling" || sameLangBlocked || !wavFile
+                }
+                className={cn(
+                  "rounded-md px-4 py-2 text-sm font-medium",
+                  phase === "polling" || sameLangBlocked
+                    ? "cursor-not-allowed bg-neutral-100 text-neutral-400"
+                    : "bg-neutral-900 text-white"
+                )}
+                onClick={startDubbing}
               >
-                Dub recording
+                {phase === "polling" ? "Dubbing…" : "Dub recording"}
               </button>
-            </section>
-          )}
+            </div>
+          ) : null}
 
-          {dubbedUrl && phase === "ready" && (
-            <section className="space-y-3">
+          {dubbedUrl && phase === "ready" ? (
+            <div>
               <p className="text-xs text-neutral-400">Dubbed</p>
-              <audio className="w-full" controls src={dubbedUrl} />
+              <audio className="mt-1 w-full" controls src={dubbedUrl} />
               <a
-                className="inline-block text-sm font-medium text-neutral-900 underline underline-offset-2"
+                className="mt-2 inline-block text-sm text-neutral-900 underline"
                 href={dubbedUrl}
-                download="dubbed.mp3"
+                download={`dub-${targetLang}.mp3`}
               >
                 Download MP3
               </a>
-            </section>
-          )}
+            </div>
+          ) : null}
         </div>
       </div>
     </main>

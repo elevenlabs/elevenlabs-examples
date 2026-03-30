@@ -41,6 +41,5 @@ In-browser voice recorder and dubbing page.
 - On **Dub Recording**, `POST` `FormData` with the converted WAV file to `/api/dubbing`.
 - Poll `/api/dubbing/${dubbingId}` every 5 seconds until the status is `dubbed`; stop early and show the API error if one is returned.
 - When ready, fetch `/api/dubbing/${dubbingId}/audio/${targetLang}`, create an object URL, and render a dubbed `<audio>` player with controls plus a download link.
-- Add a **Record Again** button that clears timers, URLs, job state, and errors.
 - Display inline errors for microphone denial, upload failures, and dubbing failures.
 - Keep the UI minimal and easy to scan.

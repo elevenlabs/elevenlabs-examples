@@ -1,63 +1,65 @@
-/** Encode an AudioBuffer as a 16-bit PCM WAV Blob (browser). */
-export function audioBufferToWav(audioBuffer: AudioBuffer): Blob {
-  const numChannels = audioBuffer.numberOfChannels;
-  const sampleRate = audioBuffer.sampleRate;
-  const format = 1;
-  const bitDepth = 16;
-  const bytesPerSample = bitDepth / 8;
-  const blockAlign = numChannels * bytesPerSample;
-  const length = audioBuffer.length;
-  const dataSize = length * numChannels * bytesPerSample;
-  const buffer = new ArrayBuffer(44 + dataSize);
+/** Encode mono 16-bit PCM little-endian WAV. */
+export function float32MonoToWavPcm16(samples: Float32Array, sampleRate: number): Blob {
+  const buffer = new ArrayBuffer(44 + samples.length * 2);
   const view = new DataView(buffer);
 
-  writeString(view, 0, "RIFF");
-  view.setUint32(4, 36 + dataSize, true);
-  writeString(view, 8, "WAVE");
-  writeString(view, 12, "fmt ");
-  view.setUint32(16, 16, true);
-  view.setUint16(20, format, true);
-  view.setUint16(22, numChannels, true);
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * blockAlign, true);
-  view.setUint16(32, blockAlign, true);
-  view.setUint16(34, bitDepth, true);
-  writeString(view, 36, "data");
-  view.setUint32(40, dataSize, true);
-
-  const channelData: Float32Array[] = [];
-  for (let c = 0; c < numChannels; c++) {
-    channelData.push(audioBuffer.getChannelData(c));
-  }
-
-  let pos = 44;
-  for (let i = 0; i < length; i++) {
-    for (let c = 0; c < numChannels; c++) {
-      const s = Math.max(-1, Math.min(1, channelData[c]![i]!));
-      view.setInt16(pos, s < 0 ? s * 0x8000 : s * 0x7fff, true);
-      pos += 2;
+  const writeStr = (offset: number, s: string) => {
+    for (let i = 0; i < s.length; i++) {
+      view.setUint8(offset + i, s.charCodeAt(i));
     }
+  };
+
+  writeStr(0, "RIFF");
+  view.setUint32(4, 36 + samples.length * 2, true);
+  writeStr(8, "WAVE");
+  writeStr(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  writeStr(36, "data");
+  view.setUint32(40, samples.length * 2, true);
+
+  let offset = 44;
+  for (let i = 0; i < samples.length; i++) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+    offset += 2;
   }
 
   return new Blob([buffer], { type: "audio/wav" });
 }
 
-function writeString(view: DataView, offset: number, str: string) {
-  for (let i = 0; i < str.length; i++) {
-    view.setUint8(offset + i, str.charCodeAt(i)!);
+function mixToMono(buffer: AudioBuffer): Float32Array {
+  const length = buffer.length;
+  const n = buffer.numberOfChannels;
+  const out = new Float32Array(length);
+  if (n === 1) {
+    out.set(buffer.getChannelData(0));
+    return out;
   }
-}
-
-export function pickRecorderMimeType(): string | undefined {
-  const candidates = [
-    "audio/webm;codecs=opus",
-    "audio/webm",
-    "audio/mp4",
-  ];
-  for (const c of candidates) {
-    if (typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(c)) {
-      return c;
+  for (let c = 0; c < n; c++) {
+    const ch = buffer.getChannelData(c);
+    for (let i = 0; i < length; i++) {
+      out[i] += ch[i] / n;
     }
   }
-  return undefined;
+  return out;
+}
+
+/** Decode recorded media to WAV File (PCM) for APIs that reject webm/opus. */
+export async function recordedBlobToWavFile(blob: Blob, filename = "recording.wav"): Promise<File> {
+  const arrayBuffer = await blob.arrayBuffer();
+  const ctx = new AudioContext();
+  try {
+    const audioBuffer = await ctx.decodeAudioData(arrayBuffer.slice(0));
+    const mono = mixToMono(audioBuffer);
+    const wav = float32MonoToWavPcm16(mono, audioBuffer.sampleRate);
+    return new File([wav], filename, { type: "audio/wav" });
+  } finally {
+    await ctx.close();
+  }
 }
