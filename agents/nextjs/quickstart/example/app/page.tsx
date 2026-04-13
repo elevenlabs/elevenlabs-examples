@@ -118,8 +118,6 @@ function VoiceAgentPage({
 
   function handleAgentIdChange(value: string) {
     setAgentIdInput(value);
-    setAgentLookupError(null);
-    setAgentLookupOk(false);
   }
 
   async function handleCreateAgent() {
