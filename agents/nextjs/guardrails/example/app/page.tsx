@@ -79,7 +79,7 @@ function GuardrailsPage({
       : status === "connecting"
         ? "Connecting…"
         : status === "error"
-          ? message ?? "Connection error"
+          ? (message ?? "Connection error")
           : "Disconnected";
 
   function handleAgentIdChange(value: string) {
