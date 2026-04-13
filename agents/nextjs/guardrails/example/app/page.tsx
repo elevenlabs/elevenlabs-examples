@@ -1,6 +1,11 @@
 "use client";
 
-import { useConversation } from "@elevenlabs/react";
+import {
+  ConversationProvider,
+  useConversationControls,
+  useConversationMode,
+  useConversationStatus,
+} from "@elevenlabs/react";
 import { useCallback, useEffect, useState } from "react";
 
 type TranscriptRole = "user" | "agent" | "system";
@@ -18,132 +23,81 @@ type ConversationMessage = {
   event_id?: number;
 };
 
-export default function Home() {
-  const [agentIdInput, setAgentIdInput] = useState("");
-  const [lookupStatus, setLookupStatus] = useState<
-    "idle" | "loading" | "ok" | "error"
-  >("idle");
-  const [lookupError, setLookupError] = useState<string | null>(null);
+type GuardrailsPageProps = {
+  agentIdInput: string;
+  createError: string | null;
+  creating: boolean;
+  guardrailFired: boolean;
+  lookupError: string | null;
+  lookupStatus: "idle" | "loading" | "ok" | "error";
+  sessionError: string | null;
+  setAgentIdInput: (value: string) => void;
+  setCreateError: (value: string | null) => void;
+  setCreating: (value: boolean) => void;
+  setGuardrailFired: (value: boolean) => void;
+  setLookupError: (value: string | null) => void;
+  setLookupStatus: (value: "idle" | "loading" | "ok" | "error") => void;
+  setSessionError: (value: string | null) => void;
+  setTranscript: (value: TranscriptLine[]) => void;
+  transcript: TranscriptLine[];
+};
 
-  const [createError, setCreateError] = useState<string | null>(null);
-  const [creating, setCreating] = useState(false);
-
-  const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
-  const [guardrailFired, setGuardrailFired] = useState(false);
-  const [sessionError, setSessionError] = useState<string | null>(null);
-
-  const onGuardrailTriggered = useCallback(() => {
-    setGuardrailFired(true);
-    setTranscript(prev => [
-      ...prev,
-      {
-        id: `guardrail-${Date.now()}`,
-        role: "system",
-        text: "Guardrail triggered — session ended by policy.",
-      },
-    ]);
-  }, []);
-
-  const conversation = useConversation({
-    onConnect: () => {
-      setSessionError(null);
-    },
-    onDisconnect: () => {
-      setSessionError(null);
-    },
-    onError: (error: unknown) => {
-      const message = error instanceof Error ? error.message : String(error);
-      setSessionError(message);
-    },
-    onGuardrailTriggered: () => {
-      onGuardrailTriggered();
-    },
-    onMessage: (props: ConversationMessage) => {
-      const { message, source, event_id: eventId } = props;
-      const role: TranscriptRole = source === "user" ? "user" : "agent";
-      setTranscript(prev => {
-        if (eventId !== undefined) {
-          const idx = prev.findIndex(
-            l => l.eventId === eventId && l.role === role
-          );
-          if (idx >= 0) {
-            const next = [...prev];
-            next[idx] = { ...next[idx], text: message };
-            return next;
-          }
-        }
-        return [
-          ...prev,
-          {
-            id:
-              eventId !== undefined
-                ? `${role}-${eventId}`
-                : `${role}-${crypto.randomUUID()}`,
-            role,
-            text: message,
-            eventId,
-          },
-        ];
-      });
-    },
-  });
-
-  useEffect(() => {
-    const id = agentIdInput.trim();
-    if (!id) {
-      setLookupStatus("idle");
-      setLookupError(null);
-      return;
-    }
-
-    setLookupStatus("loading");
-    const handle = setTimeout(async () => {
-      try {
-        const res = await fetch(`/api/agent?agentId=${encodeURIComponent(id)}`);
-        const data: { agentId?: string; error?: string } = await res.json();
-        if (!res.ok) {
-          setLookupStatus("error");
-          setLookupError(data.error ?? "Could not load agent.");
-          return;
-        }
-        setLookupStatus("ok");
-        setLookupError(null);
-      } catch {
-        setLookupStatus("error");
-        setLookupError("Network error while loading agent.");
-      }
-    }, 450);
-
-    return () => clearTimeout(handle);
-  }, [agentIdInput]);
+function GuardrailsPage({
+  agentIdInput,
+  createError,
+  creating,
+  guardrailFired,
+  lookupError,
+  lookupStatus,
+  sessionError,
+  setAgentIdInput,
+  setCreateError,
+  setCreating,
+  setGuardrailFired,
+  setLookupError,
+  setLookupStatus,
+  setSessionError,
+  setTranscript,
+  transcript,
+}: GuardrailsPageProps) {
+  const { startSession, endSession } = useConversationControls();
+  const { isSpeaking } = useConversationMode();
+  const { status, message } = useConversationStatus();
 
   const trimmedId = agentIdInput.trim();
   const canStart =
     trimmedId.length > 0 &&
     lookupStatus !== "loading" &&
     lookupStatus !== "error";
+  const sessionLive = status === "connected" || status === "connecting";
 
-  let statusLabel = "Disconnected";
-  if (conversation.status === "connected") {
-    statusLabel = conversation.isSpeaking ? "Speaking" : "Listening";
-  } else if (conversation.status === "connecting") {
-    statusLabel = "Connecting…";
-  } else if (conversation.status === "disconnecting") {
-    statusLabel = "Disconnecting…";
+  const statusLabel =
+    status === "connected"
+      ? isSpeaking
+        ? "Speaking"
+        : "Listening"
+      : status === "connecting"
+        ? "Connecting…"
+        : status === "error"
+          ? message ?? "Connection error"
+          : "Disconnected";
+
+  function handleAgentIdChange(value: string) {
+    setAgentIdInput(value);
+    setLookupError(null);
+    setLookupStatus(value.trim() ? "loading" : "idle");
   }
-
-  const sessionLive =
-    conversation.status === "connected" || conversation.status === "connecting";
 
   const startOrStop = async () => {
     setSessionError(null);
     if (sessionLive) {
-      await conversation.endSession();
+      endSession();
       return;
     }
 
-    const id = agentIdInput.trim();
-    if (!id || !canStart) return;
+    if (!trimmedId || !canStart) {
+      return;
+    }
 
     setGuardrailFired(false);
     setTranscript([]);
@@ -156,7 +110,7 @@ export default function Home() {
 
     try {
       const res = await fetch(
-        `/api/conversation-token?agentId=${encodeURIComponent(id)}`
+        `/api/conversation-token?agentId=${encodeURIComponent(trimmedId)}`
       );
       const data: { token?: string; error?: string } = await res.json();
       if (!res.ok || !data.token) {
@@ -164,13 +118,13 @@ export default function Home() {
         return;
       }
 
-      await conversation.startSession({
-        connectionType: "webrtc",
+      await startSession({
         conversationToken: data.token,
       });
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : "Failed to start session.";
-      setSessionError(msg);
+    } catch (error) {
+      const nextMessage =
+        error instanceof Error ? error.message : "Failed to start session.";
+      setSessionError(nextMessage);
     }
   };
 
@@ -185,6 +139,8 @@ export default function Home() {
         return;
       }
       setAgentIdInput(data.agentId);
+      setLookupError(null);
+      setLookupStatus("ok");
     } catch {
       setCreateError("Network error while creating agent.");
     } finally {
@@ -200,8 +156,8 @@ export default function Home() {
             Voice agent guardrails
           </h1>
           <p className="text-sm text-neutral-500">
-            WebRTC voice session with platform guardrails and a banking-style
-            custom investment-advice policy.
+            Voice session with platform guardrails and a banking-style custom
+            investment-advice policy.
           </p>
         </header>
 
@@ -224,7 +180,7 @@ export default function Home() {
                 className="rounded-md border border-neutral-200 px-3 py-2 text-sm"
                 placeholder="Paste or create an agent id"
                 value={agentIdInput}
-                onChange={e => setAgentIdInput(e.target.value)}
+                onChange={event => handleAgentIdChange(event.target.value)}
               />
             </div>
           </div>
@@ -309,5 +265,123 @@ export default function Home() {
         </section>
       </div>
     </main>
+  );
+}
+
+export default function Home() {
+  const [agentIdInput, setAgentIdInput] = useState("");
+  const [lookupStatus, setLookupStatus] = useState<
+    "idle" | "loading" | "ok" | "error"
+  >("idle");
+  const [lookupError, setLookupError] = useState<string | null>(null);
+
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+
+  const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
+  const [guardrailFired, setGuardrailFired] = useState(false);
+  const [sessionError, setSessionError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const id = agentIdInput.trim();
+    if (!id) {
+      return;
+    }
+    const handle = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/agent?agentId=${encodeURIComponent(id)}`);
+        const data: { agentId?: string; error?: string } = await res.json();
+        if (!res.ok) {
+          setLookupStatus("error");
+          setLookupError(data.error ?? "Could not load agent.");
+          return;
+        }
+        setLookupStatus("ok");
+        setLookupError(null);
+      } catch {
+        setLookupStatus("error");
+        setLookupError("Network error while loading agent.");
+      }
+    }, 450);
+
+    return () => clearTimeout(handle);
+  }, [agentIdInput]);
+
+  const handleGuardrailTriggered = useCallback(() => {
+    setGuardrailFired(true);
+    setTranscript(prev => [
+      ...prev,
+      {
+        id: `guardrail-${Date.now()}`,
+        role: "system",
+        text: "Guardrail triggered - session ended by policy.",
+      },
+    ]);
+  }, []);
+
+  const handleMessage = useCallback((props: ConversationMessage) => {
+    const { message, source, event_id: eventId } = props;
+    const role: TranscriptRole = source === "user" ? "user" : "agent";
+    setTranscript(prev => {
+      if (eventId !== undefined) {
+        const idx = prev.findIndex(
+          line => line.eventId === eventId && line.role === role
+        );
+        if (idx >= 0) {
+          const next = [...prev];
+          next[idx] = { ...next[idx], text: message };
+          return next;
+        }
+      }
+      return [
+        ...prev,
+        {
+          id:
+            eventId !== undefined
+              ? `${role}-${eventId}`
+              : `${role}-${crypto.randomUUID()}`,
+          role,
+          text: message,
+          eventId,
+        },
+      ];
+    });
+  }, []);
+
+  return (
+    <ConversationProvider
+      onConnect={() => {
+        setSessionError(null);
+      }}
+      onDisconnect={() => {
+        setSessionError(null);
+      }}
+      onError={(error: unknown) => {
+        const nextMessage =
+          error instanceof Error ? error.message : String(error);
+        setSessionError(nextMessage);
+      }}
+      onGuardrailTriggered={handleGuardrailTriggered}
+      onMessage={handleMessage}
+    >
+      <GuardrailsPage
+        agentIdInput={agentIdInput}
+        createError={createError}
+        creating={creating}
+        guardrailFired={guardrailFired}
+        lookupError={lookupError}
+        lookupStatus={lookupStatus}
+        sessionError={sessionError}
+        setAgentIdInput={setAgentIdInput}
+        setCreateError={setCreateError}
+        setCreating={setCreating}
+        setGuardrailFired={setGuardrailFired}
+        setLookupError={setLookupError}
+        setLookupStatus={setLookupStatus}
+        setSessionError={setSessionError}
+        setTranscript={setTranscript}
+        transcript={transcript}
+      />
+    </ConversationProvider>
   );
 }
