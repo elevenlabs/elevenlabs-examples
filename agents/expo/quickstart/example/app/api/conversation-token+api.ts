@@ -1,22 +1,16 @@
 import { ElevenLabsClient, ElevenLabsError } from "@elevenlabs/elevenlabs-js";
 
-function requireApiKey(): string | null {
+function getApiKey(): string | null {
   const key = process.env.ELEVENLABS_API_KEY;
-  return key?.trim() ? key : null;
+  return key?.trim() || null;
 }
 
-function apiErrorMessage(err: unknown): string {
-  if (err instanceof ElevenLabsError) {
-    return err.message;
-  }
-  if (err instanceof Error) {
-    return err.message;
-  }
-  return "An unexpected error occurred.";
+function errorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : "An unexpected error occurred.";
 }
 
 export async function GET(request: Request) {
-  const apiKey = requireApiKey();
+  const apiKey = getApiKey();
   if (!apiKey) {
     return Response.json(
       { error: "Missing ELEVENLABS_API_KEY. Add it to your environment." },
@@ -42,7 +36,7 @@ export async function GET(request: Request) {
     const status =
       err instanceof ElevenLabsError && err.statusCode ? err.statusCode : 502;
     return Response.json(
-      { error: apiErrorMessage(err) },
+      { error: errorMessage(err) },
       { status: status >= 400 && status < 600 ? status : 502 },
     );
   }

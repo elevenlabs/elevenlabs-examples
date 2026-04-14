@@ -1,27 +1,17 @@
 import { ElevenLabsClient, ElevenLabsError } from "@elevenlabs/elevenlabs-js";
 import { ClientEvent } from "@elevenlabs/elevenlabs-js/api/types/ClientEvent";
 
-function requireApiKey(): string | null {
+function getApiKey(): string | null {
   const key = process.env.ELEVENLABS_API_KEY;
-  return key?.trim() ? key : null;
+  return key?.trim() || null;
 }
 
-function createClient() {
-  return new ElevenLabsClient({ apiKey: process.env.ELEVENLABS_API_KEY! });
-}
-
-function apiErrorMessage(err: unknown): string {
-  if (err instanceof ElevenLabsError) {
-    return err.message;
-  }
-  if (err instanceof Error) {
-    return err.message;
-  }
-  return "An unexpected error occurred.";
+function errorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : "An unexpected error occurred.";
 }
 
 export async function GET(request: Request) {
-  const apiKey = requireApiKey();
+  const apiKey = getApiKey();
   if (!apiKey) {
     return Response.json(
       { error: "Missing ELEVENLABS_API_KEY. Add it to your environment." },
@@ -38,23 +28,21 @@ export async function GET(request: Request) {
   }
 
   try {
-    const agent = await createClient().conversationalAi.agents.get(agentId);
-    return Response.json({
-      agentId: agent.agentId,
-      agentName: agent.name,
-    });
+    const client = new ElevenLabsClient({ apiKey });
+    const agent = await client.conversationalAi.agents.get(agentId);
+    return Response.json({ agentId: agent.agentId, agentName: agent.name });
   } catch (err) {
     const status =
       err instanceof ElevenLabsError && err.statusCode ? err.statusCode : 502;
     return Response.json(
-      { error: apiErrorMessage(err) },
+      { error: errorMessage(err) },
       { status: status >= 400 && status < 600 ? status : 502 },
     );
   }
 }
 
 export async function POST() {
-  const apiKey = requireApiKey();
+  const apiKey = getApiKey();
   if (!apiKey) {
     return Response.json(
       { error: "Missing ELEVENLABS_API_KEY. Add it to your environment." },
@@ -63,9 +51,9 @@ export async function POST() {
   }
 
   try {
-    const name = "Quickstart demo assistant";
-    const created = await createClient().conversationalAi.agents.create({
-      name,
+    const client = new ElevenLabsClient({ apiKey });
+    const created = await client.conversationalAi.agents.create({
+      name: "Quickstart demo assistant",
       enableVersioning: true,
       conversationConfig: {
         agent: {
@@ -106,13 +94,13 @@ export async function POST() {
 
     return Response.json({
       agentId: created.agentId,
-      agentName: name,
+      agentName: "Quickstart demo assistant",
     });
   } catch (err) {
     const status =
       err instanceof ElevenLabsError && err.statusCode ? err.statusCode : 502;
     return Response.json(
-      { error: apiErrorMessage(err) },
+      { error: errorMessage(err) },
       { status: status >= 400 && status < 600 ? status : 502 },
     );
   }
