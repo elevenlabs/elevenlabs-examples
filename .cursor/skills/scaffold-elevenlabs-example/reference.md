@@ -55,11 +55,18 @@ Ignore the deprecated root `examples/` folder for new work.
 
 ## Runtime setup rules
 
-| Runtime      | Seed template           | Preserve on clean       | Env copied into `example/` | Install step                                                                 |
-| ------------ | ----------------------- | ----------------------- | -------------------------- | ---------------------------------------------------------------------------- |
-| `typescript` | `templates/typescript/` | `node_modules`          | `.env`                     | `pnpm install --config.confirmModulesPurge=false`                            |
-| `python`     | `templates/python/`     | `.venv`                 | `.env`                     | create `.venv`, upgrade `pip`, `pip install -r requirements.txt`             |
-| `nextjs`     | `templates/nextjs/`     | `node_modules`, `.next` | `.env.local`               | patch `package.json`, then `pnpm install --config.confirmModulesPurge=false` |
+| Runtime      | Seed template         | Preserve on clean       | Env copied into `example/` | Install step                                                                 |
+| ------------ | --------------------- | ----------------------- | -------------------------- | ---------------------------------------------------------------------------- |
+| `typescript` | `templates/typescript/` | `node_modules`        | `.env`                     | `pnpm install --config.confirmModulesPurge=false`                            |
+| `python`     | `templates/python/`   | `.venv`                 | `.env`                     | create `.venv`, upgrade `pip`, `pip install -r requirements.txt`             |
+| `nextjs`     | `templates/nextjs/`   | `node_modules`, `.next` | `.env.local`               | patch `package.json`, then `pnpm install --config.confirmModulesPurge=false` |
+| `expo`       | `templates/expo/`     | `node_modules`, `.expo` | `.env`                     | `pnpm install --config.confirmModulesPurge=false`                            |
+
+## Expo runtime notes
+
+- `templates/expo/` should provide the generic Expo Router app shell, `web.output: "server"` config, a baseline `/api/health` route, and reusable verification scripts such as `typecheck` and `export:web`.
+- Keep Expo `PROMPT.md` files focused on ElevenLabs-specific UI, SDK usage, token exchange, `+api.ts` routes, and error handling instead of generic app bootstrapping.
+- Until the repo has dedicated Expo examples, use the closest same-product `nextjs` example as the authoring reference for Expo scaffolds.
 
 ## Prompt rules
 
@@ -69,11 +76,12 @@ Ignore the deprecated root `examples/` folder for new work.
 - Keep prompts short and implementation-focused. Current prompts are direct checklists, not essays.
 - Mention the concrete SDK client, env loading, output format, model ids, voice ids, API route security, and UI behavior when those details are known.
 - Do not repeat repo-wide context that the generator already injects.
+- For `expo`, assume the shared template already includes the app shell and baseline checks; only prompt for ElevenLabs-specific changes.
 
 ## README rules
 
 - Always include a title, one-sentence summary, `## Setup`, and `## Run`.
-- Add `## Usage` for interactive or multi-step examples such as Next.js and agents demos.
+- Add `## Usage` for interactive or multi-step examples such as Next.js, Expo, and agents demos.
 - Keep commands valid from inside `example/`.
 - Use the closest current example as the formatting reference.
 
@@ -85,6 +93,7 @@ Ignore the deprecated root `examples/` folder for new work.
 - CLI transcription or file-based Scribe example: start from the speech-to-text quickstarts.
 - Realtime microphone UI: start from `speech-to-text/nextjs/realtime`.
 - Voice agent creation and conversation UI: start from `agents/nextjs/quickstart`.
+- First Expo full-stack example for a product: start from the closest same-product `nextjs` example until a dedicated Expo reference exists.
 - For specialized agent behavior, start from `agents/nextjs/quickstart` and consult `agents/nextjs/guardrails` only as an existing reference, not as a scaffold mode.
 
 ## Scaffold helper
@@ -93,7 +102,7 @@ The helper script creates a new example directory by copying `PROMPT.md`, `READM
 
 ```bash
 python3 .cursor/skills/scaffold-elevenlabs-example/scripts/scaffold_example.py \
-  --path agents/nextjs/my-agent-demo
+  --path agents/expo/my-agent-demo
 ```
 
 Useful flags:

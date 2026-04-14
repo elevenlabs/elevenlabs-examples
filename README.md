@@ -6,7 +6,7 @@ Prompt-driven ElevenLabs examples for text-to-speech, speech-to-text, music, sou
 - `setup.sh` — scaffolds the `example/` directory from a shared template
 - `example/` — the generated, runnable example with its own `README.md`
 
-Shared base templates live in `templates/` (Next.js, Python, TypeScript). UI styling rules are in `DESIGN.md`.
+Shared base templates live in `templates/` (Expo, Next.js, Python, TypeScript). UI styling rules are in `DESIGN.md`.
 
 > The legacy `examples/` folder is being deprecated and can be ignored for new work.
 

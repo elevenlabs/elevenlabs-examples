@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "template",
+    "slug": "template",
+    "scheme": "template",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "web": {
+      "output": "server"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

@@ -18,11 +18,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--path",
         required=True,
-        help="Relative path like product/runtime/my-example",
+        help="Relative path like product/runtime/my-example "
+        "(for example, text-to-speech/expo/my-example).",
     )
     parser.add_argument(
         "--reference",
-        help="Explicit reference example path (e.g. music/nextjs/quickstart). "
+        help="Explicit reference example path (e.g. speech-to-text/nextjs/realtime). "
         "Auto-detected from the repo when omitted.",
     )
     parser.add_argument(
@@ -44,7 +45,7 @@ def parse_example_path(path_text: str) -> tuple[str, str, str]:
     if len(parts) != 3:
         raise SystemExit(
             "Example paths must look like <product>/<runtime>/<slug>, for example "
-            "text-to-speech/nextjs/my-example."
+            "text-to-speech/expo/my-example."
         )
 
     product, runtime, slug = parts
@@ -70,23 +71,44 @@ def find_existing_examples() -> list[tuple[str, str, str, Path]]:
     return results
 
 
+def pick_reference(paths: list[Path]) -> Path | None:
+    if not paths:
+        return None
+
+    return sorted(paths, key=lambda path: (path.name != "quickstart", str(path)))[0]
+
+
 def find_reference(
     product: str, runtime: str, examples: list[tuple[str, str, str, Path]]
 ) -> Path | None:
     """Pick the best existing example to copy from.
 
-    Priority: same product+runtime > same runtime > first available.
+    Priority: same product+runtime > same runtime > same product+nextjs for
+    Expo > any nextjs for Expo > first available.
     """
     same_product_runtime = [d for p, r, _, d in examples if p == product and r == runtime]
-    if same_product_runtime:
-        return same_product_runtime[0]
+    match = pick_reference(same_product_runtime)
+    if match:
+        return match
 
     same_runtime = [d for _, r, _, d in examples if r == runtime]
-    if same_runtime:
-        return same_runtime[0]
+    match = pick_reference(same_runtime)
+    if match:
+        return match
+
+    if runtime == "expo":
+        same_product_nextjs = [d for p, r, _, d in examples if p == product and r == "nextjs"]
+        match = pick_reference(same_product_nextjs)
+        if match:
+            return match
+
+        nextjs_examples = [d for _, r, _, d in examples if r == "nextjs"]
+        match = pick_reference(nextjs_examples)
+        if match:
+            return match
 
     if examples:
-        return examples[0][3]
+        return pick_reference([example_dir for _, _, _, example_dir in examples])
 
     return None
 
