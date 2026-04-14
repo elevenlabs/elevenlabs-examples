@@ -129,7 +129,7 @@ function VoiceAgentPanel() {
       if (!data.signedUrl) {
         throw new Error("Missing signedUrl in response");
       }
-      startSession({ signedUrl: data.signedUrl });
+      await startSession({ signedUrl: data.signedUrl });
     } catch (e) {
       setApiError(e instanceof Error ? e.message : "Failed to start session");
     } finally {
