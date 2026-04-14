@@ -14,7 +14,9 @@ type HealthResponse = {
 };
 
 export default function HomeScreen() {
-  const [status, setStatus] = useState("Tap below to confirm the server route.");
+  const [status, setStatus] = useState(
+    "Tap below to confirm the server route."
+  );
   const [loading, setLoading] = useState(false);
 
   const checkHealthRoute = useCallback(async () => {
@@ -32,13 +34,13 @@ export default function HomeScreen() {
       setStatus(
         data.ok
           ? `Server route ready (${data.runtime}).`
-          : "Server route returned an unexpected response.",
+          : "Server route returned an unexpected response."
       );
     } catch (error) {
       setStatus(
         error instanceof Error
           ? error.message
-          : "Unable to reach the server route.",
+          : "Unable to reach the server route."
       );
     } finally {
       setLoading(false);

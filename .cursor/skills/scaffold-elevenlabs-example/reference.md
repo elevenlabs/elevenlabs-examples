@@ -55,12 +55,12 @@ Ignore the deprecated root `examples/` folder for new work.
 
 ## Runtime setup rules
 
-| Runtime      | Seed template         | Preserve on clean       | Env copied into `example/` | Install step                                                                 |
-| ------------ | --------------------- | ----------------------- | -------------------------- | ---------------------------------------------------------------------------- |
-| `typescript` | `templates/typescript/` | `node_modules`        | `.env`                     | `pnpm install --config.confirmModulesPurge=false`                            |
-| `python`     | `templates/python/`   | `.venv`                 | `.env`                     | create `.venv`, upgrade `pip`, `pip install -r requirements.txt`             |
-| `nextjs`     | `templates/nextjs/`   | `node_modules`, `.next` | `.env.local`               | patch `package.json`, then `pnpm install --config.confirmModulesPurge=false` |
-| `expo`       | `templates/expo/`     | `node_modules`, `.expo` | `.env`                     | `pnpm install --config.confirmModulesPurge=false`                            |
+| Runtime      | Seed template           | Preserve on clean       | Env copied into `example/` | Install step                                                                 |
+| ------------ | ----------------------- | ----------------------- | -------------------------- | ---------------------------------------------------------------------------- |
+| `typescript` | `templates/typescript/` | `node_modules`          | `.env`                     | `pnpm install --config.confirmModulesPurge=false`                            |
+| `python`     | `templates/python/`     | `.venv`                 | `.env`                     | create `.venv`, upgrade `pip`, `pip install -r requirements.txt`             |
+| `nextjs`     | `templates/nextjs/`     | `node_modules`, `.next` | `.env.local`               | patch `package.json`, then `pnpm install --config.confirmModulesPurge=false` |
+| `expo`       | `templates/expo/`       | `node_modules`, `.expo` | `.env`                     | `pnpm install --config.confirmModulesPurge=false`                            |
 
 ## Expo runtime notes
 
