@@ -107,21 +107,27 @@ function VoiceAgentPage({
   const canStart = trimmedId.length > 0 && !starting;
   const sessionActive = status === "connected" || status === "connecting";
 
-  const statusLabel =
-    status === "connected"
-      ? "Connected"
-      : status === "connecting"
-        ? "Connecting…"
-        : status === "error"
-          ? (message ?? "Connection error")
-          : "Disconnected";
+  const statusLabel = (() => {
+    switch (status) {
+      case "connected":
+        return "Connected";
+      case "connecting":
+        return "Connecting…";
+      case "disconnected":
+        return "Disconnected";
+      case "error":
+        return message?.trim() ? `Error: ${message}` : "Error";
+      default: {
+        const exhaustiveStatus: never = status;
+        return exhaustiveStatus;
+      }
+    }
+  })();
 
   function handleAgentIdChange(value: string) {
     setAgentIdInput(value);
-    if (!value.trim()) {
-      setAgentLookupOk(false);
-      setAgentLookupError(null);
-    }
+    setAgentLookupError(null);
+    setAgentLookupOk(false);
   }
 
   async function handleCreateAgent() {

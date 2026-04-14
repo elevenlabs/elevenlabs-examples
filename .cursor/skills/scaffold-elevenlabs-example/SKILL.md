@@ -30,7 +30,7 @@ Ask concise follow-ups only when these are missing.
 
 ```bash
 python3 .cursor/skills/scaffold-elevenlabs-example/scripts/scaffold_example.py \
-  --path text-to-speech/nextjs/my-example
+  --path text-to-speech/expo/my-example
 ```
 
 Add `--with-assets` when the example should ship sample files, or `--reference <path>` to copy from a specific existing example.
@@ -43,22 +43,24 @@ Add `--with-assets` when the example should ship sample files, or `--reference <
 - sections are file-by-file using `## \`path/to/file\``
 - bullets call out concrete SDKs, env handling, models, voice IDs, UI states, and error handling
 - do not restate repo preamble like `example/`-only rules or `DESIGN.md`; the generator adds that
+- for `expo`, assume the shared template already provides the generic Expo Router shell, server-ready web config, and baseline verification scripts; keep the prompt focused on ElevenLabs-specific UI and `+api.ts` work
 
 7. Keep `setup.sh` aligned with current patterns:
 
 - use `set -euo pipefail`
 - derive `DIR` and `REPO_ROOT`
-- clean `example/` but preserve cache dirs (`node_modules`, `.venv`, `.next`) when relevant
+- clean `example/` but preserve cache dirs (`node_modules`, `.venv`, `.next`, `.expo`) when relevant
 - seed from `templates/<runtime>/`
 - copy `README.md` into `example/README.md`
 - copy `assets/` and local `.env` only when present
 - install dependencies at the end
 - for `nextjs`, fetch latest ElevenLabs package versions at setup time and patch `package.json`
+- for `expo`, keep the shared template generic and server-capable so `PROMPT.md` only needs to describe the ElevenLabs integration
 
 8. Keep `README.md` aligned with the closest current reference:
 
 - always include a heading, one-sentence summary, `## Setup`, and `## Run`
-- add `## Usage` for interactive examples such as Next.js and agents demos
+- add `## Usage` for interactive examples such as Next.js, Expo, and agents demos
 - commands should work from inside `example/`
 
 9. Recommended when shipping the example: add it to the root `README.md`.
