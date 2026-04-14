@@ -25,7 +25,7 @@
     "react-native-safe-area-context": "latest",
     "react-native-screens": "latest",
     "react-native-web": "latest",
-    "@elevenlabs/react": "^1.1.0",
+    "@elevenlabs/react": "^1.1.1",
     "@elevenlabs/elevenlabs-js": "^2.43.0"
   },
   "devDependencies": {

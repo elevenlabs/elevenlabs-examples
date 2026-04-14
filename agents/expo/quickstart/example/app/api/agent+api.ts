@@ -1,107 +1,95 @@
-import { ElevenLabsClient, ElevenLabsError } from "@elevenlabs/elevenlabs-js";
+import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 import { ClientEvent } from "@elevenlabs/elevenlabs-js/api/types/ClientEvent";
+import type { ConversationalConfig } from "@elevenlabs/elevenlabs-js/api/types/ConversationalConfig";
 
-function getApiKey(): string | null {
-  const key = process.env.ELEVENLABS_API_KEY;
-  return key?.trim() || null;
-}
-
-function errorMessage(err: unknown): string {
-  return err instanceof Error ? err.message : "An unexpected error occurred.";
-}
-
-export async function GET(request: Request) {
-  const apiKey = getApiKey();
+function getClient() {
+  const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) {
-    return Response.json(
-      { error: "Missing ELEVENLABS_API_KEY. Add it to your environment." },
-      { status: 500 },
-    );
+    return { error: Response.json({ error: "Missing ELEVENLABS_API_KEY" }, { status: 500 }) };
   }
+  return { client: new ElevenLabsClient({ apiKey }) };
+}
 
-  const agentId = new URL(request.url).searchParams.get("agentId")?.trim();
-  if (!agentId) {
-    return Response.json(
-      { error: "Missing agentId. Pass ?agentId=your-agent-id" },
-      { status: 400 },
-    );
-  }
-
-  try {
-    const client = new ElevenLabsClient({ apiKey });
-    const agent = await client.conversationalAi.agents.get(agentId);
-    return Response.json({ agentId: agent.agentId, agentName: agent.name });
-  } catch (err) {
-    const status =
-      err instanceof ElevenLabsError && err.statusCode ? err.statusCode : 502;
-    return Response.json(
-      { error: errorMessage(err) },
-      { status: status >= 400 && status < 600 ? status : 502 },
-    );
-  }
+function voiceFirstConversationConfig(): ConversationalConfig {
+  return {
+    agent: {
+      firstMessage: "Hello! How can I help you today?",
+      language: "en",
+      prompt: {
+        prompt:
+          "You are a helpful voice assistant. Keep replies concise and natural for spoken conversation.",
+        llm: "gemini-2.0-flash",
+        temperature: 0.7,
+      },
+    },
+    tts: {
+      voiceId: "JBFqnCBsd6RMkjVDRZzb",
+      modelId: "eleven_flash_v2",
+    },
+    conversation: {
+      textOnly: false,
+      clientEvents: [
+        ClientEvent.UserTranscript,
+        ClientEvent.TentativeUserTranscript,
+        ClientEvent.AgentResponse,
+        ClientEvent.AgentChatResponsePart,
+        ClientEvent.Audio,
+      ],
+    },
+  };
 }
 
 export async function POST() {
-  const apiKey = getApiKey();
-  if (!apiKey) {
-    return Response.json(
-      { error: "Missing ELEVENLABS_API_KEY. Add it to your environment." },
-      { status: 500 },
-    );
+  const res = getClient();
+  if ("error" in res) {
+    return res.error;
   }
 
   try {
-    const client = new ElevenLabsClient({ apiKey });
-    const created = await client.conversationalAi.agents.create({
-      name: "Quickstart demo assistant",
+    const created = await res.client.conversationalAi.agents.create({
+      name: "Expo Voice Agent",
       enableVersioning: true,
-      conversationConfig: {
-        agent: {
-          firstMessage:
-            "Hi! I'm your demo assistant. What would you like to talk about?",
-          language: "en",
-          prompt: {
-            prompt:
-              "You are a friendly voice assistant for a product demo. Speak naturally, keep replies concise, and behave like a regular spoken voice agent rather than a text-only assistant.",
-            llm: "gemini-2.0-flash",
-            temperature: 0,
-          },
-        },
-        tts: {
-          voiceId: "JBFqnCBsd6RMkjVDRZzb",
-          modelId: "eleven_flash_v2",
-        },
-        conversation: {
-          textOnly: false,
-          clientEvents: [
-            ClientEvent.Audio,
-            ClientEvent.Interruption,
-            ClientEvent.UserTranscript,
-            ClientEvent.TentativeUserTranscript,
-            ClientEvent.AgentResponse,
-            ClientEvent.InternalTentativeAgentResponse,
-            ClientEvent.AgentChatResponsePart,
-          ],
-        },
-      },
+      conversationConfig: voiceFirstConversationConfig(),
       platformSettings: {
         widget: {
           textInputEnabled: false,
           supportsTextOnly: false,
+          conversationModeToggleEnabled: false,
         },
       },
     });
 
+    const agent = await res.client.conversationalAi.agents.get(created.agentId);
     return Response.json({
       agentId: created.agentId,
-      agentName: "Quickstart demo assistant",
+      agentName: agent.name,
     });
-  } catch (err) {
-    const status =
-      err instanceof ElevenLabsError && err.statusCode ? err.statusCode : 502;
-    return Response.json(
-      { error: errorMessage(err) },
-      { status: status >= 400 && status < 600 ? status : 502 },
-    );
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Failed to create agent";
+    return Response.json({ error: message }, { status: 500 });
+  }
+}
+
+export async function GET(request: Request) {
+  const res = getClient();
+  if ("error" in res) {
+    return res.error;
+  }
+
+  const url = new URL(request.url);
+  const agentId = url.searchParams.get("agentId");
+  if (!agentId?.trim()) {
+    return Response.json({ error: "Missing agentId query parameter" }, { status: 400 });
+  }
+
+  try {
+    const agent = await res.client.conversationalAi.agents.get(agentId.trim());
+    return Response.json({
+      agentId: agent.agentId,
+      agentName: agent.name,
+    });
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Failed to load agent";
+    return Response.json({ error: message }, { status: 500 });
   }
 }
