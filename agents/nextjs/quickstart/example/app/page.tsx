@@ -6,7 +6,7 @@ import {
   useConversationStatus,
 } from "@elevenlabs/react";
 import {
-  type MutableRefObject,
+  type RefObject,
   useCallback,
   useEffect,
   useRef,
@@ -37,7 +37,7 @@ type VoiceAgentPageProps = {
   setSessionError: (value: string | null) => void;
   setStarting: (value: boolean) => void;
   starting: boolean;
-  nextLineId: MutableRefObject<number>;
+  nextLineId: RefObject<number>;
 };
 
 type ConversationMessage = {
