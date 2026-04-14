@@ -148,7 +148,7 @@ function VoiceAgentPanel() {
   const primaryDisabled = isConnected ? false : !canStart || isBusy;
 
   return (
-    <View style={styles.container}>
+    <View>
       <Text style={styles.label}>Agent ID</Text>
       <TextInput
         autoCapitalize="none"
