@@ -2,7 +2,7 @@ Before writing any code, invoke the `/agents` skill to learn the correct ElevenL
 
 ## 1. `package.json`
 
-- Add `@elevenlabs/react` and `elevenlabs` SDK dependencies.
+- Add `@elevenlabs/react` and `@elevenlabs/elevenlabs-js` dependencies.
 
 ## 2. `app/api/agent/route.ts`
 
@@ -24,8 +24,10 @@ Never expose `ELEVENLABS_API_KEY` to the client.
 
 Minimal Next.js voice agent page.
 
-- Use `@elevenlabs/react` and the `useConversation` hook.
+- Use `ConversationProvider` from `@elevenlabs/react`.
+- Use the granular conversation hooks `useConversationControls` and `useConversationStatus`.
 - Show a `Create Agent` button and an editable agent-id input. Auto-populate on create; allow pasting a different id to load it instead.
-- Start WebRTC sessions with a fresh token from `/api/conversation-token`. Request mic access before starting.
+- Start voice sessions with a fresh token from `/api/conversation-token`. Request mic access before starting.
+- Rely on the SDK's connection-type inference when starting the session; do not hardcode `connectionType: "webrtc"` unless there is a specific reason.
 - Show a Start/Stop toggle, connection status, and running conversation transcript (append messages, don't replace).
 - Handle errors gracefully and allow reconnect. Keep the UI simple and voice-first.

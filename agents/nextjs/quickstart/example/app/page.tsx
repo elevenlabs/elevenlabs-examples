@@ -2,15 +2,42 @@
 
 import {
   ConversationProvider,
-  useConversation,
+  useConversationControls,
+  useConversationStatus,
 } from "@elevenlabs/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type MutableRefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 type TranscriptLine = {
   id: string;
   role: "user" | "agent";
   text: string;
   tentative: boolean;
+};
+
+type VoiceAgentPageProps = {
+  agentIdInput: string;
+  agentLookupError: string | null;
+  agentLookupOk: boolean;
+  createError: string | null;
+  creating: boolean;
+  lines: TranscriptLine[];
+  sessionError: string | null;
+  setAgentIdInput: (value: string) => void;
+  setAgentLookupError: (value: string | null) => void;
+  setAgentLookupOk: (value: boolean) => void;
+  setCreateError: (value: string | null) => void;
+  setCreating: (value: boolean) => void;
+  setLines: (value: TranscriptLine[]) => void;
+  setSessionError: (value: string | null) => void;
+  setStarting: (value: boolean) => void;
+  starting: boolean;
+  nextLineId: MutableRefObject<number>;
 };
 
 type ConversationMessage = {
@@ -54,157 +81,34 @@ function isConversationMessage(value: unknown): value is ConversationMessage {
   return extractMessageText(value.message) !== null;
 }
 
-export default function Home() {
-  return (
-    <ConversationProvider>
-      <VoiceAgentDemo />
-    </ConversationProvider>
-  );
-}
-
-function VoiceAgentDemo() {
-  const [agentIdInput, setAgentIdInput] = useState("");
-  const [agentLookupError, setAgentLookupError] = useState<string | null>(null);
-  const [agentLookupOk, setAgentLookupOk] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
-  const [creating, setCreating] = useState(false);
-  const [sessionError, setSessionError] = useState<string | null>(null);
-  const [starting, setStarting] = useState(false);
-  const [lines, setLines] = useState<TranscriptLine[]>([]);
-
-  const lookupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const nextLineId = useRef(0);
-
-  const onMessage = useCallback((event: unknown) => {
-    if (!isConversationMessage(event)) {
-      return;
-    }
-
-    const text = extractMessageText(event.message)?.trim();
-    if (!text) {
-      return;
-    }
-
-    setLines(prev => {
-      const role = event.source === "ai" ? "agent" : "user";
-      const last = prev[prev.length - 1];
-
-      if (last?.role === role && last.tentative) {
-        const copy = [...prev];
-        copy[copy.length - 1] = { ...last, text, tentative: false };
-        return copy;
-      }
-
-      // The React SDK emits transcript-level messages, so append turns directly.
-      if (last && last.role === role && last.text === text) {
-        return prev;
-      }
-
-      nextLineId.current += 1;
-      return [
-        ...prev,
-        {
-          id: `line-${nextLineId.current}`,
-          role,
-          text,
-          tentative: false,
-        },
-      ];
-    });
-  }, []);
-
-  const onDebug = useCallback((event: unknown) => {
-    if (
-      !isRecord(event) ||
-      event.type !== "internal_tentative_agent_response"
-    ) {
-      return;
-    }
-
-    const payload = event.tentative_agent_response_internal_event;
-    if (!isRecord(payload)) {
-      return;
-    }
-
-    const text =
-      typeof payload.tentative_agent_response === "string"
-        ? payload.tentative_agent_response.trim()
-        : "";
-
-    if (!text) {
-      return;
-    }
-
-    setLines(prev => {
-      const last = prev[prev.length - 1];
-      if (last?.role === "agent" && last.tentative) {
-        const copy = [...prev];
-        copy[copy.length - 1] = { ...last, text };
-        return copy;
-      }
-
-      nextLineId.current += 1;
-      return [
-        ...prev,
-        {
-          id: `line-${nextLineId.current}`,
-          role: "agent",
-          text,
-          tentative: true,
-        },
-      ];
-    });
-  }, []);
-
-  const conversation = useConversation({
-    onMessage,
-    onDebug,
-    onError: (e: unknown) => {
-      setSessionError(e instanceof Error ? e.message : String(e));
-    },
-    onDisconnect: () => {
-      setStarting(false);
-    },
-  });
+function VoiceAgentPage({
+  agentIdInput,
+  agentLookupError,
+  agentLookupOk,
+  createError,
+  creating,
+  lines,
+  nextLineId,
+  sessionError,
+  setAgentIdInput,
+  setAgentLookupError,
+  setAgentLookupOk,
+  setCreateError,
+  setCreating,
+  setLines,
+  setSessionError,
+  setStarting,
+  starting,
+}: VoiceAgentPageProps) {
+  const { startSession, endSession } = useConversationControls();
+  const { status, message } = useConversationStatus();
 
   const trimmedId = agentIdInput.trim();
   const canStart = trimmedId.length > 0 && !starting;
+  const sessionActive = status === "connected" || status === "connecting";
 
-  useEffect(() => {
-    if (!trimmedId) {
-      setAgentLookupOk(false);
-      setAgentLookupError(null);
-      return;
-    }
-
-    if (lookupTimer.current) clearTimeout(lookupTimer.current);
-    lookupTimer.current = setTimeout(async () => {
-      setAgentLookupError(null);
-      setAgentLookupOk(false);
-      try {
-        const res = await fetch(
-          `/api/agent?agentId=${encodeURIComponent(trimmedId)}`
-        );
-        const data = await res.json();
-        if (!res.ok) {
-          setAgentLookupError(
-            typeof data.error === "string" ? data.error : "Agent lookup failed"
-          );
-          return;
-        }
-        setAgentLookupOk(true);
-      } catch {
-        setAgentLookupError("Network error while loading agent.");
-      }
-    }, 450);
-
-    return () => {
-      if (lookupTimer.current) clearTimeout(lookupTimer.current);
-    };
-  }, [trimmedId]);
-
-  const statusLabel = useMemo(() => {
-    switch (conversation.status) {
+  const statusLabel = (() => {
+    switch (status) {
       case "connected":
         return "Connected";
       case "connecting":
@@ -212,15 +116,19 @@ function VoiceAgentDemo() {
       case "disconnected":
         return "Disconnected";
       case "error":
-        return conversation.message?.trim()
-          ? `Error: ${conversation.message}`
-          : "Error";
+        return message?.trim() ? `Error: ${message}` : "Error";
       default: {
-        const _exhaustive: never = conversation.status;
-        return _exhaustive;
+        const exhaustiveStatus: never = status;
+        return exhaustiveStatus;
       }
     }
-  }, [conversation.status, conversation.message]);
+  })();
+
+  function handleAgentIdChange(value: string) {
+    setAgentIdInput(value);
+    setAgentLookupError(null);
+    setAgentLookupOk(false);
+  }
 
   async function handleCreateAgent() {
     setCreateError(null);
@@ -236,8 +144,8 @@ function VoiceAgentDemo() {
       }
       const id = data.agentId as string;
       setAgentIdInput(id);
-      setAgentLookupOk(true);
       setAgentLookupError(null);
+      setAgentLookupOk(true);
     } catch {
       setCreateError("Network error while creating agent.");
     } finally {
@@ -248,18 +156,15 @@ function VoiceAgentDemo() {
   async function handleToggleSession() {
     setSessionError(null);
 
-    if (
-      conversation.status === "connected" ||
-      conversation.status === "connecting" ||
-      conversation.status === "error"
-    ) {
-      await conversation.endSession();
+    if (sessionActive) {
+      endSession();
       setStarting(false);
       return;
     }
 
-    const id = agentIdInput.trim();
-    if (!id) return;
+    if (!trimmedId) {
+      return;
+    }
 
     setStarting(true);
     nextLineId.current = 0;
@@ -275,7 +180,7 @@ function VoiceAgentDemo() {
 
     try {
       const res = await fetch(
-        `/api/conversation-token?agentId=${encodeURIComponent(id)}`
+        `/api/conversation-token?agentId=${encodeURIComponent(trimmedId)}`
       );
       const data = await res.json();
       if (!res.ok) {
@@ -288,20 +193,15 @@ function VoiceAgentDemo() {
         return;
       }
       const token = data.token as string;
-      await conversation.startSession({
+      await startSession({
         conversationToken: token,
-        connectionType: "webrtc",
       });
-    } catch (e) {
-      setSessionError(e instanceof Error ? e.message : String(e));
+    } catch (error) {
+      setSessionError(error instanceof Error ? error.message : String(error));
     } finally {
       setStarting(false);
     }
   }
-
-  const sessionActive =
-    conversation.status === "connected" ||
-    conversation.status === "connecting";
 
   return (
     <main className="min-h-screen bg-white text-neutral-900">
@@ -311,7 +211,7 @@ function VoiceAgentDemo() {
             Voice agent
           </h1>
           <p className="text-sm text-neutral-500">
-            Talk in real time with an ElevenLabs conversational agent (WebRTC).
+            Talk in real time with an ElevenLabs conversational agent.
           </p>
         </header>
 
@@ -326,7 +226,7 @@ function VoiceAgentDemo() {
                 className="w-full rounded-md border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-neutral-400"
                 placeholder="Paste or create an agent id"
                 value={agentIdInput}
-                onChange={e => setAgentIdInput(e.target.value)}
+                onChange={event => handleAgentIdChange(event.target.value)}
               />
               {agentLookupError ? (
                 <p className="text-xs text-red-600">{agentLookupError}</p>
@@ -404,5 +304,172 @@ function VoiceAgentDemo() {
         </section>
       </div>
     </main>
+  );
+}
+
+export default function Home() {
+  const [agentIdInput, setAgentIdInput] = useState("");
+  const [agentLookupError, setAgentLookupError] = useState<string | null>(null);
+  const [agentLookupOk, setAgentLookupOk] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [sessionError, setSessionError] = useState<string | null>(null);
+  const [starting, setStarting] = useState(false);
+  const [lines, setLines] = useState<TranscriptLine[]>([]);
+
+  const lookupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const nextLineId = useRef(0);
+
+  const trimmedId = agentIdInput.trim();
+
+  useEffect(() => {
+    if (lookupTimer.current) {
+      clearTimeout(lookupTimer.current);
+    }
+
+    if (!trimmedId) {
+      return;
+    }
+
+    lookupTimer.current = setTimeout(async () => {
+      setAgentLookupError(null);
+      setAgentLookupOk(false);
+      try {
+        const res = await fetch(
+          `/api/agent?agentId=${encodeURIComponent(trimmedId)}`
+        );
+        const data = await res.json();
+        if (!res.ok) {
+          setAgentLookupError(
+            typeof data.error === "string" ? data.error : "Agent lookup failed"
+          );
+          return;
+        }
+        setAgentLookupOk(true);
+      } catch {
+        setAgentLookupError("Network error while loading agent.");
+      }
+    }, 450);
+
+    return () => {
+      if (lookupTimer.current) {
+        clearTimeout(lookupTimer.current);
+      }
+    };
+  }, [trimmedId]);
+
+  const handleMessage = useCallback((event: unknown) => {
+    if (!isConversationMessage(event)) {
+      return;
+    }
+
+    const text = extractMessageText(event.message)?.trim();
+    if (!text) {
+      return;
+    }
+
+    setLines(prev => {
+      const role = event.source === "ai" ? "agent" : "user";
+      const last = prev[prev.length - 1];
+
+      if (last?.role === role && last.tentative) {
+        const copy = [...prev];
+        copy[copy.length - 1] = { ...last, text, tentative: false };
+        return copy;
+      }
+
+      if (last && last.role === role && last.text === text) {
+        return prev;
+      }
+
+      nextLineId.current += 1;
+      return [
+        ...prev,
+        {
+          id: `line-${nextLineId.current}`,
+          role,
+          text,
+          tentative: false,
+        },
+      ];
+    });
+  }, []);
+
+  const handleDebug = useCallback((event: unknown) => {
+    if (
+      !isRecord(event) ||
+      event.type !== "internal_tentative_agent_response"
+    ) {
+      return;
+    }
+
+    const payload = event.tentative_agent_response_internal_event;
+    if (!isRecord(payload)) {
+      return;
+    }
+
+    const text =
+      typeof payload.tentative_agent_response === "string"
+        ? payload.tentative_agent_response.trim()
+        : "";
+
+    if (!text) {
+      return;
+    }
+
+    setLines(prev => {
+      const last = prev[prev.length - 1];
+      if (last?.role === "agent" && last.tentative) {
+        const copy = [...prev];
+        copy[copy.length - 1] = { ...last, text };
+        return copy;
+      }
+
+      nextLineId.current += 1;
+      return [
+        ...prev,
+        {
+          id: `line-${nextLineId.current}`,
+          role: "agent",
+          text,
+          tentative: true,
+        },
+      ];
+    });
+  }, []);
+
+  return (
+    <ConversationProvider
+      onConnect={() => setSessionError(null)}
+      onDebug={handleDebug}
+      onDisconnect={() => {
+        setSessionError(null);
+        setStarting(false);
+      }}
+      onError={(error: unknown) => {
+        setSessionError(error instanceof Error ? error.message : String(error));
+      }}
+      onMessage={handleMessage}
+    >
+      <VoiceAgentPage
+        agentIdInput={agentIdInput}
+        agentLookupError={agentLookupError}
+        agentLookupOk={agentLookupOk}
+        createError={createError}
+        creating={creating}
+        lines={lines}
+        nextLineId={nextLineId}
+        sessionError={sessionError}
+        setAgentIdInput={setAgentIdInput}
+        setAgentLookupError={setAgentLookupError}
+        setAgentLookupOk={setAgentLookupOk}
+        setCreateError={setCreateError}
+        setCreating={setCreating}
+        setLines={setLines}
+        setSessionError={setSessionError}
+        setStarting={setStarting}
+        starting={starting}
+      />
+    </ConversationProvider>
   );
 }

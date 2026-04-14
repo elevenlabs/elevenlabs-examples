@@ -9,8 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@elevenlabs/elevenlabs-js": "^2.40.0",
-    "@elevenlabs/react": "^0.15.0",
+    "@elevenlabs/elevenlabs-js": "^2.43.0",
+    "@elevenlabs/react": "^1.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.575.0",
