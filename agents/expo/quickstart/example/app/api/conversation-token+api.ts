@@ -20,12 +20,12 @@ export async function GET(request: Request) {
 
   try {
     const client = new ElevenLabsClient({ apiKey });
-    const signed = await client.conversationalAi.conversations.getSignedUrl({
+    const result = await client.conversationalAi.conversations.getWebrtcToken({
       agentId: agentId.trim(),
     });
-    return Response.json({ signedUrl: signed.signedUrl });
+    return Response.json({ token: result.token });
   } catch (e) {
-    const message = e instanceof Error ? e.message : "Failed to get signed URL";
+    const message = e instanceof Error ? e.message : "Failed to get token";
     return Response.json({ error: message }, { status: 500 });
   }
 }

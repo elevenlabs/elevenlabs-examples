@@ -13,9 +13,8 @@ Secure Expo Router API route that creates or loads a voice agent. Never expose `
 
 ## `app/api/conversation-token+api.ts`
 
-Secure GET endpoint that returns a signed WebSocket URL for a given `agentId` using `getSignedUrl`.
-Never expose `ELEVENLABS_API_KEY` to the client. Return `{ signedUrl }` as JSON.
-Do NOT use `getWebrtcToken` — WebRTC does not work reliably in the Expo web runtime.
+Secure GET endpoint that returns a WebRTC conversation token for a given `agentId` using `getWebrtcToken`.
+Never expose `ELEVENLABS_API_KEY` to the client. Return `{ token }` as JSON.
 
 ## `app/index.tsx`
 
@@ -23,7 +22,7 @@ Minimal Expo Router voice agent screen.
 
 - Use `@elevenlabs/react` and the `useConversation` hook for the web experience.
 - Show a `Create Agent` button and an editable agent-id input. Auto-populate on create; allow pasting a different id to load it instead.
-- Start sessions with a signed URL from `/api/conversation-token` using `startSession({ signedUrl })`. Do NOT pass `connectionType: "webrtc"`. Request mic access before starting.
+- Start WebRTC sessions with a token from `/api/conversation-token` using `startSession({ conversationToken, connectionType: "webrtc" })`. Request mic access before starting.
 - Show a Start/Stop toggle, connection status, and running conversation transcript (append messages, don't replace).
 - Handle errors gracefully and allow reconnect. Keep the UI simple and voice-first.
 - Keep the verified path web-first: use relative fetch calls for Expo web, and render a brief native fallback note instead of attempting an unsupported in-app server flow.

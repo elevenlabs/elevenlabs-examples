@@ -120,16 +120,19 @@ function VoiceAgentPanel() {
         `/api/conversation-token?agentId=${encodeURIComponent(agentId.trim())}`
       );
       const data = (await response.json()) as {
-        signedUrl?: string;
+        token?: string;
         error?: string;
       };
       if (!response.ok) {
         throw new Error(data.error ?? `Request failed (${response.status})`);
       }
-      if (!data.signedUrl) {
-        throw new Error("Missing signedUrl in response");
+      if (!data.token) {
+        throw new Error("Missing token in response");
       }
-      await startSession({ signedUrl: data.signedUrl });
+      await startSession({
+        conversationToken: data.token,
+        connectionType: "webrtc",
+      });
     } catch (e) {
       setApiError(e instanceof Error ? e.message : "Failed to start session");
     } finally {
