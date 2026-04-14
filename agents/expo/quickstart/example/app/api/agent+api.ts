@@ -51,8 +51,9 @@ export async function POST() {
   }
 
   try {
+    const agentName = "Expo Voice Agent";
     const created = await res.client.conversationalAi.agents.create({
-      name: "Expo Voice Agent",
+      name: agentName,
       enableVersioning: true,
       conversationConfig: voiceFirstConversationConfig(),
       platformSettings: {
@@ -64,10 +65,9 @@ export async function POST() {
       },
     });
 
-    const agent = await res.client.conversationalAi.agents.get(created.agentId);
     return Response.json({
       agentId: created.agentId,
-      agentName: agent.name,
+      agentName,
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Failed to create agent";
