@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "Real-Time Voice Agent",
+    "slug": "realtime-voice-agent-expo",
+    "scheme": "realtime-voice-agent-expo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "web": {
+      "output": "server"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
