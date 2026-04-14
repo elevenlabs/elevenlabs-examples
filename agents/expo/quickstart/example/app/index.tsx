@@ -10,10 +10,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  ConversationProvider,
-  useConversation,
-} from "@elevenlabs/react";
+import { ConversationProvider, useConversation } from "@elevenlabs/react";
 
 type TranscriptLine = {
   key: string;
@@ -27,7 +24,7 @@ function VoiceAgentPanel() {
   const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
   const [apiError, setApiError] = useState<string | null>(null);
   const [busy, setBusy] = useState<"idle" | "create" | "load" | "token">(
-    "idle",
+    "idle"
   );
 
   const {
@@ -36,8 +33,8 @@ function VoiceAgentPanel() {
     status,
     message: statusMessage,
   } = useConversation({
-    onMessage: (props) => {
-      setTranscript((prev) => [
+    onMessage: props => {
+      setTranscript(prev => [
         ...prev,
         {
           key: `${props.event_id ?? Date.now()}-${prev.length}`,
@@ -86,7 +83,7 @@ function VoiceAgentPanel() {
     setApiError(null);
     try {
       const response = await fetch(
-        `/api/agent?agentId=${encodeURIComponent(agentId.trim())}`,
+        `/api/agent?agentId=${encodeURIComponent(agentId.trim())}`
       );
       const data = (await response.json()) as {
         agentId?: string;
@@ -120,7 +117,7 @@ function VoiceAgentPanel() {
         await navigator.mediaDevices.getUserMedia({ audio: true });
       }
       const response = await fetch(
-        `/api/conversation-token?agentId=${encodeURIComponent(agentId.trim())}`,
+        `/api/conversation-token?agentId=${encodeURIComponent(agentId.trim())}`
       );
       const data = (await response.json()) as {
         signedUrl?: string;
@@ -156,7 +153,7 @@ function VoiceAgentPanel() {
       <TextInput
         autoCapitalize="none"
         autoCorrect={false}
-        onChangeText={(t) => {
+        onChangeText={t => {
           setAgentId(t);
           clearConversationError();
         }}
@@ -198,9 +195,7 @@ function VoiceAgentPanel() {
         </Pressable>
       </View>
 
-      {agentName ? (
-        <Text style={styles.meta}>Loaded: {agentName}</Text>
-      ) : null}
+      {agentName ? <Text style={styles.meta}>Loaded: {agentName}</Text> : null}
 
       <Pressable
         accessibilityRole="button"
@@ -236,7 +231,7 @@ function VoiceAgentPanel() {
             Messages appear here during a conversation.
           </Text>
         ) : (
-          transcript.map((line) => (
+          transcript.map(line => (
             <Text key={line.key} style={styles.transcriptLine}>
               <Text style={styles.transcriptRole}>
                 {line.role === "user" ? "You" : "Agent"}:{" "}
@@ -273,7 +268,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.screen}>
       <ConversationProvider
-        onError={(msg) => {
+        onError={msg => {
           console.error("Conversation error:", msg);
           setProviderError(msg);
         }}

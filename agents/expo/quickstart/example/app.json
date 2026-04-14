@@ -8,9 +8,7 @@
     "web": {
       "output": "server"
     },
-    "plugins": [
-      "expo-router"
-    ],
+    "plugins": ["expo-router"],
     "experiments": {
       "typedRoutes": true
     }

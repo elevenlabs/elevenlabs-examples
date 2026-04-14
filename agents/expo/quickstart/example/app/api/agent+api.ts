@@ -5,7 +5,12 @@ import type { ConversationalConfig } from "@elevenlabs/elevenlabs-js/api/types/C
 function getClient() {
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) {
-    return { error: Response.json({ error: "Missing ELEVENLABS_API_KEY" }, { status: 500 }) };
+    return {
+      error: Response.json(
+        { error: "Missing ELEVENLABS_API_KEY" },
+        { status: 500 }
+      ),
+    };
   }
   return { client: new ElevenLabsClient({ apiKey }) };
 }
@@ -79,7 +84,10 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const agentId = url.searchParams.get("agentId");
   if (!agentId?.trim()) {
-    return Response.json({ error: "Missing agentId query parameter" }, { status: 400 });
+    return Response.json(
+      { error: "Missing agentId query parameter" },
+      { status: 400 }
+    );
   }
 
   try {

@@ -3,13 +3,19 @@ import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 export async function GET(request: Request) {
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) {
-    return Response.json({ error: "Missing ELEVENLABS_API_KEY" }, { status: 500 });
+    return Response.json(
+      { error: "Missing ELEVENLABS_API_KEY" },
+      { status: 500 }
+    );
   }
 
   const url = new URL(request.url);
   const agentId = url.searchParams.get("agentId");
   if (!agentId?.trim()) {
-    return Response.json({ error: "Missing agentId query parameter" }, { status: 400 });
+    return Response.json(
+      { error: "Missing agentId query parameter" },
+      { status: 400 }
+    );
   }
 
   try {
