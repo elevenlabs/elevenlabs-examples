@@ -88,6 +88,7 @@ export function useRealtimeSession() {
   const recorderRef = useRef<WavRecorder | null>(null);
   const playerRef = useRef<WavStreamPlayer | null>(null);
   const eventIdRef = useRef(0);
+  const attemptRef = useRef(0);
 
   const logEvent = useCallback((type: string, summary?: string) => {
     const entry: RealtimeEventLogEntry = {
@@ -100,7 +101,8 @@ export function useRealtimeSession() {
   }, []);
 
   const teardown = useCallback(async () => {
-    // Detach before the first await so a concurrent start() can't have its refs torn down.
+    // Detach and invalidate any in-flight start() before the first await.
+    attemptRef.current += 1;
     const recorder = recorderRef.current;
     const player = playerRef.current;
     const session = sessionRef.current;
@@ -169,6 +171,8 @@ export function useRealtimeSession() {
 
   const start = useCallback(async () => {
     if (sessionRef.current) return;
+    const attempt = (attemptRef.current += 1);
+    const isStale = () => attemptRef.current !== attempt;
     setError(null);
     setTranscript([]);
     setSessionInfo(null);
@@ -230,14 +234,17 @@ export function useRealtimeSession() {
       });
 
       await session.connect({ apiKey: body.value });
+      if (isStale()) return;
 
       // wavtools types `mono` as Int16Array, but at runtime it is already the PCM16 ArrayBuffer.
       await recorder.record(data => {
         session.sendAudio(data.mono as unknown as ArrayBuffer);
       });
+      if (isStale()) return;
 
       setStatus("connected");
     } catch (err) {
+      if (isStale()) return;
       setError(err instanceof Error ? err.message : String(err));
       await teardown();
       setStatus("disconnected");
