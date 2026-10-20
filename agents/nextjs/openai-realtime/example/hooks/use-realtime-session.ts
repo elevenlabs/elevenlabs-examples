@@ -88,7 +88,8 @@ export function useRealtimeSession() {
   const recorderRef = useRef<WavRecorder | null>(null);
   const playerRef = useRef<WavStreamPlayer | null>(null);
   const eventIdRef = useRef(0);
-  const attemptRef = useRef(0);
+  const latestStartRef = useRef(0);
+  const activeStartRef = useRef(0);
 
   const logEvent = useCallback((type: string, summary?: string) => {
     const entry: RealtimeEventLogEntry = {
@@ -102,7 +103,7 @@ export function useRealtimeSession() {
 
   const teardown = useCallback(async () => {
     // Detach and invalidate any in-flight start() before the first await.
-    attemptRef.current += 1;
+    activeStartRef.current = 0;
     const recorder = recorderRef.current;
     const player = playerRef.current;
     const session = sessionRef.current;
@@ -171,8 +172,9 @@ export function useRealtimeSession() {
 
   const start = useCallback(async () => {
     if (sessionRef.current) return;
-    const attempt = (attemptRef.current += 1);
-    const isStale = () => attemptRef.current !== attempt;
+    const id = (latestStartRef.current += 1);
+    activeStartRef.current = id;
+    const isStale = () => activeStartRef.current !== id;
     setError(null);
     setTranscript([]);
     setSessionInfo(null);
@@ -244,8 +246,10 @@ export function useRealtimeSession() {
 
       setStatus("connected");
     } catch (err) {
+      if (latestStartRef.current === id) {
+        setError(err instanceof Error ? err.message : String(err));
+      }
       if (isStale()) return;
-      setError(err instanceof Error ? err.message : String(err));
       await teardown();
       setStatus("disconnected");
     }
