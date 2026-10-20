@@ -7,7 +7,7 @@ import {
   type TransportEvent,
 } from "@openai/agents-realtime";
 import { useCallback, useRef, useState } from "react";
-import type { WavRecorder, WavStreamPlayer } from "wavtools";
+import { WavRecorder, WavStreamPlayer } from "wavtools";
 
 import {
   AGENT_INSTRUCTIONS,
@@ -100,20 +100,26 @@ export function useRealtimeSession() {
   }, []);
 
   const teardown = useCallback(async () => {
-    try {
-      await recorderRef.current?.quit();
-    } catch {}
+    const recorder = recorderRef.current;
     recorderRef.current = null;
-
+    const recorderContext: unknown = recorder?.source?.context;
     try {
-      playerRef.current?.interrupt();
+      await recorder?.quit();
     } catch {}
+    await closeAudioContext(recorderContext);
+
+    const player = playerRef.current;
     playerRef.current = null;
-
     try {
-      sessionRef.current?.close();
+      await player?.interrupt();
     } catch {}
+    await closeAudioContext(player?.context);
+
+    const session = sessionRef.current;
     sessionRef.current = null;
+    try {
+      session?.close();
+    } catch {}
 
     setIsUserSpeaking(false);
     setIsAssistantSpeaking(false);
@@ -171,6 +177,15 @@ export function useRealtimeSession() {
     setStatus("connecting");
 
     try {
+      // The SDK only wires audio for WebRTC, so capture and play PCM16 ourselves over WebSocket.
+      const player = new WavStreamPlayer({ sampleRate: AUDIO_SAMPLE_RATE });
+      const recorder = new WavRecorder({ sampleRate: AUDIO_SAMPLE_RATE });
+      playerRef.current = player;
+      recorderRef.current = recorder;
+      // Connect the player before any other await so Safari creates its AudioContext within the click.
+      await player.connect();
+      await recorder.begin();
+
       const tokenResponse = await fetch("/api/token");
       const body: { value?: string; error?: string } = await tokenResponse
         .json()
@@ -180,15 +195,6 @@ export function useRealtimeSession() {
           body.error ?? `Token request failed (${tokenResponse.status}).`
         );
       }
-
-      // The SDK only wires audio for WebRTC, so capture and play PCM16 ourselves over WebSocket.
-      const { WavRecorder, WavStreamPlayer } = await import("wavtools");
-      const recorder = new WavRecorder({ sampleRate: AUDIO_SAMPLE_RATE });
-      const player = new WavStreamPlayer({ sampleRate: AUDIO_SAMPLE_RATE });
-      await recorder.begin();
-      await player.connect();
-      recorderRef.current = recorder;
-      playerRef.current = player;
 
       const agent = new RealtimeAgent({
         name: "ElevenLabs agent",
@@ -215,6 +221,11 @@ export function useRealtimeSession() {
       session.on("audio_stopped", () => setIsAssistantSpeaking(false));
       session.on("error", event => setError(extractErrorMessage(event)));
       session.on("transport_event", handleTransportEvent);
+      session.transport.on("connection_change", connectionStatus => {
+        if (connectionStatus !== "disconnected") return;
+        if (sessionRef.current !== session) return;
+        void teardown().then(() => setStatus("disconnected"));
+      });
 
       await session.connect({ apiKey: body.value });
 
@@ -249,6 +260,13 @@ export function useRealtimeSession() {
     start,
     stop,
   };
+}
+
+async function closeAudioContext(context: unknown) {
+  if (!(context instanceof AudioContext) || context.state === "closed") return;
+  try {
+    await context.close();
+  } catch {}
 }
 
 function updateTranscript(
