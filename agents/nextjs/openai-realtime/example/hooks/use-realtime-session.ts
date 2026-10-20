@@ -100,30 +100,31 @@ export function useRealtimeSession() {
   }, []);
 
   const teardown = useCallback(async () => {
+    // Detach before the first await so a concurrent start() can't have its refs torn down.
     const recorder = recorderRef.current;
+    const player = playerRef.current;
+    const session = sessionRef.current;
     recorderRef.current = null;
+    playerRef.current = null;
+    sessionRef.current = null;
+    setIsUserSpeaking(false);
+    setIsAssistantSpeaking(false);
+    setIsResponding(false);
+
     const recorderContext: unknown = recorder?.source?.context;
     try {
       await recorder?.quit();
     } catch {}
     await closeAudioContext(recorderContext);
 
-    const player = playerRef.current;
-    playerRef.current = null;
     try {
       await player?.interrupt();
     } catch {}
     await closeAudioContext(player?.context);
 
-    const session = sessionRef.current;
-    sessionRef.current = null;
     try {
       session?.close();
     } catch {}
-
-    setIsUserSpeaking(false);
-    setIsAssistantSpeaking(false);
-    setIsResponding(false);
   }, []);
 
   const handleTransportEvent = useCallback(
@@ -224,7 +225,8 @@ export function useRealtimeSession() {
       session.transport.on("connection_change", connectionStatus => {
         if (connectionStatus !== "disconnected") return;
         if (sessionRef.current !== session) return;
-        void teardown().then(() => setStatus("disconnected"));
+        setStatus("disconnected");
+        void teardown();
       });
 
       await session.connect({ apiKey: body.value });
