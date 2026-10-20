@@ -20,7 +20,11 @@ import {
 export type SessionStatus = "disconnected" | "connecting" | "connected";
 
 export type ResponseStatus =
-  "in_progress" | "completed" | "cancelled" | "incomplete" | "failed";
+  | "in_progress"
+  | "completed"
+  | "cancelled"
+  | "incomplete"
+  | "failed";
 
 const RESPONSE_STATUSES = new Set<string>([
   "in_progress",
