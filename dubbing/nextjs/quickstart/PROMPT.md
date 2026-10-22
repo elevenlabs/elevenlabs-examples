@@ -1,4 +1,4 @@
-Before writing any code, invoke the `/text-to-speech` skill to learn the correct ElevenLabs SDK patterns.
+Before writing any code, invoke the `/dubbing` skill to learn the correct ElevenLabs SDK patterns.
 
 This example uses the Dubbing Projects API (dubbing v2): a **project** holds the source media and its transcript, and each **language target** produces one dubbed output in a single language.
 
