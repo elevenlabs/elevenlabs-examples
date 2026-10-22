@@ -445,7 +445,7 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
         fi
         preamble+="${setup_detail}. Check SDK signatures against the packages installed in \`example/\` instead of searching the web or other directories."$'\n\n'
       fi
-      preamble+="Implement in \`example/\` only."
+      preamble+="Implement in \`example/\` only. Verify with typecheck and lint only; do not start dev servers, run browsers, or install extra tooling, because this run has a fixed time limit."
       if [[ -f "${REPO_ROOT}/DESIGN.md" ]]; then
         preamble+=$'\n\n'"Read \`DESIGN.md\` at the repo root for styling rules. Preserve any existing template header and layout container."
       fi
