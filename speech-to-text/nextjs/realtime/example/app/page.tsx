@@ -1,13 +1,25 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useScribe, CommitStrategy } from "@elevenlabs/react";
 import { LiveWaveform } from "@/components/ui/live-waveform";
+
+type CommittedEntry = {
+  id: number;
+  text: string;
+};
+
+function errorMessage(err: unknown, fallback: string): string {
+  return err instanceof Error && err.message ? err.message : fallback;
+}
 
 export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [partialTranscript, setPartialTranscript] = useState("");
-  const [committedHistory, setCommittedHistory] = useState<string[]>([]);
+  const [committedHistory, setCommittedHistory] = useState<CommittedEntry[]>(
+    []
+  );
+  const nextEntryIdRef = useRef(0);
 
   const scribe = useScribe({
     modelId: "scribe_v2_realtime",
@@ -18,43 +30,58 @@ export default function Home() {
       setPartialTranscript(data.text || "");
     },
     onCommittedTranscript: data => {
-      if (data.text && data.text.trim()) {
-        setCommittedHistory(prev => [data.text, ...prev]);
+      const text = data.text?.trim();
+      if (text) {
+        const id = nextEntryIdRef.current++;
+        setCommittedHistory(prev => [{ id, text }, ...prev]);
       }
+      setPartialTranscript("");
+    },
+    onDisconnect: () => {
       setPartialTranscript("");
     },
     onError: err => {
       console.error("Scribe error:", err);
-      setError("Connection error occurred. Please try again.");
+      setPartialTranscript("");
+      setError(
+        errorMessage(err, "Connection error occurred. Please try again.")
+      );
     },
   });
 
-  useEffect(() => {
-    if (scribe.status === "disconnected" || scribe.status === "error") {
-      setPartialTranscript("");
-    }
-  }, [scribe.status]);
-
-  // Check both connected and transcribing states to properly show active status
+  // Status moves to "transcribing" while speech is processed, so both states mean the session is live.
   const isActive =
     scribe.status === "connected" || scribe.status === "transcribing";
   const isConnecting = scribe.status === "connecting";
+
+  const statusLabel =
+    scribe.status === "connecting"
+      ? "Connecting"
+      : scribe.status === "transcribing"
+        ? "Transcribing"
+        : scribe.status === "connected"
+          ? "Connected"
+          : scribe.status === "error"
+            ? "Error"
+            : "Disconnected";
 
   const handleStart = useCallback(async () => {
     try {
       setError(null);
       setPartialTranscript("");
 
-      // Fetch a fresh single-use token from our API
+      // Tokens are single-use, so fetch a fresh one for every session.
       const response = await fetch("/api/scribe-token");
-      if (!response.ok) {
-        throw new Error("Failed to get transcription token");
+      const body = (await response.json().catch(() => null)) as {
+        token?: string;
+        error?: string;
+      } | null;
+      if (!response.ok || !body?.token) {
+        throw new Error(body?.error || "Failed to get transcription token");
       }
-      const { token } = await response.json();
 
-      // Connect with microphone access
       await scribe.connect({
-        token,
+        token: body.token,
         microphone: {
           echoCancellation: true,
           noiseSuppression: true,
@@ -64,7 +91,10 @@ export default function Home() {
     } catch (err) {
       console.error("Failed to start transcription:", err);
       setError(
-        "Failed to start transcription. Please check your permissions and try again."
+        errorMessage(
+          err,
+          "Failed to start transcription. Please check your permissions and try again."
+        )
       );
     }
   }, [scribe]);
@@ -98,106 +128,76 @@ export default function Home() {
           </p>
         </header>
 
-        <div className="mt-8 space-y-6">
-          {/* Controls */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+        <div className="mt-10 space-y-8">
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={handleToggle}
+              disabled={isConnecting}
+              className={
+                isConnecting
+                  ? "cursor-not-allowed rounded-md bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-400"
+                  : isActive
+                    ? "rounded-md border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-900"
+                    : "rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white"
+              }
+            >
+              {isConnecting ? "Connecting…" : isActive ? "Stop" : "Start"}
+            </button>
+            {committedHistory.length > 0 ? (
               <button
-                onClick={handleToggle}
-                disabled={isConnecting}
-                className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-red-500 text-white hover:bg-red-600"
-                    : isConnecting
-                      ? "bg-neutral-200 text-neutral-400 cursor-not-allowed"
-                      : "bg-neutral-900 text-white hover:bg-neutral-800"
-                }`}
+                type="button"
+                onClick={handleClearHistory}
+                className="rounded-md px-4 py-2 text-sm font-medium text-neutral-500"
               >
-                {isConnecting ? "Connecting..." : isActive ? "Stop" : "Start"}
+                Clear History
               </button>
-              {committedHistory.length > 0 && (
-                <button
-                  onClick={handleClearHistory}
-                  className="rounded-md px-4 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors"
-                >
-                  Clear History
-                </button>
-              )}
-            </div>
-            <div className="text-xs text-neutral-400">
-              {isActive ? (
-                <span className="flex items-center">
-                  <span className="mr-1.5 h-2 w-2 rounded-full bg-green-500"></span>
-                  {scribe.status === "transcribing"
-                    ? "Transcribing"
-                    : "Connected"}
-                </span>
-              ) : (
-                <span>Disconnected</span>
-              )}
-            </div>
+            ) : null}
+            <p className="text-xs text-neutral-400">{statusLabel}</p>
           </div>
 
-          {/* Error message */}
-          {error && (
-            <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+          {error ? (
+            <p className="text-sm text-red-600" role="alert">
               {error}
-            </div>
-          )}
+            </p>
+          ) : null}
 
-          {/* Live waveform */}
-          <div className="h-16">
-            <LiveWaveform
-              active={isActive}
-              processing={isActive}
-              barColor="rgb(115 115 115)"
-              fadeEdges={true}
-              fadeWidth={24}
-              height={64}
-            />
-          </div>
+          <LiveWaveform
+            active={isActive}
+            processing={isConnecting}
+            barColor="rgb(115 115 115)"
+            fadeEdges
+            fadeWidth={24}
+            height={64}
+          />
 
-          {/* Partial transcript */}
-          {(isActive || partialTranscript) && (
+          {isActive || partialTranscript ? (
             <div className="space-y-2">
-              <h2 className="text-xs text-neutral-400 uppercase tracking-wide">
-                Live Transcript
-              </h2>
-              <div className="min-h-[3rem] rounded-md border border-neutral-200 px-4 py-3">
-                <p className="text-sm text-neutral-600">
-                  {partialTranscript || (
-                    <span className="text-neutral-400">Listening...</span>
-                  )}
-                </p>
-              </div>
+              <p className="text-xs text-neutral-400">Live</p>
+              <p className="min-h-6 text-sm text-neutral-500">
+                {partialTranscript || "Listening…"}
+              </p>
             </div>
-          )}
+          ) : null}
 
-          {/* Committed transcript history */}
-          {committedHistory.length > 0 && (
-            <div className="space-y-2">
-              <h2 className="text-xs text-neutral-400 uppercase tracking-wide">
-                History
-              </h2>
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {committedHistory.map((text, index) => (
-                  <div
-                    key={index}
-                    className="rounded-md border border-neutral-200 px-4 py-3 text-sm"
-                  >
-                    {text}
-                  </div>
+          {committedHistory.length > 0 ? (
+            <div className="space-y-3">
+              <p className="text-xs text-neutral-400">History</p>
+              <div className="space-y-3">
+                {committedHistory.map(entry => (
+                  <p key={entry.id} className="text-sm text-neutral-900">
+                    {entry.text}
+                  </p>
                 ))}
               </div>
             </div>
-          )}
+          ) : null}
 
-          {/* Instructions when not started */}
-          {!isActive && !isConnecting && committedHistory.length === 0 && (
-            <div className="text-center py-12 text-sm text-neutral-500">
-              Click "Start" to begin transcribing audio from your microphone.
-            </div>
-          )}
+          {!isActive && !isConnecting && committedHistory.length === 0 ? (
+            <p className="text-sm text-neutral-500">
+              Click Start to transcribe audio from your microphone.
+            </p>
+          ) : null}
         </div>
       </div>
     </main>
