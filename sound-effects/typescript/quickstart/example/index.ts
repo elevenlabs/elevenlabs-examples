@@ -3,6 +3,7 @@ import { ElevenLabsClient, ElevenLabsError } from "@elevenlabs/elevenlabs-js";
 import { createWriteStream } from "node:fs";
 import { pipeline } from "node:stream/promises";
 import { Readable } from "node:stream";
+import type { ReadableStream as NodeReadableStream } from "node:stream/web";
 
 const DEFAULT_PROMPT = "Cinematic Braam, Horror";
 const OUTPUT_FILE = "output.mp3";
@@ -25,7 +26,10 @@ async function main(): Promise<void> {
   const client = new ElevenLabsClient();
   const audio = await client.textToSoundEffects.convert({ text });
 
-  const source = Readable.fromWeb(audio);
+  // The SDK returns the DOM ReadableStream type, which Node's typings reject.
+  const source = Readable.fromWeb(
+    audio as unknown as NodeReadableStream<Uint8Array>
+  );
   await pipeline(source, createWriteStream(OUTPUT_FILE));
 
   console.log(`Sound effect saved to ${OUTPUT_FILE}`);
