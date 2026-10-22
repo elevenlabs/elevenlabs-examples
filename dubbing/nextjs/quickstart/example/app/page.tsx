@@ -64,11 +64,14 @@ export default function Home() {
   const recordStartRef = useRef<number>(0);
 
   useEffect(() => {
-    return () => {
-      if (originalUrl) URL.revokeObjectURL(originalUrl);
-      if (dubbedUrl) URL.revokeObjectURL(dubbedUrl);
-    };
-  }, [originalUrl, dubbedUrl]);
+    if (!originalUrl) return;
+    return () => URL.revokeObjectURL(originalUrl);
+  }, [originalUrl]);
+
+  useEffect(() => {
+    if (!dubbedUrl) return;
+    return () => URL.revokeObjectURL(dubbedUrl);
+  }, [dubbedUrl]);
 
   const stopTimer = () => {
     if (timerRef.current) {
@@ -79,15 +82,9 @@ export default function Home() {
 
   const startRecording = async () => {
     setError(null);
-    setOriginalUrl(prev => {
-      if (prev) URL.revokeObjectURL(prev);
-      return null;
-    });
+    setOriginalUrl(null);
     setWavFile(null);
-    setDubbedUrl(prev => {
-      if (prev) URL.revokeObjectURL(prev);
-      return null;
-    });
+    setDubbedUrl(null);
     setProjectId(null);
 
     try {
@@ -122,10 +119,7 @@ export default function Home() {
         setPhase("preparing");
         try {
           const wav = await recordedBlobToWavFile(rawBlob);
-          setOriginalUrl(prev => {
-            if (prev) URL.revokeObjectURL(prev);
-            return URL.createObjectURL(wav);
-          });
+          setOriginalUrl(URL.createObjectURL(wav));
           setWavFile(wav);
           setPhase("idle");
         } catch (e) {
@@ -175,13 +169,10 @@ export default function Home() {
   const startDubbing = async () => {
     if (!wavFile) return;
     setError(null);
-    setDubbedUrl(prev => {
-      if (prev) URL.revokeObjectURL(prev);
-      return null;
-    });
+    setDubbedUrl(null);
     setPhase("polling");
     setProjectId(null);
-    setPollNote(null);
+    setPollNote("Transcribing your recording…");
 
     const body = new FormData();
     body.set("audio", wavFile);
@@ -264,10 +255,7 @@ export default function Home() {
             }
             const blob = await audioRes.blob();
             if (cancelled) return;
-            setDubbedUrl(prev => {
-              if (prev) URL.revokeObjectURL(prev);
-              return URL.createObjectURL(blob);
-            });
+            setDubbedUrl(URL.createObjectURL(blob));
             setPhase("ready");
           } catch (e) {
             if (!cancelled) {
@@ -320,7 +308,7 @@ export default function Home() {
       case "preparing":
         return "Preparing audio…";
       case "polling":
-        return pollNote ?? "Dubbing in progress… checking every 5s.";
+        return pollNote ?? "Transcribing your recording…";
       case "ready":
         return "Dubbing complete.";
       case "error":
@@ -448,7 +436,7 @@ export default function Home() {
                 )}
                 onClick={startDubbing}
               >
-                {phase === "polling" ? "Dubbing…" : "Dub recording"}
+                {phase === "polling" ? "Dubbing…" : "Dub Recording"}
               </button>
             </div>
           ) : null}
