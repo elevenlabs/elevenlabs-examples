@@ -1,4 +1,4 @@
-Before writing any code, invoke the `/text-to-speech` skill to learn the correct ElevenLabs SDK patterns.
+Before writing any code, invoke the `/voice-changer` skill to learn the correct ElevenLabs SDK patterns.
 
 ## 1. `app/api/voice-changer/route.ts`
 

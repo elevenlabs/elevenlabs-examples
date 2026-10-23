@@ -110,6 +110,45 @@ run_with_timeout() {
   wait "${cmd_pid}"
 }
 
+example_needs_dependencies() {
+  local example_dir="$1"
+
+  if [[ -f "${example_dir}/package.json" && ! -d "${example_dir}/node_modules" ]]; then
+    return 0
+  fi
+  if [[ -f "${example_dir}/requirements.txt" && ! -d "${example_dir}/.venv" ]]; then
+    return 0
+  fi
+  return 1
+}
+
+# Mirrors the install step at the end of each setup.sh. Partial installs are
+# removed so example_needs_dependencies stays accurate for the prompt preamble.
+install_example_dependencies() {
+  (
+    cd "$1" || exit 1
+    if [[ -f package.json && ! -d node_modules ]]; then
+      if ! pnpm install --config.confirmModulesPurge=false; then
+        rm -rf node_modules
+        exit 1
+      fi
+    fi
+    if [[ -f requirements.txt && ! -d .venv ]]; then
+      if command -v uv >/dev/null 2>&1; then
+        uv venv .venv && uv pip install --python .venv/bin/python -r requirements.txt
+      else
+        python3 -m venv .venv &&
+          .venv/bin/pip install --upgrade pip &&
+          .venv/bin/pip install -r requirements.txt
+      fi
+      if [[ $? -ne 0 ]]; then
+        rm -rf .venv
+        exit 1
+      fi
+    fi
+  )
+}
+
 format_duration() {
   local total_seconds="$1"
 
@@ -354,24 +393,45 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
     printf "[%s/%s] %s\n" "${CURRENT_PROMPT}" "${TOTAL_PROMPTS}" "${relative_project_dir}"
   fi
 
-  # Run setup script if present, but skip if example/ already exists
+  # Run setup script if present, but skip if example/ already exists.
+  # A skipped setup still needs dependencies installed for the agent to verify against.
   if [[ -f "${project_dir}/setup.sh" ]]; then
+    setup_cmd=()
+    dependency_install_only=0
     if [[ -d "${project_dir}/example" ]]; then
       if (( VERBOSE_OUTPUT == 1 )); then
         echo "Skipping setup (example/ already exists): ${relative_project_dir}/setup.sh"
+      fi
+      if example_needs_dependencies "${project_dir}/example"; then
+        if (( VERBOSE_OUTPUT == 1 )); then
+          echo "Installing dependencies: ${relative_project_dir}/example"
+        fi
+        setup_cmd=(install_example_dependencies "${project_dir}/example")
+        dependency_install_only=1
       fi
     else
       if (( VERBOSE_OUTPUT == 1 )); then
         echo "Running setup: ${relative_project_dir}/setup.sh"
       fi
+      setup_cmd=(bash "${project_dir}/setup.sh")
+    fi
+    if (( ${#setup_cmd[@]} > 0 )); then
       if (( VERBOSE_OUTPUT == 1 )); then
-        bash "${project_dir}/setup.sh"
+        "${setup_cmd[@]}"
         SETUP_EXIT=$?
       else
-        setup_output="$(bash "${project_dir}/setup.sh" 2>&1)"
+        setup_output="$("${setup_cmd[@]}" 2>&1)"
         SETUP_EXIT=$?
       fi
-      if [[ ${SETUP_EXIT} -ne 0 ]]; then
+      if [[ ${SETUP_EXIT} -ne 0 && ${dependency_install_only} -eq 1 ]]; then
+        # The agent can still verify without dependencies, just more slowly.
+        if (( VERBOSE_OUTPUT == 1 )); then
+          echo "  ! Dependency install failed; continuing without dependencies" >&2
+        else
+          echo "      ! Dependency install failed; continuing without dependencies" >&2
+          printf "%s\n" "${setup_output}" | tail -n 5 >&2
+        fi
+      elif [[ ${SETUP_EXIT} -ne 0 ]]; then
         FAILED_RUNS=$((FAILED_RUNS + 1))
         if (( VERBOSE_OUTPUT == 1 )); then
           echo "  ✗ Setup failed" >&2
@@ -398,16 +458,35 @@ for prompt_file in "${PROMPT_FILES[@]}"; do
         preamble+="IMPORTANT: Check the existing code in example/ first. Only make changes if the requirements below are not already met. If everything is already implemented correctly, confirm that no changes are needed."$'\n\n'
       fi
       if [[ -f "setup.sh" ]]; then
-        setup_detail="Prerequisite: \`setup.sh\` has already been run. \`example/\` is ready with dependencies installed"
+        dependencies_ready=1
+        if [[ -d "example" ]] && example_needs_dependencies "example"; then
+          dependencies_ready=0
+        fi
+        setup_items=()
+        if (( dependencies_ready == 1 )); then
+          setup_items+=("dependencies installed")
+        fi
         if [[ -d "assets" ]]; then
           asset_list="$(ls -1 assets/ 2>/dev/null | paste -sd ', ' -)"
           if [[ -n "${asset_list}" ]]; then
-            setup_detail+=" and sample assets (${asset_list})"
+            setup_items+=("sample assets (${asset_list})")
           fi
         fi
-        preamble+="${setup_detail}."$'\n\n'
+        setup_detail="Prerequisite: \`setup.sh\` has already been run. \`example/\` is ready"
+        if (( ${#setup_items[@]} == 2 )); then
+          setup_detail+=" with ${setup_items[0]} and ${setup_items[1]}"
+        elif (( ${#setup_items[@]} == 1 )); then
+          setup_detail+=" with ${setup_items[0]}"
+        fi
+        preamble+="${setup_detail}."
+        if (( dependencies_ready == 1 )); then
+          preamble+=" Check SDK signatures against the packages installed in \`example/\` instead of searching the web or other directories."
+        else
+          preamble+=" Its dependencies are not installed."
+        fi
+        preamble+=$'\n\n'
       fi
-      preamble+="Implement in \`example/\` only."
+      preamble+="Implement in \`example/\` only. Verify with typecheck and lint only; do not start dev servers, run browsers, or install extra tooling, because this run has a fixed time limit."
       if [[ -f "${REPO_ROOT}/DESIGN.md" ]]; then
         preamble+=$'\n\n'"Read \`DESIGN.md\` at the repo root for styling rules. Preserve any existing template header and layout container."
       fi

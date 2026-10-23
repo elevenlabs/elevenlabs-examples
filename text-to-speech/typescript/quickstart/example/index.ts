@@ -16,7 +16,7 @@ try {
   });
 
   // Collect all chunks into a buffer
-  const chunks: Buffer[] = [];
+  const chunks: Uint8Array[] = [];
   for await (const chunk of audio) {
     chunks.push(chunk);
   }

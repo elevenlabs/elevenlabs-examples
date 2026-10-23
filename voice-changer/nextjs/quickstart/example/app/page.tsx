@@ -29,14 +29,14 @@ export default function Home() {
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
 
   const [isConverting, setIsConverting] = useState(false);
-  const [convertedBlob, setConvertedBlob] = useState<Blob | null>(null);
   const [convertedUrl, setConvertedUrl] = useState<string | null>(null);
   const [convertError, setConvertError] = useState<string | null>(null);
   const [micError, setMicError] = useState<string | null>(null);
 
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const prevVoiceIdRef = useRef(voiceId);
+  // Bumped whenever a conversion result would be stale, so in-flight requests are ignored.
+  const conversionIdRef = useRef(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -65,53 +65,33 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!recordingBlob) {
-      setOriginalUrl(prev => {
-        if (prev) URL.revokeObjectURL(prev);
-        return null;
-      });
-      return;
-    }
-    const url = URL.createObjectURL(recordingBlob);
-    setOriginalUrl(prev => {
-      if (prev) URL.revokeObjectURL(prev);
-      return url;
-    });
-    return () => {
-      URL.revokeObjectURL(url);
-    };
-  }, [recordingBlob]);
+    if (!originalUrl) return;
+    return () => URL.revokeObjectURL(originalUrl);
+  }, [originalUrl]);
 
   useEffect(() => {
-    if (!convertedBlob) {
-      setConvertedUrl(prev => {
-        if (prev) URL.revokeObjectURL(prev);
-        return null;
-      });
-      return;
-    }
-    const url = URL.createObjectURL(convertedBlob);
-    setConvertedUrl(prev => {
-      if (prev) URL.revokeObjectURL(prev);
-      return url;
-    });
-    return () => {
-      URL.revokeObjectURL(url);
-    };
-  }, [convertedBlob]);
+    if (!convertedUrl) return;
+    return () => URL.revokeObjectURL(convertedUrl);
+  }, [convertedUrl]);
 
-  useEffect(() => {
-    if (prevVoiceIdRef.current !== voiceId) {
-      prevVoiceIdRef.current = voiceId;
-      setConvertedBlob(null);
-      setConvertError(null);
-    }
-  }, [voiceId]);
+  const discardConversion = useCallback(() => {
+    conversionIdRef.current += 1;
+    setConvertedUrl(null);
+    setConvertError(null);
+    setIsConverting(false);
+  }, []);
+
+  const changeVoice = useCallback(
+    (nextVoiceId: string) => {
+      setVoiceId(nextVoiceId);
+      discardConversion();
+    },
+    [discardConversion]
+  );
 
   useEffect(() => {
     if (!isRecording) return;
     const start = Date.now();
-    setRecordingElapsed(0);
     const id = window.setInterval(() => {
       setRecordingElapsed(Math.floor((Date.now() - start) / 1000));
     }, 250);
@@ -147,11 +127,13 @@ export default function Home() {
           type: recorder.mimeType || mimeType || "audio/webm",
         });
         setRecordingBlob(blob);
+        setOriginalUrl(URL.createObjectURL(blob));
         setIsRecording(false);
       };
 
       recorderRef.current = recorder;
       recorder.start();
+      setRecordingElapsed(0);
       setIsRecording(true);
     } catch (e) {
       const denied = e instanceof DOMException && e.name === "NotAllowedError";
@@ -173,16 +155,18 @@ export default function Home() {
   }, []);
 
   const recordAgain = useCallback(() => {
+    discardConversion();
     setRecordingBlob(null);
-    setConvertedBlob(null);
-    setConvertError(null);
+    setOriginalUrl(null);
     setRecordingElapsed(0);
     setMicError(null);
-  }, []);
+  }, [discardConversion]);
 
   const convertVoice = useCallback(async () => {
     if (!recordingBlob) return;
+    const conversionId = ++conversionIdRef.current;
     setIsConverting(true);
+    setConvertedUrl(null);
     setConvertError(null);
     try {
       const file = new File([recordingBlob], "recording.webm", {
@@ -211,12 +195,15 @@ export default function Home() {
       }
 
       const blob = await res.blob();
-      setConvertedBlob(blob);
+      if (conversionId !== conversionIdRef.current) return;
+      setConvertedUrl(URL.createObjectURL(blob));
     } catch (e) {
-      setConvertedBlob(null);
+      if (conversionId !== conversionIdRef.current) return;
       setConvertError(e instanceof Error ? e.message : "Conversion failed.");
     } finally {
-      setIsConverting(false);
+      if (conversionId === conversionIdRef.current) {
+        setIsConverting(false);
+      }
     }
   }, [recordingBlob, voiceId]);
 
@@ -267,7 +254,7 @@ export default function Home() {
               id="voice-select"
               disabled={voiceSelectDisabled}
               value={voiceId}
-              onChange={e => setVoiceId(e.target.value)}
+              onChange={e => changeVoice(e.target.value)}
               className="w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-neutral-900 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {voices.length === 0 ? (
@@ -361,7 +348,7 @@ export default function Home() {
 
                 {convertedUrl && !isConverting && (
                   <div className="space-y-2">
-                    <p className="text-xs text-neutral-400">Converted audio</p>
+                    <p className="text-xs text-neutral-400">Converted Audio</p>
                     <audio className="w-full" controls src={convertedUrl} />
                     <a
                       href={convertedUrl}

@@ -37,7 +37,7 @@ type VoiceAgentPageProps = {
   setSessionError: (value: string | null) => void;
   setStarting: (value: boolean) => void;
   starting: boolean;
-  nextLineId: RefObject<number>;
+  nextLineIdRef: RefObject<number>;
 };
 
 type ConversationMessage = {
@@ -88,7 +88,7 @@ function VoiceAgentPage({
   createError,
   creating,
   lines,
-  nextLineId,
+  nextLineIdRef,
   sessionError,
   setAgentIdInput,
   setAgentLookupError,
@@ -167,7 +167,7 @@ function VoiceAgentPage({
     }
 
     setStarting(true);
-    nextLineId.current = 0;
+    nextLineIdRef.current = 0;
     setLines([]);
 
     try {
@@ -458,7 +458,7 @@ export default function Home() {
         createError={createError}
         creating={creating}
         lines={lines}
-        nextLineId={nextLineId}
+        nextLineIdRef={nextLineId}
         sessionError={sessionError}
         setAgentIdInput={setAgentIdInput}
         setAgentLookupError={setAgentLookupError}
